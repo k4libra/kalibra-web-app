@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { Chip } from '@/components/ui'
+import { Chip } from './Chip'
 import type { MaterialStatus } from '@/types/course'
 import type { IconName, Tone } from '@/types/ui'
 
