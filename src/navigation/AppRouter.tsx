@@ -8,6 +8,9 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { CourseIndicatorsPage } from '@/pages/CourseIndicatorsPage'
+import { CoursesPage } from '@/pages/CoursesPage'
+import { CourseSubtopicsPage } from '@/pages/CourseSubtopicsPage'
+import { GeneratedExercisesPage } from '@/pages/GeneratedExercisesPage'
 import { InvitationsPage } from '@/pages/InvitationsPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { ROUTES } from './routes'
@@ -21,14 +24,14 @@ const router = createBrowserRouter([
     element: <ShellRoute />,
     children: [
       { index: true, element: <Navigate to={ROUTES.courses} replace /> },
-      { path: ROUTES.courses, element: <PlaceholderPage title="Mis cursos" branch="feature/course-management" /> },
-      { path: 'cursos/:courseId/subtemas', element: <PlaceholderPage title="Subtemas del curso" branch="feature/course-management" /> },
+      { path: ROUTES.courses, element: <CoursesPage /> },
+      { path: 'cursos/:courseId/subtemas', element: <CourseSubtopicsPage /> },
       { path: 'cursos/:courseId/material', element: <PlaceholderPage title="Material curricular" branch="feature/curricular-material" /> },
       { path: 'cursos/:courseId/mapa-de-brechas', element: <PlaceholderPage title="Mapa de brechas" branch="feature/student-monitoring" /> },
       { path: 'cursos/:courseId/indicadores', element: <CourseIndicatorsPage /> },
       { path: ROUTES.students, element: <PlaceholderPage title="Estudiantes" branch="feature/student-monitoring" /> },
+      { path: ROUTES.exercises, element: <GeneratedExercisesPage /> },
       { path: ROUTES.invitations, element: <InvitationsPage /> },
-      { path: ROUTES.exercises, element: <PlaceholderPage title="Ejercicios generados" branch="feature/exercise-management" /> },
     ],
   },
   { path: '*', element: <Navigate to={ROUTES.courses} replace /> },
