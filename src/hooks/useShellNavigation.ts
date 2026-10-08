@@ -15,7 +15,7 @@ import { useCurrentTeacher } from './useCurrentTeacher'
 
 // Links that cover every course.
 const GENERAL_LINKS: SidebarLink[] = [
-  { to: ROUTES.courses, label: 'Mis cursos', icon: 'school' },
+  { to: ROUTES.courses, label: 'Mis cursos', icon: 'school', end: true },
   { to: ROUTES.students, label: 'Estudiantes', icon: 'group' },
   { to: ROUTES.invitations, label: 'Invitaciones', icon: 'forward_to_inbox' },
   { to: ROUTES.exercises, label: 'Ejercicios generados', icon: 'quiz' },

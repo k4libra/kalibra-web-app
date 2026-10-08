@@ -22,6 +22,8 @@ export interface SidebarLink {
   label: string
   /** Icon before the text. */
   icon: IconName
+  /** Marks the link active only on its exact path, not on nested paths. */
+  end?: boolean
 }
 
 /**
@@ -51,7 +53,7 @@ function SidebarNavLink({ link, onNavigate }: { link: SidebarLink; onNavigate?: 
   return (
     <NavLink
       to={link.to}
-      end={false}
+      end={link.end}
       onClick={onNavigate}
       className={({ isActive }) =>
         cn(
