@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# Kalibra Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Panel web del docente de Kalibra: gestiona cursos y subtemas, ejercicios generados, invitaciones e indicadores.
 
-Currently, two official plugins are available:
+> Estado actual: **solo interfaz y navegación**. No hay integración con la API; los datos salen de servicios simulados (`src/mocks`).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack
 
-## React Compiler
+| Paquete | Versión |
+| --- | --- |
+| React / React DOM | 19.3 |
+| Vite | 7.3 |
+| TypeScript | 5.9 |
+| Tailwind CSS (`@tailwindcss/vite`) | 4.3.3 |
+| React Router | 8.4.0 |
+| Vitest + Testing Library + jsdom | 5.0.3 / 16.3.3 / 29.1.1 |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+`jsdom` se fija en 29.x porque la 30.x exige Node ≥ 24.15.
 
-## Expanding the ESLint configuration
+## Scripts
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run lint
+npm run typecheck
+npm test
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Para ver los estados vacíos (docente sin cursos, sin invitaciones, sin ejercicios) agrega `?vacio` a la URL.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Arquitectura por capas
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/ui       primitivos del sistema de diseño (Button, Modal, Select, Chip…)
+├── components/layout   AppShell, Sidebar, selector de curso activo
+├── components/<feature> componentes de cada funcionalidad
+├── pages               una página por ruta
+├── hooks               estado de cada vista; único puente hacia services
+├── services            contratos y servicios (hoy apuntan a mocks)
+├── mocks               datos de ejemplo y servicios simulados
+├── context             curso activo y toasts
+├── navigation          rutas y layout de rutas
+├── types               modelos de dominio y variantes de UI
+└── utils               funciones puras
+```
+
+- Tokens del sistema de diseño (Figma `kalibra_design_system`) en `src/index.css` (`@theme`). Mismo contenido que `src/theme/tokens.ts` de la app móvil.
+- Diseño **mobile-first**: clases base para 375 px; `md:`/`lg:` amplían. El menú lateral es un drawer bajo `lg`.
+- Los cursos y subtemas son datos: ninguna pantalla depende de un curso concreto.
+
+## Ramas
+
+Toda rama nace de `develop`.
+
+| Rama | Responsable |
+| --- | --- |
+| `feature/auth` | compañero |
+| `feature/course-management` | Gonzalo |
+| `feature/curricular-material` | compañero |
+| `feature/exercise-management` | Gonzalo |
+| `feature/student-monitoring` | compañero |
+| `feature/invitations-indicators` | Gonzalo |
+
+Las rutas de otras ramas muestran `PlaceholderPage` hasta que se integran.
