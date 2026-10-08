@@ -1,68 +1,143 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/*
+ * Global stylesheet: Tailwind entry point, design tokens from the Kalibra design system and base styles.
+ * Tokens mirror `src/theme/tokens.ts` in kalibra-mobile-app; change both at the same time.
+ */
+@import 'tailwindcss';
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@theme {
+  /* Only the colors of the design system exist. */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-primary: #4f46e5;
+  --color-primary-strong: #3525cd;
+  --color-primary-container: #e2e7ff;
+  --color-primary-container-soft: #eaedff;
+  --color-primary-subtle: #f2f3ff;
+  --color-primary-pale: #c3c0ff;
+  --color-primary-pale-soft: #e2dfff;
+
+  --color-secondary: #10b981;
+  --color-secondary-strong: #006c49;
+  --color-secondary-text: #00714d;
+  --color-secondary-container: #6cf8bb;
+  --color-secondary-accent: #4edea3;
+
+  --color-tertiary: #f59e0b;
+  --color-tertiary-strong: #684000;
+  --color-tertiary-container: #ffb95f;
+  --color-tertiary-pale: #ffddb8;
+
+  --color-danger: #ba1a1a;
+  --color-danger-strong: #93000a;
+  --color-danger-container: #ffdad6;
+
+  --color-surface-background: #faf8ff;
+  --color-surface-card: #ffffff;
+  --color-surface-code: #131b2e;
+
+  --color-content-primary: #131b2e;
+  --color-content-secondary: #464555;
+  --color-content-muted: #777587;
+  --color-content-on-primary: #ffffff;
+
+  --color-line-subtle: #eaedff;
+  --color-line-default: #e2e7ff;
+
+  /* Typography: Kalibra text styles. */
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --text-display: 26px;
+  --text-display--line-height: 32px;
+  --text-display--letter-spacing: -0.65px;
+  --text-display--font-weight: 700;
+  --text-headline-l: 20px;
+  --text-headline-l--line-height: 28px;
+  --text-headline-l--letter-spacing: -0.5px;
+  --text-headline-l--font-weight: 600;
+  --text-headline-m: 18px;
+  --text-headline-m--line-height: 24px;
+  --text-headline-m--letter-spacing: -0.45px;
+  --text-headline-m--font-weight: 600;
+  --text-title: 16px;
+  --text-title--line-height: 22px;
+  --text-title--font-weight: 600;
+  --text-body-l: 14px;
+  --text-body-l--line-height: 20px;
+  --text-body-l--font-weight: 400;
+  --text-label-l: 14px;
+  --text-label-l--line-height: 20px;
+  --text-label-l--letter-spacing: 0.14px;
+  --text-label-l--font-weight: 600;
+  --text-body-m: 12px;
+  --text-body-m--line-height: 16px;
+  --text-body-m--font-weight: 400;
+  --text-body-m-bold: 12px;
+  --text-body-m-bold--line-height: 16px;
+  --text-body-m-bold--letter-spacing: 0.24px;
+  --text-body-m-bold--font-weight: 700;
+  --text-label-m: 10px;
+  --text-label-m--line-height: 12px;
+  --text-label-m--letter-spacing: 0.4px;
+  --text-label-m--font-weight: 600;
+  --text-label-s: 10px;
+  --text-label-s--line-height: 12px;
+  --text-label-s--letter-spacing: 0.4px;
+  --text-label-s--font-weight: 700;
+
+  /* Radius and elevation. */
+  --radius-*: initial;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  --shadow-*: initial;
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-subtle: 0 1px 8px 0 rgb(0 0 0 / 0.03);
+  --shadow-raised: 0 2px 4px 0 rgb(0 0 0 / 0.1);
+  --shadow-floating: 0 4px 6px 0 rgb(0 0 0 / 0.1);
+  --shadow-nav: 0 -2px 12px 0 rgb(0 0 0 / 0.04);
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
   }
-  a:hover {
-    color: #747bff;
+
+  body {
+    @apply bg-surface-background font-sans text-body-l text-content-primary;
   }
-  button {
-    background-color: #f9f9f9;
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
   }
+}
+
+/* Material Symbols are rendered by ligature through the `Icon` primitive. */
+@utility icon-symbol {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  user-select: none;
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' 0, 'GRAD' 0, 'opsz' 24;
+}
+
+@utility icon-filled {
+  font-variation-settings: 'FILL' 1, 'GRAD' 0, 'opsz' 24;
 }
