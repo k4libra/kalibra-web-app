@@ -9,6 +9,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import { CourseSubtopicsPage } from '@/pages/CourseSubtopicsPage'
 import { CoursesPage } from '@/pages/CoursesPage'
+import { GeneratedExercisesPage } from '@/pages/GeneratedExercisesPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { ROUTES } from './routes'
 import { ShellRoute } from './ShellRoute'
@@ -28,7 +29,7 @@ const router = createBrowserRouter([
       { path: 'cursos/:courseId/indicadores', element: <PlaceholderPage title="Indicadores del curso" branch="feature/invitations-indicators" /> },
       { path: ROUTES.students, element: <PlaceholderPage title="Estudiantes" branch="feature/student-monitoring" /> },
       { path: ROUTES.invitations, element: <PlaceholderPage title="Invitaciones" branch="feature/invitations-indicators" /> },
-      { path: ROUTES.exercises, element: <PlaceholderPage title="Ejercicios generados" branch="feature/exercise-management" /> },
+      { path: ROUTES.exercises, element: <GeneratedExercisesPage /> },
     ],
   },
   { path: '*', element: <Navigate to={ROUTES.courses} replace /> },
