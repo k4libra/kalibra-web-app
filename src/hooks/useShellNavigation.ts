@@ -39,7 +39,7 @@ const GENERAL_LINKS: SidebarLink[] = [
 export function useShellNavigation() {
   const navigate = useNavigate()
   const { courseId } = useParams()
-  const { courses } = useCourses()
+  const { courses, isLoading: isLoadingCourses, refetch: refetchCourses } = useCourses()
   const { teacher } = useCurrentTeacher()
   const { activeCourseId, setActiveCourseId } = useActiveCourse()
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false)
@@ -48,6 +48,12 @@ export function useShellNavigation() {
     if (courseId && courseId !== activeCourseId) setActiveCourseId(courseId)
     else if (!activeCourseId && courses.length > 0) setActiveCourseId(courses[0].id)
   }, [courseId, activeCourseId, courses, setActiveCourseId])
+
+  // A course created after the list was loaded is not in it yet: reload once it becomes active.
+  const isActiveCourseMissing = Boolean(activeCourseId) && !isLoadingCourses && !courses.some((course) => course.id === activeCourseId)
+  useEffect(() => {
+    if (isActiveCourseMissing) refetchCourses()
+  }, [isActiveCourseMissing, refetchCourses])
 
   const activeCourse = courses.find((course) => course.id === activeCourseId) ?? null
 
