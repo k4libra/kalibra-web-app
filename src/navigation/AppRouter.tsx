@@ -7,6 +7,8 @@
 
 import { createBrowserRouter, Navigate } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
+import { CourseIndicatorsPage } from '@/pages/CourseIndicatorsPage'
+import { InvitationsPage } from '@/pages/InvitationsPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { ROUTES } from './routes'
 import { ShellRoute } from './ShellRoute'
@@ -23,9 +25,9 @@ const router = createBrowserRouter([
       { path: 'cursos/:courseId/subtemas', element: <PlaceholderPage title="Subtemas del curso" branch="feature/course-management" /> },
       { path: 'cursos/:courseId/material', element: <PlaceholderPage title="Material curricular" branch="feature/curricular-material" /> },
       { path: 'cursos/:courseId/mapa-de-brechas', element: <PlaceholderPage title="Mapa de brechas" branch="feature/student-monitoring" /> },
-      { path: 'cursos/:courseId/indicadores', element: <PlaceholderPage title="Indicadores del curso" branch="feature/invitations-indicators" /> },
+      { path: 'cursos/:courseId/indicadores', element: <CourseIndicatorsPage /> },
       { path: ROUTES.students, element: <PlaceholderPage title="Estudiantes" branch="feature/student-monitoring" /> },
-      { path: ROUTES.invitations, element: <PlaceholderPage title="Invitaciones" branch="feature/invitations-indicators" /> },
+      { path: ROUTES.invitations, element: <InvitationsPage /> },
       { path: ROUTES.exercises, element: <PlaceholderPage title="Ejercicios generados" branch="feature/exercise-management" /> },
     ],
   },
