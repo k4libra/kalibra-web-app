@@ -10,7 +10,7 @@ import { RouterProvider } from 'react-router/dom'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { ROUTES } from './routes'
 import { ShellRoute } from './ShellRoute'
-
+import { CurricularMaterialPage } from '@/pages/CurricularMaterialPage'
 // Each feature branch replaces the placeholder of the routes it owns.
 const router = createBrowserRouter([
   { path: ROUTES.signUp, element: <PlaceholderPage title="Registro de docente" branch="feature/auth" /> },
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to={ROUTES.courses} replace /> },
       { path: ROUTES.courses, element: <PlaceholderPage title="Mis cursos" branch="feature/course-management" /> },
       { path: 'cursos/:courseId/subtemas', element: <PlaceholderPage title="Subtemas del curso" branch="feature/course-management" /> },
-      { path: 'cursos/:courseId/material', element: <PlaceholderPage title="Material curricular" branch="feature/curricular-material" /> },
+      { path: 'cursos/:courseId/material', element: <CurricularMaterialPage /> },
       { path: 'cursos/:courseId/mapa-de-brechas', element: <PlaceholderPage title="Mapa de brechas" branch="feature/student-monitoring" /> },
       { path: 'cursos/:courseId/indicadores', element: <PlaceholderPage title="Indicadores del curso" branch="feature/invitations-indicators" /> },
       { path: ROUTES.students, element: <PlaceholderPage title="Estudiantes" branch="feature/student-monitoring" /> },
