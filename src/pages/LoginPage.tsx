@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { useNavigate } from "react-router";
 
 import {
     AuthLayout,
@@ -8,6 +9,7 @@ import {
 } from "../components/auth";
 
 import { useLogin } from "../hooks/useLogin";
+import { ROUTES } from "../navigation/routes";
 
 interface LoginErrors {
     email?: string;
@@ -15,6 +17,8 @@ interface LoginErrors {
 }
 
 export default function LoginPage() {
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -69,10 +73,11 @@ export default function LoginPage() {
         });
 
         if (response) {
-            // Inicio de sesión simulado exitoso.
-            // No guardamos el token ficticio ni creamos
-            // una sesión real.
             setPassword("");
+
+            // Navegación de prueba al panel docente.
+            // No se almacena el token ficticio.
+            navigate(ROUTES.courses, { replace: true });
         }
     };
 

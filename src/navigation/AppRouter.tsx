@@ -11,10 +11,13 @@ import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { ROUTES } from './routes'
 import { ShellRoute } from './ShellRoute'
 
+import RegisterPage from '@/pages/RegisterPage'
+import LoginPage from '@/pages/LoginPage'
+
 // Each feature branch replaces the placeholder of the routes it owns.
 const router = createBrowserRouter([
-  { path: ROUTES.signUp, element: <PlaceholderPage title="Registro de docente" branch="feature/auth" /> },
-  { path: ROUTES.signIn, element: <PlaceholderPage title="Inicio de sesión" branch="feature/auth" /> },
+  { path: ROUTES.signUp, element: <RegisterPage /> },
+  { path: ROUTES.signIn, element: <LoginPage /> },
   {
     element: <ShellRoute />,
     children: [
