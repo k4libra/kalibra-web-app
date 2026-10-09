@@ -11,6 +11,11 @@ import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { ROUTES } from './routes'
 import { ShellRoute } from './ShellRoute'
 
+import { StudentsPage } from '@/pages/StudentsPage'
+import { StudentProgressPage } from '@/pages/StudentProgressPage'
+import { GapMapPage } from '@/pages/GapMapPage'
+
+
 // Each feature branch replaces the placeholder of the routes it owns.
 const router = createBrowserRouter([
   { path: ROUTES.signUp, element: <PlaceholderPage title="Registro de docente" branch="feature/auth" /> },
@@ -22,9 +27,10 @@ const router = createBrowserRouter([
       { path: ROUTES.courses, element: <PlaceholderPage title="Mis cursos" branch="feature/course-management" /> },
       { path: 'cursos/:courseId/subtemas', element: <PlaceholderPage title="Subtemas del curso" branch="feature/course-management" /> },
       { path: 'cursos/:courseId/material', element: <PlaceholderPage title="Material curricular" branch="feature/curricular-material" /> },
-      { path: 'cursos/:courseId/mapa-de-brechas', element: <PlaceholderPage title="Mapa de brechas" branch="feature/student-monitoring" /> },
+      { path: 'cursos/:courseId/mapa-de-brechas', element: <GapMapPage /> },
       { path: 'cursos/:courseId/indicadores', element: <PlaceholderPage title="Indicadores del curso" branch="feature/invitations-indicators" /> },
-      { path: ROUTES.students, element: <PlaceholderPage title="Estudiantes" branch="feature/student-monitoring" /> },
+      { path: ROUTES.students, element: <StudentsPage /> },
+      { path: 'estudiantes/:studentId', element: <StudentProgressPage /> },
       { path: ROUTES.invitations, element: <PlaceholderPage title="Invitaciones" branch="feature/invitations-indicators" /> },
       { path: ROUTES.exercises, element: <PlaceholderPage title="Ejercicios generados" branch="feature/exercise-management" /> },
     ],
