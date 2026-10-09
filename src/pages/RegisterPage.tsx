@@ -7,6 +7,8 @@ import {
     AuthForm,
 } from "../components/auth";
 
+import { useRegister } from "../hooks/useRegister";
+
 interface RegisterErrors {
     email?: string;
     password?: string;
@@ -19,21 +21,32 @@ export default function RegisterPage() {
     const [confirmPassword, setConfirmPassword] = useState("");
 
     const [errors, setErrors] = useState<RegisterErrors>({});
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
-    const [loading, setLoading] = useState(false);
+
+    const {
+        register,
+        loading,
+        error,
+        success,
+        clearError,
+        reset,
+    } = useRegister();
 
     const validateForm = (): boolean => {
         const newErrors: RegisterErrors = {};
 
         if (!email.trim()) {
-            newErrors.email = "El correo electrónico es obligatorio.";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-            newErrors.email = "Ingresa un correo electrónico válido.";
+            newErrors.email =
+                "El correo electrónico es obligatorio.";
+        } else if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+        ) {
+            newErrors.email =
+                "Ingresa un correo electrónico válido.";
         }
 
         if (!password) {
-            newErrors.password = "La contraseña es obligatoria.";
+            newErrors.password =
+                "La contraseña es obligatoria.";
         } else if (password.length < 8) {
             newErrors.password =
                 "La contraseña debe tener al menos 8 caracteres.";
@@ -52,31 +65,30 @@ export default function RegisterPage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (
+        event: FormEvent<HTMLFormElement>
+    ) => {
         event.preventDefault();
 
-        setError("");
-        setSuccess("");
+        reset();
 
         if (!validateForm()) {
             return;
         }
 
-        setLoading(true);
+        const response = await register({
+            email: email.trim().toLowerCase(),
+            password,
+            confirmPassword,
+        });
 
-        // Simulación temporal para probar el estado de correo duplicado.
-        // Se reemplazará por auth.service.ts cuando conectemos la API.
-        if (email.trim().toLowerCase() === "docente@kalibra.com") {
-            setError("Este correo electrónico ya está registrado.");
-            setLoading(false);
-            return;
+        if (response) {
+            // El registro se completó en el mock.
+            // Aquí podremos gestionar la navegación
+            // cuando se integre el flujo real.
+            setPassword("");
+            setConfirmPassword("");
         }
-
-        setSuccess(
-            "Formulario validado correctamente. El registro estará disponible cuando se conecte la API."
-        );
-
-        setLoading(false);
     };
 
     return (
@@ -91,33 +103,43 @@ export default function RegisterPage() {
                 confirmPassword={confirmPassword}
                 onEmailChange={(value) => {
                     setEmail(value);
+
                     setErrors((previous) => ({
                         ...previous,
                         email: undefined,
                     }));
+
+                    clearError();
                 }}
                 onPasswordChange={(value) => {
                     setPassword(value);
+
                     setErrors((previous) => ({
                         ...previous,
                         password: undefined,
                     }));
+
+                    clearError();
                 }}
                 onConfirmPasswordChange={(value) => {
                     setConfirmPassword(value);
+
                     setErrors((previous) => ({
                         ...previous,
                         confirmPassword: undefined,
                     }));
+
+                    clearError();
                 }}
                 onSubmit={handleSubmit}
                 loading={loading}
                 error={error}
-                success={success}
-                onDismissAlert={() => {
-                    setError("");
-                    setSuccess("");
-                }}
+                success={
+                    success
+                        ? "Cuenta de prueba registrada correctamente."
+                        : undefined
+                }
+                onDismissAlert={reset}
                 emailError={errors.email}
                 passwordError={errors.password}
                 confirmPasswordError={errors.confirmPassword}

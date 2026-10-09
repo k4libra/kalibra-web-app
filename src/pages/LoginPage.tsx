@@ -7,6 +7,8 @@ import {
     AuthForm,
 } from "../components/auth";
 
+import { useLogin } from "../hooks/useLogin";
+
 interface LoginErrors {
     email?: string;
     password?: string;
@@ -17,20 +19,32 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
 
     const [errors, setErrors] = useState<LoginErrors>({});
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+
+    const {
+        login,
+        loading,
+        error,
+        success,
+        clearError,
+        reset,
+    } = useLogin();
 
     const validateForm = (): boolean => {
         const newErrors: LoginErrors = {};
 
         if (!email.trim()) {
-            newErrors.email = "El correo electrónico es obligatorio.";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-            newErrors.email = "Ingresa un correo electrónico válido.";
+            newErrors.email =
+                "El correo electrónico es obligatorio.";
+        } else if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+        ) {
+            newErrors.email =
+                "Ingresa un correo electrónico válido.";
         }
 
         if (!password) {
-            newErrors.password = "La contraseña es obligatoria.";
+            newErrors.password =
+                "La contraseña es obligatoria.";
         }
 
         setErrors(newErrors);
@@ -38,24 +52,28 @@ export default function LoginPage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (
+        event: FormEvent<HTMLFormElement>
+    ) => {
         event.preventDefault();
 
-        setError("");
+        reset();
 
         if (!validateForm()) {
             return;
         }
 
-        setLoading(true);
+        const response = await login({
+            email: email.trim().toLowerCase(),
+            password,
+        });
 
-        // Simulación temporal:
-        // Hasta conectar la API no se autentica ningún usuario.
-        setError(
-            "No se pudo iniciar sesión. El servicio de autenticación aún no está conectado."
-        );
-
-        setLoading(false);
+        if (response) {
+            // Inicio de sesión simulado exitoso.
+            // No guardamos el token ficticio ni creamos
+            // una sesión real.
+            setPassword("");
+        }
     };
 
     return (
@@ -69,24 +87,33 @@ export default function LoginPage() {
                 password={password}
                 onEmailChange={(value) => {
                     setEmail(value);
+
                     setErrors((previous) => ({
                         ...previous,
                         email: undefined,
                     }));
-                    setError("");
+
+                    clearError();
                 }}
                 onPasswordChange={(value) => {
                     setPassword(value);
+
                     setErrors((previous) => ({
                         ...previous,
                         password: undefined,
                     }));
-                    setError("");
+
+                    clearError();
                 }}
                 onSubmit={handleSubmit}
                 loading={loading}
                 error={error}
-                onDismissAlert={() => setError("")}
+                success={
+                    success
+                        ? "Inicio de sesión de prueba exitoso."
+                        : undefined
+                }
+                onDismissAlert={reset}
                 emailError={errors.email}
                 passwordError={errors.password}
                 footer={
