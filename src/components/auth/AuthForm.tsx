@@ -7,10 +7,14 @@ import AuthAlert from "./AuthAlert";
 interface AuthFormProps {
     mode: "login" | "register";
 
+    firstName?: string;
+    lastName?: string;
     email: string;
     password: string;
     confirmPassword?: string;
 
+    onFirstNameChange?: (value: string) => void;
+    onLastNameChange?: (value: string) => void;
     onEmailChange: (value: string) => void;
     onPasswordChange: (value: string) => void;
     onConfirmPasswordChange?: (value: string) => void;
@@ -22,6 +26,8 @@ interface AuthFormProps {
     success?: string;
     onDismissAlert?: () => void;
 
+    firstNameError?: string;
+    lastNameError?: string;
     emailError?: string;
     passwordError?: string;
     confirmPasswordError?: string;
@@ -31,9 +37,13 @@ interface AuthFormProps {
 
 export default function AuthForm({
                                      mode,
+                                     firstName = "",
+                                     lastName = "",
                                      email,
                                      password,
                                      confirmPassword = "",
+                                     onFirstNameChange,
+                                     onLastNameChange,
                                      onEmailChange,
                                      onPasswordChange,
                                      onConfirmPasswordChange,
@@ -42,6 +52,8 @@ export default function AuthForm({
                                      error,
                                      success,
                                      onDismissAlert,
+                                     firstNameError,
+                                     lastNameError,
                                      emailError,
                                      passwordError,
                                      confirmPasswordError,
@@ -49,11 +61,20 @@ export default function AuthForm({
                                  }: AuthFormProps) {
     const isRegister = mode === "register";
 
+    const inputClass = (hasError: boolean) =>
+        `w-full rounded-lg border bg-white px-4 py-3 text-sm outline-none transition ${
+            hasError
+                ? "border-red-500 focus:border-red-500"
+                : "border-gray-300 focus:border-indigo-600"
+        } disabled:cursor-not-allowed disabled:bg-gray-100`;
+
     return (
         <div className="w-full">
             <div className="mb-8">
                 <h2 className="text-3xl font-bold text-gray-900">
-                    {isRegister ? "Crear cuenta de docente" : "Bienvenido de nuevo"}
+                    {isRegister
+                        ? "Crear cuenta de docente"
+                        : "Bienvenido de nuevo"}
                 </h2>
 
                 <p className="mt-3 text-sm text-gray-500">
@@ -80,6 +101,90 @@ export default function AuthForm({
                     />
                 )}
 
+                {isRegister && (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label
+                                htmlFor="auth-first-name"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
+                                Nombre
+                            </label>
+
+                            <input
+                                id="auth-first-name"
+                                name="firstName"
+                                type="text"
+                                value={firstName}
+                                onChange={(event) =>
+                                    onFirstNameChange?.(event.target.value)
+                                }
+                                placeholder="Tu nombre"
+                                autoComplete="given-name"
+                                maxLength={100}
+                                disabled={loading}
+                                aria-invalid={Boolean(firstNameError)}
+                                aria-describedby={
+                                    firstNameError
+                                        ? "auth-first-name-error"
+                                        : undefined
+                                }
+                                className={inputClass(Boolean(firstNameError))}
+                            />
+
+                            {firstNameError && (
+                                <p
+                                    id="auth-first-name-error"
+                                    role="alert"
+                                    className="mt-1 text-xs text-red-500"
+                                >
+                                    {firstNameError}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="auth-last-name"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
+                                Apellido
+                            </label>
+
+                            <input
+                                id="auth-last-name"
+                                name="lastName"
+                                type="text"
+                                value={lastName}
+                                onChange={(event) =>
+                                    onLastNameChange?.(event.target.value)
+                                }
+                                placeholder="Tu apellido"
+                                autoComplete="family-name"
+                                maxLength={100}
+                                disabled={loading}
+                                aria-invalid={Boolean(lastNameError)}
+                                aria-describedby={
+                                    lastNameError
+                                        ? "auth-last-name-error"
+                                        : undefined
+                                }
+                                className={inputClass(Boolean(lastNameError))}
+                            />
+
+                            {lastNameError && (
+                                <p
+                                    id="auth-last-name-error"
+                                    role="alert"
+                                    className="mt-1 text-xs text-red-500"
+                                >
+                                    {lastNameError}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 <div>
                     <label
                         htmlFor="auth-email"
@@ -93,19 +198,18 @@ export default function AuthForm({
                         name="email"
                         type="email"
                         value={email}
-                        onChange={(event) => onEmailChange(event.target.value)}
+                        onChange={(event) =>
+                            onEmailChange(event.target.value)
+                        }
                         placeholder="docente@universidad.edu.pe"
                         autoComplete="email"
+                        maxLength={100}
                         disabled={loading}
                         aria-invalid={Boolean(emailError)}
                         aria-describedby={
                             emailError ? "auth-email-error" : undefined
                         }
-                        className={`w-full rounded-lg border bg-white px-4 py-3 text-sm outline-none transition ${
-                            emailError
-                                ? "border-red-500 focus:border-red-500"
-                                : "border-gray-300 focus:border-indigo-600"
-                        } disabled:cursor-not-allowed disabled:bg-gray-100`}
+                        className={inputClass(Boolean(emailError))}
                     />
 
                     {emailError && (
@@ -137,7 +241,9 @@ export default function AuthForm({
                         id="auth-confirm-password"
                         label="Confirmar contraseña"
                         value={confirmPassword}
-                        onChange={(value) => onConfirmPasswordChange?.(value)}
+                        onChange={(value) =>
+                            onConfirmPasswordChange?.(value)
+                        }
                         placeholder="Confirma tu contraseña"
                         autoComplete="new-password"
                         error={confirmPasswordError}
