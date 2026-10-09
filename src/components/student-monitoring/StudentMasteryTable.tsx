@@ -1,59 +1,53 @@
 
-/**
- * Individual student mastery table.
- *
- * @remarks
- * Displays estimated mastery, resolved exercises
- * and correct answers for each course subtopic.
- *
- * Reuses ProgressBar from the develop design system.
- *
- * @packageDocumentation
- */
-
-import { ProgressBar } from '@/components/ui'
-
 import type { Subtopic } from '@/types/course'
 import type { StudentSubtopicMastery } from '@/types/studentMonitoring'
 
-import { MasteryBadge, getMasteryLevel } from './MasteryBadge'
-
-/**
- * Props accepted by StudentMasteryTable.
- */
 export interface StudentMasteryTableProps {
     subtopics: Subtopic[]
     masteryRecords: StudentSubtopicMastery[]
 }
 
-/**
- * Returns the progress bar tone based on mastery.
- */
-function getProgressTone(
-    mastery: number | null,
-): 'success' | 'warning' | 'danger' | 'neutral' {
-    const level = getMasteryLevel(mastery)
+function getMasteryStyle(mastery: number | null) {
+    if (mastery === null) {
+        return {
+            label: 'Sin datos',
+            badge: 'bg-[#E4E8FF] text-[#626B89]',
+            bar: 'bg-[#E4E8FF]',
+            icon: '⌛',
+        }
+    }
 
-    switch (level) {
-        case 'high':
-            return 'success'
-        case 'medium':
-            return 'warning'
-        case 'low':
-            return 'danger'
-        default:
-            return 'neutral'
+    if (mastery < 40) {
+        return {
+            label: 'Dominio bajo',
+            badge: 'bg-[#FFD9D7] text-[#B91C1C]',
+            bar: 'bg-[#C91E22]',
+            icon: '↘',
+        }
+    }
+
+    if (mastery <= 70) {
+        return {
+            label: 'Dominio medio',
+            badge: 'bg-[#FFDCB7] text-[#805013]',
+            bar: 'bg-[#F59E0B]',
+            icon: '→',
+        }
+    }
+
+    return {
+        label: 'Dominio alto',
+        badge: 'bg-[#66F2BD] text-[#075E43]',
+        bar: 'bg-[#047857]',
+        icon: '↗',
     }
 }
 
-/**
- * Displays the student's progress for every subtopic.
- */
 export function StudentMasteryTable({
                                         subtopics,
                                         masteryRecords,
                                     }: StudentMasteryTableProps) {
-    const recordsBySubtopic = new Map(
+    const records = new Map(
         masteryRecords.map((record) => [
             record.subtopicId,
             record,
@@ -65,110 +59,80 @@ export function StudentMasteryTable({
     )
 
     return (
-        <section
-            aria-label="Dominio por subtema"
-            className="overflow-hidden rounded-xl border border-line-default bg-surface-background"
-        >
-            <div className="border-b border-line-default px-5 py-4">
-                <h2 className="text-lg font-semibold text-content-primary">
-                    Dominio por subtema
+        <section className="rounded-[16px] bg-white px-5 py-5 shadow-[0_1px_2px_rgba(30,35,80,0.04)]">
+            <div className="border-b border-[#E7EAFE] pb-4">
+                <h2 className="text-[15px] font-semibold text-[#141A33]">
+                    Dominio estimado por subtema
                 </h2>
 
-                <p className="mt-1 text-sm text-content-secondary">
-                    Desempeño estimado a partir de los ejercicios resueltos.
+                <p className="mt-1 text-[11px] text-[#60657A]">
+                    Se actualiza con cada respuesta que el estudiante envía
                 </p>
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="w-full min-w-[760px] text-left">
-                    <thead className="bg-surface-secondary">
-                    <tr className="text-xs font-semibold uppercase tracking-wide text-content-secondary">
-                        <th scope="col" className="px-5 py-4">
-                            Subtema
-                        </th>
-
-                        <th scope="col" className="px-5 py-4">
-                            Dominio estimado
-                        </th>
-
-                        <th scope="col" className="px-5 py-4 text-center">
-                            Ejercicios resueltos
-                        </th>
-
-                        <th scope="col" className="px-5 py-4 text-center">
-                            Respuestas correctas
-                        </th>
-
-                        <th scope="col" className="px-5 py-4">
-                            Nivel
-                        </th>
-                    </tr>
-                    </thead>
-
-                    <tbody className="divide-y divide-line-default">
+            {orderedSubtopics.length === 0 ? (
+                <p className="py-8 text-center text-sm text-[#60657A]">
+                    Este curso todavía no tiene subtemas registrados.
+                </p>
+            ) : (
+                <div className="divide-y divide-[#E7EAFE]">
                     {orderedSubtopics.map((subtopic) => {
-                        const record = recordsBySubtopic.get(subtopic.id)
-
+                        const record = records.get(subtopic.id)
                         const mastery = record?.mastery ?? null
-                        const resolvedExercises =
-                            record?.resolvedExercises ?? 0
-                        const correctAnswers =
-                            record?.correctAnswers ?? 0
+                        const resolved = record?.resolvedExercises ?? 0
+                        const style = getMasteryStyle(mastery)
 
                         return (
-                            <tr
+                            <div
                                 key={subtopic.id}
-                                className="hover:bg-surface-secondary"
+                                className="grid grid-cols-1 items-center gap-3 py-[15px] md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.25fr)_40px_105px_75px]"
                             >
-                                {/* Subtopic */}
-                                <td className="px-5 py-4">
-                                    <p className="font-medium text-content-primary">
-                                        {subtopic.name}
-                                    </p>
-                                </td>
+                                <h3 className="text-[12px] font-medium text-[#141A33]">
+                                    {subtopic.name}
+                                </h3>
 
-                                {/* Estimated mastery */}
-                                <td className="px-5 py-4">
-                                    <div className="flex min-w-[150px] flex-col gap-2">
-                      <span className="text-sm font-semibold text-content-primary">
-                        {mastery === null
-                            ? 'Sin datos'
-                            : `${Math.round(mastery)}%`}
-                      </span>
+                                <div
+                                    role="progressbar"
+                                    aria-label={`Dominio de ${subtopic.name}`}
+                                    aria-valuemin={0}
+                                    aria-valuemax={100}
+                                    aria-valuenow={mastery ?? undefined}
+                                    aria-valuetext={
+                                        mastery === null
+                                            ? 'Sin datos'
+                                            : `${Math.round(mastery)}%`
+                                    }
+                                    className="h-[9px] overflow-hidden rounded-full bg-[#E4E8FF]"
+                                >
+                                    <div
+                                        className={`h-full rounded-full ${style.bar}`}
+                                        style={{
+                                            width: `${Math.max(0, Math.min(100, mastery ?? 0))}%`,
+                                        }}
+                                    />
+                                </div>
 
-                                        <ProgressBar
-                                            value={mastery}
-                                            label={`Dominio de ${subtopic.name}`}
-                                            tone={getProgressTone(mastery)}
-                                            size="sm"
-                                        />
-                                    </div>
-                                </td>
+                                <span className="text-right text-[12px] font-semibold text-[#141A33]">
+                  {mastery === null
+                      ? '—'
+                      : `${Math.round(mastery)}%`}
+                </span>
 
-                                {/* Resolved exercises */}
-                                <td className="px-5 py-4 text-center text-sm text-content-primary">
-                                    {resolvedExercises}
-                                </td>
+                                <span
+                                    className={`inline-flex w-fit items-center justify-center gap-1 whitespace-nowrap rounded-[5px] px-2 py-[4px] text-[10px] font-semibold ${style.badge}`}
+                                >
+                  <span>{style.icon}</span>
+                                    {style.label}
+                </span>
 
-                                {/* Correct answers */}
-                                <td className="px-5 py-4 text-center text-sm text-content-primary">
-                                    {correctAnswers}
-                                </td>
-
-                                {/* Mastery level */}
-                                <td className="px-5 py-4">
-                                    <MasteryBadge mastery={mastery} />
-                                </td>
-                            </tr>
+                                <span className="text-right text-[10px] text-[#60657A]">
+                  {resolved > 0
+                      ? `${resolved} ejercicios`
+                      : 'Sin ejercicios'}
+                </span>
+                            </div>
                         )
                     })}
-                    </tbody>
-                </table>
-            </div>
-
-            {orderedSubtopics.length === 0 && (
-                <div className="px-5 py-10 text-center text-sm text-content-secondary">
-                    Este curso todavía no tiene subtemas registrados.
                 </div>
             )}
         </section>
