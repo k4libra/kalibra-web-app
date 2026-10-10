@@ -19,7 +19,10 @@ export const studentMonitoringService: StudentMonitoringServiceContract = {
     const [rosters, [report, gap]] = await Promise.all([apiClient.get<RosterDto[]>('/course-rosters', { signal }), measurements(courseId, signal)])
     const roster = rosters.find((item) => item.courseId === courseId)
     if (!roster) throw new ApiError('not-found', 'No se encontró el curso solicitado.', 404)
-    return roster.students.map((student) => mapStudent(student, courseId, report, gap))
+    return Promise.all(roster.students.map(async (student) => {
+      const progress = await apiClient.get<ProgressDto>(`/courses/${courseId}/student-progress?studentId=${encodeURIComponent(student.studentId)}`, { signal })
+      return mapStudent(student, courseId, report, gap, progress.lastActivityAt)
+    }))
   },
   async getStudentProgress(studentId, courseId, signal) {
     const rosters = await apiClient.get<RosterDto[]>('/course-rosters', { signal })

@@ -24,6 +24,9 @@ describe('student monitoring compositions', () => {
   it('opens progress from a roster and distinguishes no activity from low mastery', async () => {
     const onViewProgress = vi.fn()
     render(<CourseStudentsGroup course={COURSES[0]} students={STUDENTS} updatedAt="2025-09-15T10:15:00" onViewProgress={onViewProgress} />)
+    expect(screen.getByText('Hoy, 09:48')).toBeInTheDocument()
+    expect(screen.getByText('Sin actividad')).toBeInTheDocument()
+    expect(screen.queryByText('Fecha no disponible')).not.toBeInTheDocument()
     expect(screen.getByRole('progressbar', { name: `Dominio de ${STUDENTS[0].fullName}` })).toHaveAttribute('aria-valuenow', '62')
     expect(screen.getByRole('progressbar', { name: `Dominio de ${STUDENTS[2].fullName}` })).not.toHaveAttribute('aria-valuenow')
     await userEvent.click(screen.getAllByRole('button', { name: 'Ver progreso' })[2])

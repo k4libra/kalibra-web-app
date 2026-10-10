@@ -87,11 +87,11 @@ describe('DTO mappers', () => {
   it('maps invitation timestamps and server lifecycle without applying a local expiry scenario', () => {
     expect(mapInvitation({ id: 'invitation', courseId: 'course', invitedEmail: roster.students[0].email, status: 'PENDING', sentAt: '2026-10-10T10:00:00Z', expiresAt: '2026-10-13T10:00:00Z' })).toMatchObject({ status: 'pending', email: roster.students[0].email })
   })
-  it('preserves feedback and omits unsupported response correctness, activity timestamps and recommendations', () => {
+  it('preserves feedback and omits unsupported response correctness and recommendations', () => {
     const student = mapStudent(roster.students[0], course.id, report, gap)
     expect(student).toMatchObject({ averageMastery: 30, correctAnswers: 4, resolvedExercises: 5, lastActivityAt: null })
-    const progress = mapProgress({ courseId: course.id, studentId: student.id, hasActivity: true, subtopics: [{ subtopicId: 'topic', subtopicName: 'Tema', mastery: 30, level: 'LOW', solvedCount: 5 }], recentFeedback: ['Retroalimentación real'] }, student)
-    expect(progress).toMatchObject({ recentResponses: [], reinforcementSubtopicIds: [], recentFeedback: ['Retroalimentación real'] })
+    const progress = mapProgress({ courseId: course.id, studentId: student.id, hasActivity: true, lastActivityAt: '2026-10-10T14:30:00Z', subtopics: [{ subtopicId: 'topic', subtopicName: 'Tema', mastery: 30, level: 'LOW', solvedCount: 5 }], recentFeedback: ['Retroalimentación real'] }, student)
+    expect(progress).toMatchObject({ student: { lastActivityAt: '2026-10-10T14:30:00Z' }, recentResponses: [], reinforcementSubtopicIds: [], recentFeedback: ['Retroalimentación real'] })
     expect(progress.subtopics[0].correctAnswers).toBeNull()
   })
   it('counts active student identities once and treats unmeasured subtopics as null', () => {

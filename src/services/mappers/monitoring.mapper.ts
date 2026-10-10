@@ -10,16 +10,16 @@ import type { CourseGapMap, MonitoredStudent, StudentProgress } from '@/types/st
 import { initials, profileName } from '@/services/mappers/auth.mapper'
 import { average } from '@/services/mappers/courses.mapper'
 /** Joins enrollment identity with measured answer counts and mastery cells. */
-export function mapStudent(dto: RosterStudentDto, courseId: string, report: IndicatorsDto, gap: GapMapDto): MonitoredStudent {
+export function mapStudent(dto: RosterStudentDto, courseId: string, report: IndicatorsDto, gap: GapMapDto, lastActivityAt: string | null = null): MonitoredStudent {
   const answers = report.accuracy.perStudent.find((item) => item.studentId === dto.studentId)
   const fullName = profileName(dto)
   return { id: dto.studentId, courseId, fullName, email: dto.email, initials: initials(fullName), enrolledAt: dto.enrolledAt,
     resolvedExercises: answers?.submitted ?? 0, correctAnswers: answers?.correct ?? 0,
-    averageMastery: average(gap.students.filter((cell) => cell.studentId === dto.studentId).map((cell) => cell.mastery)), lastActivityAt: null }
+    averageMastery: average(gap.students.filter((cell) => cell.studentId === dto.studentId).map((cell) => cell.mastery)), lastActivityAt }
 }
 /** Preserves feedback text; absent correctness and recommendations remain unavailable. */
 export function mapProgress(dto: ProgressDto, student: MonitoredStudent): StudentProgress {
-  return { student: { ...student, resolvedExercises: dto.subtopics.reduce((sum, item) => sum + item.solvedCount, 0), averageMastery: average(dto.subtopics.map((item) => item.mastery)) },
+  return { student: { ...student, lastActivityAt: dto.lastActivityAt, resolvedExercises: dto.subtopics.reduce((sum, item) => sum + item.solvedCount, 0), averageMastery: average(dto.subtopics.map((item) => item.mastery)) },
     subtopics: dto.subtopics.map((item) => ({ studentId: dto.studentId, subtopicId: item.subtopicId, mastery: item.mastery, resolvedExercises: item.solvedCount, correctAnswers: null })),
     recentResponses: [], reinforcementSubtopicIds: [], recentFeedback: dto.recentFeedback }
 }
