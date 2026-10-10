@@ -1,80 +1,14 @@
-
 /**
- * Service implementation for curricular material management.
+ * Selects the mock implementation behind the material service contract.
  *
- * @remarks
- * Provides the operations required by the curricular
- * material feature.
- *
- * Currently delegates requests to an in-memory mock.
- * A future REST implementation can replace this
- * dependency without changing the service contract.
- *
+ * @author MRamirez202210582
  * @packageDocumentation
  */
 
-import type {
-    CurricularMaterial,
-    CurricularMaterialStats,
-    UploadCurricularMaterialRequest,
-} from '@/types/curricularMaterial'
-
-import type {
-    CurricularMaterialServiceContract,
-} from './curricularMaterial.contract'
-
-import {
-    listCurricularMaterials,
-    getCurricularMaterialStats,
-    uploadCurricularMaterial,
-} from '@/mocks/curricularMaterial.mock'
+import { curricularMaterialMock } from '@/mocks/curricularMaterial.mock'
+import type { CurricularMaterialServiceContract } from '@/services/curricularMaterial.contract'
 
 /**
- * Service responsible for curricular material operations.
+ * Provides material reads and uploads; swap the implementation here when HTTP is available.
  */
-class CurricularMaterialService
-    implements CurricularMaterialServiceContract {
-
-    /**
-     * Retrieves the materials associated with a course.
-     *
-     * @param courseId - Selected course identifier.
-     * @returns Materials belonging to the course.
-     */
-    getByCourse(
-        courseId: string,
-    ): Promise<CurricularMaterial[]> {
-        return listCurricularMaterials(courseId)
-    }
-
-    /**
-     * Retrieves the material status counters.
-     *
-     * @param courseId - Selected course identifier.
-     * @returns Material statistics.
-     */
-    getStats(
-        courseId: string,
-    ): Promise<CurricularMaterialStats> {
-        return getCurricularMaterialStats(courseId)
-    }
-
-    /**
-     * Uploads or replaces a material for a subtopic.
-     *
-     * @param request - Course, subtopic and selected file.
-     * @returns Created or updated material.
-     */
-    upload(
-        request: UploadCurricularMaterialRequest,
-    ): Promise<CurricularMaterial> {
-        return uploadCurricularMaterial(request)
-    }
-}
-
-/**
- * Shared service instance used by the frontend.
- */
-export const curricularMaterialService:
-    CurricularMaterialServiceContract =
-    new CurricularMaterialService()
+export const curricularMaterialService: CurricularMaterialServiceContract = curricularMaterialMock

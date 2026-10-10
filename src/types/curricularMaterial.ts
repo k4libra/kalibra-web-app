@@ -1,4 +1,3 @@
-
 /**
  * Domain types for the curricular material feature.
  *
@@ -6,10 +5,11 @@
  * These types describe the data required by the teacher
  * interface and prepare the feature for a future REST API.
  *
+ * @author MRamirez202210582
  * @packageDocumentation
  */
 
-import type { MaterialStatus, Subtopic } from './course'
+import type { MaterialStatus, Subtopic } from '@/types/course'
 
 /**
  * File formats accepted by the curricular material uploader.
@@ -46,6 +46,9 @@ export interface CurricularMaterial {
     /** Number of pages, when available. */
     pageCount?: number
 
+    /** Whether source metadata identifies this image as a scan. */
+    isScan?: boolean
+
     /** Date when the material was uploaded. */
     uploadedAt: string
 
@@ -68,8 +71,11 @@ export interface CurricularMaterial {
  * REST API is available.
  */
 export interface UploadCurricularMaterialRequest {
+    /** Course whose material is being uploaded. */
     courseId: string
+    /** Subtopic receiving the upload. */
     subtopicId: string
+    /** Native file whose metadata is submitted. */
     file: File
 }
 
@@ -77,7 +83,9 @@ export interface UploadCurricularMaterialRequest {
  * Data used to display the material upload form.
  */
 export interface MaterialUploadForm {
+    /** Subtopic receiving the upload. */
     subtopicId: string
+    /** Selected native file, or no selection yet. */
     file: File | null
 }
 
@@ -85,9 +93,13 @@ export interface MaterialUploadForm {
  * Counters displayed at the top of the material page.
  */
 export interface CurricularMaterialStats {
+    /** Number of material records. */
     total: number
+    /** Number of records ready for generation. */
     ready: number
+    /** Number of records waiting for ingestion. */
     processing: number
+    /** Number of records requiring replacement. */
     error: number
 }
 
@@ -98,7 +110,9 @@ export interface CurricularMaterialStats {
  * This is a frontend view model, not a database entity.
  */
 export interface CurricularMaterialRow {
+    /** Material metadata of the row. */
     material: CurricularMaterial
+    /** Associated subtopic of the row. */
     subtopic: Subtopic
 }
 
@@ -114,7 +128,9 @@ export type MaterialValidationErrorCode =
  * Validation error displayed in the upload modal.
  */
 export interface MaterialValidationError {
+    /** Constraint that failed validation. */
     code: MaterialValidationErrorCode
+    /** Spanish validation message displayed to the teacher. */
     message: string
 }
 
