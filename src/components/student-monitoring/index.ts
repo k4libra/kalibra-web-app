@@ -1,20 +1,12 @@
-
 /**
- * Public exports for student monitoring components.
+ * Public components of the student monitoring feature.
  *
+ * @author MRamirez202210582
  * @packageDocumentation
  */
 
-export {
-    MasteryBadge,
-    getMasteryLevel,
-} from './MasteryBadge'
-
-export { StudentTable } from './StudentTable'
-export { SubtopicPriorityList } from './SubtopicPriorityList'
-export { StudentMasteryTable } from './StudentMasteryTable'
-
-export type { MasteryBadgeProps } from './MasteryBadge'
-export type { StudentTableProps } from './StudentTable'
-export type { SubtopicPriorityListProps } from './SubtopicPriorityList'
-export type { StudentMasteryTableProps } from './StudentMasteryTable'
+export { CourseStudentsGroup, type CourseStudentsGroupProps } from './CourseStudentsGroup'
+export { StudentTable, type StudentTableProps } from './StudentTable'
+export { StudentMasteryTable, type StudentMasteryTableProps } from './StudentMasteryTable'
+export { SubtopicPriorityList, type SubtopicPriorityListProps } from './SubtopicPriorityList'
+export { StudentHeatmap, type StudentHeatmapProps } from './StudentHeatmap'

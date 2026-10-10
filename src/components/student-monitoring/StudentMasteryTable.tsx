@@ -1,140 +1,55 @@
+/**
+ * Individual mastery composition built from shared UI primitives.
+ *
+ * @author MRamirez202210582
+ * @packageDocumentation
+ */
 
+import { Card, Chip, ProgressBar, SectionHeader, TableCard, TableRow } from '@/components/ui'
 import type { Subtopic } from '@/types/course'
 import type { StudentSubtopicMastery } from '@/types/studentMonitoring'
+import type { IconName, Tone } from '@/types/ui'
+import { masteryTone } from '@/utils/mastery'
+import { formatMastery } from '@/utils/monitoring'
+import { plural } from '@/utils/plural'
 
+/** Status labels and icons classified by the shared mastery rule. */
+const STATUS: Record<Tone, { label: string; icon: IconName }> = {
+  primary: { label: 'Dominio estimado', icon: 'insights' },
+  success: { label: 'Dominio alto', icon: 'trending_up' },
+  warning: { label: 'Dominio medio', icon: 'arrow_forward' },
+  danger: { label: 'Dominio bajo', icon: 'monitoring' },
+  neutral: { label: 'Sin datos', icon: 'hourglass_empty' },
+}
+
+/** Props accepted by {@link StudentMasteryTable}. */
 export interface StudentMasteryTableProps {
-    subtopics: Subtopic[]
-    masteryRecords: StudentSubtopicMastery[]
+  /** Course subtopics in curriculum order. */
+  subtopics: Subtopic[]
+  /** Measurements of the selected student. */
+  masteryRecords: StudentSubtopicMastery[]
 }
 
-function getMasteryStyle(mastery: number | null) {
-    if (mastery === null) {
-        return {
-            label: 'Sin datos',
-            badge: 'bg-[#E4E8FF] text-[#626B89]',
-            bar: 'bg-[#E4E8FF]',
-            icon: '⌛',
-        }
-    }
-
-    if (mastery < 40) {
-        return {
-            label: 'Dominio bajo',
-            badge: 'bg-[#FFD9D7] text-[#B91C1C]',
-            bar: 'bg-[#C91E22]',
-            icon: '↘',
-        }
-    }
-
-    if (mastery <= 70) {
-        return {
-            label: 'Dominio medio',
-            badge: 'bg-[#FFDCB7] text-[#805013]',
-            bar: 'bg-[#F59E0B]',
-            icon: '→',
-        }
-    }
-
-    return {
-        label: 'Dominio alto',
-        badge: 'bg-[#66F2BD] text-[#075E43]',
-        bar: 'bg-[#047857]',
-        icon: '↗',
-    }
-}
-
-export function StudentMasteryTable({
-                                        subtopics,
-                                        masteryRecords,
-                                    }: StudentMasteryTableProps) {
-    const records = new Map(
-        masteryRecords.map((record) => [
-            record.subtopicId,
-            record,
-        ]),
-    )
-
-    const orderedSubtopics = [...subtopics].sort(
-        (a, b) => a.order - b.order,
-    )
-
-    return (
-        <section className="rounded-[16px] bg-white px-5 py-5 shadow-[0_1px_2px_rgba(30,35,80,0.04)]">
-            <div className="border-b border-[#E7EAFE] pb-4">
-                <h2 className="text-[15px] font-semibold text-[#141A33]">
-                    Dominio estimado por subtema
-                </h2>
-
-                <p className="mt-1 text-[11px] text-[#60657A]">
-                    Se actualiza con cada respuesta que el estudiante envía
-                </p>
-            </div>
-
-            {orderedSubtopics.length === 0 ? (
-                <p className="py-8 text-center text-sm text-[#60657A]">
-                    Este curso todavía no tiene subtemas registrados.
-                </p>
-            ) : (
-                <div className="divide-y divide-[#E7EAFE]">
-                    {orderedSubtopics.map((subtopic) => {
-                        const record = records.get(subtopic.id)
-                        const mastery = record?.mastery ?? null
-                        const resolved = record?.resolvedExercises ?? 0
-                        const style = getMasteryStyle(mastery)
-
-                        return (
-                            <div
-                                key={subtopic.id}
-                                className="grid grid-cols-1 items-center gap-3 py-[15px] md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.25fr)_40px_105px_75px]"
-                            >
-                                <h3 className="text-[12px] font-medium text-[#141A33]">
-                                    {subtopic.name}
-                                </h3>
-
-                                <div
-                                    role="progressbar"
-                                    aria-label={`Dominio de ${subtopic.name}`}
-                                    aria-valuemin={0}
-                                    aria-valuemax={100}
-                                    aria-valuenow={mastery ?? undefined}
-                                    aria-valuetext={
-                                        mastery === null
-                                            ? 'Sin datos'
-                                            : `${Math.round(mastery)}%`
-                                    }
-                                    className="h-[9px] overflow-hidden rounded-full bg-[#E4E8FF]"
-                                >
-                                    <div
-                                        className={`h-full rounded-full ${style.bar}`}
-                                        style={{
-                                            width: `${Math.max(0, Math.min(100, mastery ?? 0))}%`,
-                                        }}
-                                    />
-                                </div>
-
-                                <span className="text-right text-[12px] font-semibold text-[#141A33]">
-                  {mastery === null
-                      ? '—'
-                      : `${Math.round(mastery)}%`}
-                </span>
-
-                                <span
-                                    className={`inline-flex w-fit items-center justify-center gap-1 whitespace-nowrap rounded-[5px] px-2 py-[4px] text-[10px] font-semibold ${style.badge}`}
-                                >
-                  <span>{style.icon}</span>
-                                    {style.label}
-                </span>
-
-                                <span className="text-right text-[10px] text-[#60657A]">
-                  {resolved > 0
-                      ? `${resolved} ejercicios`
-                      : 'Sin ejercicios'}
-                </span>
-                            </div>
-                        )
-                    })}
-                </div>
-            )}
-        </section>
-    )
+/** Shows the student's mastery, level and exercise count for each subtopic. */
+export function StudentMasteryTable({ subtopics, masteryRecords }: StudentMasteryTableProps) {
+  return <Card padding="lg" as="section">
+    <SectionHeader title="Dominio estimado por subtema" subtitle="Se actualiza con cada respuesta que el estudiante envía" />
+    <TableCard label="Dominio estimado por subtema" className="mt-4 rounded-none shadow-none">
+      {subtopics.map((subtopic) => {
+        const record = masteryRecords.find((item) => item.subtopicId === subtopic.id)
+        const mastery = record?.mastery ?? null
+        const tone = masteryTone(mastery)
+        const count = record?.resolvedExercises ?? 0
+        return <TableRow key={subtopic.id} className="border-t px-0 md:grid-cols-10">
+          <span role="cell" className="text-title md:col-span-3">{subtopic.name}</span>
+          <div role="cell" className="flex items-center gap-5 md:col-span-4">
+            <ProgressBar value={mastery} label={`Dominio en ${subtopic.name}`} tone={tone} size="lg" />
+            <span className="w-10 shrink-0 text-right text-title">{formatMastery(mastery)}</span>
+          </div>
+          <span role="cell" className="md:col-span-2"><Chip label={STATUS[tone].label} icon={STATUS[tone].icon} tone={tone} /></span>
+          <span role="cell" className="text-body-m text-content-secondary md:text-right">{count ? plural(count, 'ejercicio', 'ejercicios') : 'Sin ejercicios'}</span>
+        </TableRow>
+      })}
+    </TableCard>
+  </Card>
 }

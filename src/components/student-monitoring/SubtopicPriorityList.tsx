@@ -1,185 +1,66 @@
+/**
+ * Subtopic reinforcement priorities and mastery distributions.
+ *
+ * @author MRamirez202210582
+ * @packageDocumentation
+ */
 
+import { Card, Chip, Legend, SectionHeader, StackedBar } from '@/components/ui'
 import type { Subtopic } from '@/types/course'
 import type { SubtopicGap } from '@/types/studentMonitoring'
+import type { IconName, Tone } from '@/types/ui'
+import { HIGH_MASTERY_THRESHOLD, LOW_MASTERY_THRESHOLD, masteryTone } from '@/utils/mastery'
+import { formatMastery, formatMonitoringActivity } from '@/utils/monitoring'
+import { plural } from '@/utils/plural'
 
+/** Priority labels and icons for the shared mastery tones. */
+const PRIORITY: Record<Tone, { label: string; icon: IconName }> = {
+  primary: { label: 'Dominio estimado', icon: 'insights' }, success: { label: 'Buen avance', icon: 'trending_up' },
+  warning: { label: 'En progreso', icon: 'arrow_forward' }, danger: { label: 'Reforzar en clase', icon: 'priority_high' },
+  neutral: { label: 'Sin práctica aún', icon: 'hourglass_empty' },
+}
+
+/** Props accepted by {@link SubtopicPriorityList}. */
 export interface SubtopicPriorityListProps {
-    subtopics: Subtopic[]
-    gaps: SubtopicGap[]
+  /** Course labels in curriculum order. */
+  subtopics: Subtopic[]
+  /** Aggregate measurements to sort by reinforcement priority. */
+  gaps: SubtopicGap[]
+  /** Number of enrolled students used by the subtitle. */
+  totalStudents: number
+  /** Snapshot timestamp of the map. */
+  updatedAt: string
 }
 
-function getPriority(mastery: number | null) {
-    if (mastery === null) {
-        return {
-            label: 'Sin práctica aún',
-            badge: 'bg-[#E4E8FF] text-[#50566F]',
-            icon: '⌛',
-        }
-    }
-
-    if (mastery < 40) {
-        return {
-            label: 'Reforzar en clase',
-            badge: 'bg-[#FFD9D7] text-[#9B1515]',
-            icon: '!',
-        }
-    }
-
-    if (mastery <= 70) {
-        return {
-            label: 'En progreso',
-            badge: 'bg-[#FFDCB7] text-[#805013]',
-            icon: '→',
-        }
-    }
-
-    return {
-        label: 'Buen avance',
-        badge: 'bg-[#66F2BD] text-[#075E43]',
-        icon: '↗',
-    }
-}
-
-function getDistribution(gap: SubtopicGap) {
-    const parts: string[] = []
-
-    if (gap.lowMasteryCount) {
-        parts.push(`${gap.lowMasteryCount} en bajo`)
-    }
-
-    if (gap.mediumMasteryCount) {
-        parts.push(`${gap.mediumMasteryCount} en medio`)
-    }
-
-    if (gap.highMasteryCount) {
-        parts.push(`${gap.highMasteryCount} en alto`)
-    }
-
-    if (gap.noDataCount) {
-        parts.push(`${gap.noDataCount} sin datos`)
-    }
-
-    return parts.join(' · ')
-}
-
-export function SubtopicPriorityList({
-                                         subtopics,
-                                         gaps,
-                                     }: SubtopicPriorityListProps) {
-    const names = new Map(
-        subtopics.map((subtopic) => [subtopic.id, subtopic.name]),
-    )
-
-    const sortedGaps = [...gaps].sort((a, b) => {
-        if (a.averageMastery === null) return 1
-        if (b.averageMastery === null) return -1
-        return a.averageMastery - b.averageMastery
-    })
-
-    return (
-        <section className="rounded-[16px] bg-white px-5 py-5 shadow-[0_1px_2px_rgba(30,35,80,0.04)]">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-4 border-b border-[#E7EAFE] pb-4">
-                <div>
-                    <h2 className="text-[15px] font-semibold text-[#141A33]">
-                        Prioridad de refuerzo por subtema
-                    </h2>
-
-                    <p className="mt-1 text-[11px] text-[#5F647A]">
-                        Cuántos de tus estudiantes están en cada nivel
-                    </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3 text-[10px] text-[#5F647A]">
-                    {[
-                        ['#C91E22', 'Bajo <40%'],
-                        ['#F59E0B', 'Medio 40–70%'],
-                        ['#047857', 'Alto >70%'],
-                        ['#E4E8FF', 'Sin datos'],
-                    ].map(([color, label]) => (
-                        <span key={label} className="flex items-center gap-1.5">
-              <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: color }}
-              />
-                            {label}
-            </span>
-                    ))}
-                </div>
-            </div>
-
-            <div className="divide-y divide-[#E7EAFE]">
-                {sortedGaps.map((gap) => {
-                    const priority = getPriority(gap.averageMastery)
-
-                    const total =
-                        gap.lowMasteryCount +
-                        gap.mediumMasteryCount +
-                        gap.highMasteryCount +
-                        gap.noDataCount
-
-                    const segments = [
-                        { count: gap.lowMasteryCount, color: '#C91E22' },
-                        { count: gap.mediumMasteryCount, color: '#F59E0B' },
-                        { count: gap.highMasteryCount, color: '#047857' },
-                        { count: gap.noDataCount, color: '#E4E8FF' },
-                    ]
-
-                    return (
-                        <div
-                            key={gap.subtopicId}
-                            className="grid gap-3 py-[15px] md:grid-cols-[minmax(0,1.05fr)_minmax(0,1.5fr)_78px] md:items-center"
-                        >
-                            <div>
-                                <h3 className="text-[13px] font-semibold text-[#141A33]">
-                                    {names.get(gap.subtopicId) ?? 'Subtema'}
-                                </h3>
-
-                                <span
-                                    className={`mt-1 inline-flex items-center gap-1 rounded-[5px] px-2 py-[3px] text-[10px] font-semibold ${priority.badge}`}
-                                >
-                  <span>{priority.icon}</span>
-                                    {priority.label}
-                </span>
-                            </div>
-
-                            <div>
-                                <div className="flex h-[11px] w-full gap-[3px] overflow-hidden rounded-[4px]">
-                                    {total > 0 &&
-                                        segments
-                                            .filter((segment) => segment.count > 0)
-                                            .map((segment, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="h-full rounded-[3px]"
-                                                    style={{
-                                                        width: `${(segment.count / total) * 100}%`,
-                                                        backgroundColor: segment.color,
-                                                    }}
-                                                />
-                                            ))}
-                                </div>
-
-                                <p className="mt-[7px] text-[10px] text-[#60657A]">
-                                    {gap.studentsWithActivity === 0
-                                        ? `${gap.noDataCount} sin datos · nadie ha practicado este subtema`
-                                        : getDistribution(gap)}
-                                </p>
-                            </div>
-
-                            <div className="text-right">
-                                <p className="text-[17px] font-semibold text-[#141A33]">
-                                    {gap.averageMastery === null
-                                        ? '—'
-                                        : `${Math.round(gap.averageMastery)}%`}
-                                </p>
-
-                                <p className="text-[10px] text-[#60657A]">
-                                    promedio
-                                </p>
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
-        </section>
-    )
+/** Lists subtopics by reinforcement priority with level distributions. */
+export function SubtopicPriorityList({ subtopics, gaps, totalStudents, updatedAt }: SubtopicPriorityListProps) {
+  const sorted = [...gaps].sort((a, b) => (a.averageMastery ?? Infinity) - (b.averageMastery ?? Infinity))
+  return <Card as="section" padding="lg">
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <SectionHeader title="Prioridad de refuerzo por subtema" subtitle={`Cuántos de tus ${plural(totalStudents, 'estudiante', 'estudiantes')} están en cada nivel · actualizado ${formatMonitoringActivity(updatedAt, updatedAt).toLowerCase()}`} />
+      <Legend label="Niveles de dominio" items={[
+        { label: `Bajo < ${LOW_MASTERY_THRESHOLD}%`, tone: 'danger' },
+        { label: `Medio ${LOW_MASTERY_THRESHOLD}–${HIGH_MASTERY_THRESHOLD - 1}%`, tone: 'warning' },
+        { label: `Alto ≥ ${HIGH_MASTERY_THRESHOLD}%`, tone: 'success' }, { label: 'Sin datos', tone: 'neutral' },
+      ]} />
+    </div>
+    <div className="mt-4">
+      {sorted.map((gap) => {
+        const subtopic = subtopics.find((item) => item.id === gap.subtopicId)
+        const tone = masteryTone(gap.averageMastery)
+        const segments = [
+          { label: 'bajo', value: gap.lowMasteryCount, tone: 'danger' as const },
+          { label: 'medio', value: gap.mediumMasteryCount, tone: 'warning' as const },
+          { label: 'alto', value: gap.highMasteryCount, tone: 'success' as const },
+          { label: 'sin datos', value: gap.noDataCount, tone: 'neutral' as const },
+        ]
+        const distribution = segments.filter((item) => item.value).map((item) => `${item.value} ${item.label === 'sin datos' ? 'sin datos' : `en ${item.label}`}`).join(' · ')
+        return <div key={gap.subtopicId} className="flex flex-col gap-3 border-t border-line-subtle py-4 md:grid md:grid-cols-10 md:items-center md:gap-4">
+          <div className="flex flex-col gap-1.5 md:col-span-3"><h3 className="text-title">{subtopic?.name}</h3><Chip label={PRIORITY[tone].label} tone={tone} icon={PRIORITY[tone].icon} /></div>
+          <div className="flex flex-col gap-2 md:col-span-6"><StackedBar label={`Distribución de ${subtopic?.name}: ${distribution}`} segments={segments} /><p className="text-body-m text-content-secondary">{distribution}{gap.studentsWithActivity === 0 ? ' · nadie ha practicado este subtema' : ''}</p></div>
+          <div className="md:text-right"><p className="text-headline-l">{formatMastery(gap.averageMastery)}</p><p className="text-body-m text-content-secondary">promedio</p></div>
+        </div>
+      })}
+    </div>
+  </Card>
 }
