@@ -8,7 +8,8 @@
 import type { ExercisesContract } from '@/services/exercises.contract'
 import type { CourseExerciseCatalog } from '@/types/exercise'
 import { SUBTOPICS } from './courses.mock'
-import { isEmptyScenario, respond } from './scenario'
+import { isEmptyScenario, respond } from '@/mocks/scenario'
+import { sessionCollection } from '@/mocks/session'
 
 /**
  * Sample exercise catalogs of the teacher's courses.
@@ -42,8 +43,16 @@ export const EXERCISE_CATALOGS: CourseExerciseCatalog[] = [
               { letter: 'D', text: '4', isCorrect: false },
             ],
             checks: [
-              { label: 'Corrección técnica', passed: true, detail: 'La respuesta 24 es única y se comprobó ejecutando el código.' },
-              { label: 'Nivel de dificultad', passed: true, detail: 'Estimada media, coherente con el dominio objetivo del subtema.' },
+              {
+                label: 'Corrección técnica',
+                passed: true,
+                detail: 'La respuesta 24 es única y se comprobó ejecutando el código.',
+              },
+              {
+                label: 'Nivel de dificultad',
+                passed: true,
+                detail: 'Estimada media, coherente con el dominio objetivo del subtema.',
+              },
               { label: 'Anclaje curricular', passed: true, detail: 'Basado en recursividad.pdf, páginas 6 y 7.' },
             ],
           },
@@ -65,7 +74,11 @@ export const EXERCISE_CATALOGS: CourseExerciseCatalog[] = [
             ],
             checks: [
               { label: 'Corrección técnica', passed: true, detail: 'La respuesta 15 es única y verificable.' },
-              { label: 'Nivel de dificultad', passed: false, detail: 'Declarada alta pero estimada baja: no corresponde al nivel objetivo.' },
+              {
+                label: 'Nivel de dificultad',
+                passed: false,
+                detail: 'Declarada alta pero estimada baja: no corresponde al nivel objetivo.',
+              },
               { label: 'Anclaje curricular', passed: true, detail: 'Basado en recursividad.pdf, página 9.' },
             ],
           },
@@ -95,8 +108,16 @@ export const EXERCISE_CATALOGS: CourseExerciseCatalog[] = [
               { letter: 'D', text: 'Visita primero las hojas', isCorrect: false },
             ],
             checks: [
-              { label: 'Corrección técnica', passed: true, detail: 'La propiedad del BST asegura una única respuesta correcta.' },
-              { label: 'Nivel de dificultad', passed: true, detail: 'Estimada baja, coherente con el dominio objetivo del subtema.' },
+              {
+                label: 'Corrección técnica',
+                passed: true,
+                detail: 'La propiedad del BST asegura una única respuesta correcta.',
+              },
+              {
+                label: 'Nivel de dificultad',
+                passed: true,
+                detail: 'Estimada baja, coherente con el dominio objetivo del subtema.',
+              },
               { label: 'Anclaje curricular', passed: true, detail: 'Basado en arboles-bst.pdf, página 4.' },
             ],
           },
@@ -111,10 +132,11 @@ export const EXERCISE_CATALOGS: CourseExerciseCatalog[] = [
  * Simulated implementation of {@link ExercisesContract}.
  */
 export const exercisesMock: ExercisesContract = {
-  listCatalogs: () => respond(isEmptyScenario() ? [] : EXERCISE_CATALOGS),
+  listCatalogs: () => respond(isEmptyScenario() ? [] : sessionCollection('exercises', EXERCISE_CATALOGS)),
   generate: (_courseId, subtopicId) =>
     respond({
-      subtopicName: SUBTOPICS.find((subtopic) => subtopic.id === subtopicId)?.name ?? '',
+      subtopicName:
+        sessionCollection('subtopics', SUBTOPICS).find((subtopic) => subtopic.id === subtopicId)?.name ?? '',
       generatedCount: 10,
       approvedCount: 9,
       discardedCount: 1,

@@ -8,10 +8,12 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter } from 'react-router'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
 import { resetCurricularMaterialsMock } from '@/mocks/curricularMaterial.mock'
 import { courseRoutes, ROUTES } from '@/navigation/routes'
+import { authService } from '@/services/auth.service'
 
 const navigation = vi.hoisted(() => ({ router: null as ReturnType<typeof createMemoryRouter> | null }))
 
@@ -31,9 +33,14 @@ async function open(path: string) {
   render(<App />)
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   window.history.replaceState({}, '', '/')
   resetCurricularMaterialsMock()
+  await authService.login({ email: 'docente@kalibra.com', password: 'Kalibra123' })
+})
+
+afterEach(async () => {
+  await act(async () => authService.logout())
 })
 
 describe('material integration routes', () => {
@@ -111,8 +118,9 @@ describe('material integration routes', () => {
   })
 
   it('starts at sign-in while retaining the accepted course route', async () => {
+    await act(async () => authService.logout())
     await open('/')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Inicio de sesión' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument()
     expect(navigation.router!.state.location.pathname).toBe(ROUTES.signIn)
   })
 

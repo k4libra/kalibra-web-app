@@ -14,7 +14,7 @@ export interface ActiveCourseState {
   /** Id of the course the teacher is managing; `null` until one is chosen. */
   activeCourseId: string | null
   /** Changes the course the teacher is managing. */
-  setActiveCourseId: (courseId: string) => void
+  setActiveCourseId: (courseId: string | null) => void
 }
 
 const ActiveCourseContext = createContext<ActiveCourseState | null>(null)
