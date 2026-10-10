@@ -1,49 +1,52 @@
+/**
+ * Logout confirmation and session cleanup owned by the shell hook.
+ *
+ * @author MRamirez202210582
+ * @packageDocumentation
+ */
 
-import { useState } from "react";
+import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { useActiveCourse } from '@/context/ActiveCourseContext'
+import { ROUTES } from '@/navigation/routes'
+import { authService } from '@/services/auth.service'
+import { useAuthMutation } from '@/hooks/useAuthMutation'
 
-import { authService } from "../services/auth.service";
-
-interface UseLogoutReturn {
-    logout: () => Promise<boolean>;
-    loading: boolean;
-    error: string;
-    clearError: () => void;
+const logoutOperation = async (_input: void, signal: AbortSignal) => {
+  await authService.logout(signal)
+  return true
 }
 
-export function useLogout(): UseLogoutReturn {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-
-    const logout = async (): Promise<boolean> => {
-        setLoading(true);
-        setError("");
-
-        try {
-            await authService.logout();
-
-            return true;
-        } catch (err: unknown) {
-            const message =
-                err instanceof Error
-                    ? err.message
-                    : "Ocurrió un error al cerrar sesión.";
-
-            setError(message);
-
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const clearError = () => {
-        setError("");
-    };
-
-    return {
-        logout,
-        loading,
-        error,
-        clearError,
-    };
+/**
+ * Owns logout confirmation and clears the active course after confirmed sign-out.
+ *
+ * @returns `isOpen`, `open`, `cancel`, `confirm`, `isSubmitting` and `error` for the shell modal.
+ *
+ * @example
+ * ```tsx
+ * const logout = useLogout();
+ * ```
+ */
+export function useLogout() {
+  const navigate = useNavigate()
+  const { setActiveCourseId } = useActiveCourse()
+  const { submit, isSubmitting, error, clearError } = useAuthMutation(logoutOperation)
+  const [isOpen, setIsOpen] = useState(false)
+  const open = useCallback(() => {
+    clearError()
+    setIsOpen(true)
+  }, [clearError])
+  const cancel = useCallback(() => {
+    if (isSubmitting) return
+    clearError()
+    setIsOpen(false)
+  }, [isSubmitting, clearError])
+  const confirm = useCallback(async () => {
+    if (await submit()) {
+      setActiveCourseId(null)
+      setIsOpen(false)
+      navigate(ROUTES.signIn, { replace: true })
+    }
+  }, [submit, navigate, setActiveCourseId])
+  return { isOpen, open, cancel, confirm, isSubmitting: isSubmitting, error: error?.message ?? null }
 }

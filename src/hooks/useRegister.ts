@@ -1,70 +1,73 @@
+/**
+ * Register form state, validation and navigation.
+ *
+ * @author MRamirez202210582
+ * @packageDocumentation
+ */
 
-import { useState } from "react";
+import { useCallback, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router'
+import { useActiveCourse } from '@/context/ActiveCourseContext'
+import { authService } from '@/services/auth.service'
+import { ROUTES } from '@/navigation/routes'
+import type { AuthFieldErrors, AuthFormValues } from '@/types/auth'
+import { AuthError } from '@/types/auth'
+import { validateAuth, toRegisterRequest } from '@/utils/authValidation'
+import { useAuthMutation } from '@/hooks/useAuthMutation'
 
-import { authService } from "../services/auth.service";
+/**
+ * Owns registration fields, validation and successful navigation.
+ *
+ * @returns The form `values`, `errors`, `onChange`, `onSubmit`, `isSubmitting` and recovery actions.
+ *
+ * @example
+ * ```tsx
+ * const form = useRegister();
+ * ```
+ */
+export function useRegister() {
+  const navigate = useNavigate()
+  const { search } = useLocation()
+  const { setActiveCourseId } = useActiveCourse()
+  const { submit, isSubmitting, error, clearError } = useAuthMutation(authService.register)
+  const [values, setValues] = useState<AuthFormValues>({ fullName: '', email: '', password: '' })
+  const [errors, setErrors] = useState<AuthFieldErrors>({})
+  const onChange = useCallback(
+    (field: keyof AuthFormValues, value: string) => {
+      setValues((previous) => ({ ...previous, [field]: value }))
+      setErrors((previous) => ({ ...previous, [field]: undefined }))
+      if (field === 'email') clearError()
+    },
+    [clearError],
+  )
+  const onSubmit = useCallback(async () => {
+    const nextErrors = validateAuth(values, true)
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length) return
+    const result = await submit(toRegisterRequest(values))
+    if (result) {
+      setActiveCourseId(null)
+      navigate({ pathname: ROUTES.courses, search }, { replace: true })
+    }
+  }, [values, submit, navigate, search, setActiveCourseId])
 
-import type {
-    AuthResponse,
-    RegisterRequest,
-} from "../types/auth";
+  const isDuplicateEmail = error instanceof AuthError && error.code === 'duplicate-email'
+  const useAnotherEmail = useCallback(() => {
+    clearError()
+    setErrors({})
+    setValues((previous) => ({ ...previous, email: '' }))
+  }, [clearError])
 
-interface UseRegisterReturn {
-    register: (data: RegisterRequest) => Promise<AuthResponse | null>;
-    loading: boolean;
-    error: string;
-    success: boolean;
-    clearError: () => void;
-    reset: () => void;
-}
-
-export function useRegister(): UseRegisterReturn {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState(false);
-
-    const register = async (
-        data: RegisterRequest
-    ): Promise<AuthResponse | null> => {
-        setLoading(true);
-        setError("");
-        setSuccess(false);
-
-        try {
-            const response = await authService.register(data);
-
-            setSuccess(true);
-
-            return response;
-        } catch (err: unknown) {
-            const message =
-                err instanceof Error
-                    ? err.message
-                    : "Ocurrió un error al registrar la cuenta.";
-
-            setError(message);
-
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const clearError = () => {
-        setError("");
-    };
-
-    const reset = () => {
-        setError("");
-        setSuccess(false);
-        setLoading(false);
-    };
-
-    return {
-        register,
-        loading,
-        error,
-        success,
-        clearError,
-        reset,
-    };
+  return {
+    values,
+    errors,
+    onChange,
+    onSubmit,
+    isSubmitting: isSubmitting,
+    error: error?.message ?? null,
+    onDismiss: clearError,
+    isDuplicateEmail,
+    onUseAnotherEmail: useAnotherEmail,
+    onAlternate: useCallback(() => navigate({ pathname: ROUTES.signIn, search }), [navigate, search]),
+  }
 }
