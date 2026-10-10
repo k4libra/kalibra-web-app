@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { Chip } from './Chip'
+import { Chip } from '@/components/ui/Chip'
 import type { MaterialStatus } from '@/types/course'
 import type { IconName, Tone } from '@/types/ui'
 
@@ -23,11 +23,24 @@ const STATUS_CHIP: Record<MaterialStatus, { label: string; tone: Tone; icon: Ico
 export interface MaterialStatusChipProps {
   /** State of the material. */
   status: MaterialStatus
+  /** Contextual processing label; other states keep their shared presentation. */
+  processingLabel?: string
+  /**
+   * Contextual processing icon.
+   *
+   * @defaultValue `'schedule'`
+   */
+  processingIcon?: IconName
 }
 
 /**
  * Shows whether the material of a subtopic is ready, processing, failed or missing.
+ *
+ * @example
+ * ```tsx
+ * <MaterialStatusChip status="processing" processingLabel="Pendiente" processingIcon="hourglass_empty" />
+ * ```
  */
-export function MaterialStatusChip({ status }: MaterialStatusChipProps) {
-  return <Chip {...STATUS_CHIP[status]} />
+export function MaterialStatusChip({ status, processingLabel, processingIcon = 'schedule' }: MaterialStatusChipProps) {
+  return <Chip {...STATUS_CHIP[status]} {...(status === 'processing' ? { label: processingLabel ?? STATUS_CHIP.processing.label, icon: processingIcon } : {})} />
 }
