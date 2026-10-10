@@ -1,134 +1,83 @@
-
 /**
- * React hook for curricular material management.
+ * Loads course material projections and guards upload lifecycle against stale courses.
  *
- * @remarks
- * Handles material loading, upload operations,
- * statistics and error states for the selected course.
- *
- * Uses the curricular material service, which currently
- * works with simulated data.
- *
+ * @author MRamirez202210582
  * @packageDocumentation
  */
 
-import { useCallback, useEffect, useState } from 'react'
-
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useResource } from '@/hooks/useResource'
+import { coursesService } from '@/services/courses.service'
 import { curricularMaterialService } from '@/services/curricularMaterial.service'
-
-import type {
-    CurricularMaterial,
-    CurricularMaterialStats,
-    UploadCurricularMaterialRequest,
-} from '@/types/curricularMaterial'
-
-const INITIAL_STATS: CurricularMaterialStats = {
-    total: 0,
-    ready: 0,
-    processing: 0,
-    error: 0,
-}
+import type { UploadCurricularMaterialRequest } from '@/types/curricularMaterial'
 
 /**
- * Manages the curricular materials of a selected course.
+ * Loads materials, course and subtopics as one snapshot and exposes upload actions.
  *
- * @param courseId - Identifier of the active course.
+ * @param courseId - Course addressed by the material route.
+ * @returns The `course`, `subtopics`, `materials`, `stats`, read and upload state,
+ * `refreshMaterials`, and `uploadMaterial` returning metadata or `null` on failure or stale completion.
+ *
+ * @example
+ * ```tsx
+ * const { materials, uploadMaterial, isLoading } = useCurricularMaterials(courseId);
+ * ```
  */
 export function useCurricularMaterials(courseId: string) {
-    const [materials, setMaterials] = useState<CurricularMaterial[]>([])
-    const [stats, setStats] = useState<CurricularMaterialStats>(INITIAL_STATS)
+  const resource = useResource(async () => {
+    const [course, subtopics, materials] = await Promise.all([
+      coursesService.getCourse(courseId), coursesService.listSubtopics(courseId),
+      curricularMaterialService.getByCourse(courseId),
+    ])
+    return { course, subtopics, materials }
+  }, `curricular-material-${courseId}`)
+  const { refetch } = resource
+  const current = resource.data?.course.id === courseId ? resource.data : null
+  const materials = current?.materials ?? []
+  const [mutation, setMutation] = useState<{ courseId: string; isUploading: boolean; error: string | null } | null>(null)
+  const lifecycle = useRef<AbortController | null>(null)
+  useEffect(() => {
+    const controller = new AbortController()
+    lifecycle.current = controller
+    return () => controller.abort()
+  }, [courseId])
 
-    const [isLoading, setIsLoading] = useState(true)
-    const [isUploading, setIsUploading] = useState(false)
-
-    const [error, setError] = useState<string | null>(null)
-
-    /**
-     * Retrieves materials and statistics for the course.
-     */
-    const refreshMaterials = useCallback(async () => {
-        if (!courseId) {
-            setMaterials([])
-            setStats(INITIAL_STATS)
-            setIsLoading(false)
-            return
-        }
-
-        setIsLoading(true)
-        setError(null)
-
-        try {
-            const [courseMaterials, courseStats] = await Promise.all([
-                curricularMaterialService.getByCourse(courseId),
-                curricularMaterialService.getStats(courseId),
-            ])
-
-            setMaterials(courseMaterials)
-            setStats(courseStats)
-        } catch (caughtError) {
-            const message =
-                caughtError instanceof Error
-                    ? caughtError.message
-                    : 'No se pudieron cargar los materiales.'
-
-            setError(message)
-        } finally {
-            setIsLoading(false)
-        }
-    }, [courseId])
-
-    /**
-     * Loads materials when the selected course changes.
-     */
-    useEffect(() => {
-        void refreshMaterials()
-    }, [refreshMaterials])
-
-    /**
-     * Uploads or replaces a material and refreshes the list.
-     */
-    const uploadMaterial = useCallback(
-        async (request: UploadCurricularMaterialRequest) => {
-            setIsUploading(true)
-            setError(null)
-
-            try {
-                const uploadedMaterial =
-                    await curricularMaterialService.upload(request)
-
-                await refreshMaterials()
-
-                return uploadedMaterial
-            } catch (caughtError) {
-                const message =
-                    caughtError instanceof Error
-                        ? caughtError.message
-                        : 'No se pudo subir el material.'
-
-                setError(message)
-                throw caughtError
-            } finally {
-                setIsUploading(false)
-            }
-        },
-        [refreshMaterials],
-    )
-
-    /**
-     * Clears the current error message.
-     */
-    const clearError = useCallback(() => {
-        setError(null)
-    }, [])
-
-    return {
-        materials,
-        stats,
-        isLoading,
-        isUploading,
-        error,
-        refreshMaterials,
-        uploadMaterial,
-        clearError,
+  const uploadMaterial = useCallback(async (request: UploadCurricularMaterialRequest) => {
+    const controller = lifecycle.current
+    if (!controller || controller.signal.aborted || request.courseId !== courseId) return null
+    setMutation({ courseId, isUploading: true, error: null })
+    try {
+      const material = await curricularMaterialService.upload(request)
+      if (controller.signal.aborted) return null
+      refetch()
+      return material
+    } catch (reason: unknown) {
+      if (!controller.signal.aborted) {
+        setMutation({ courseId, isUploading: false, error: reason instanceof Error ? reason.message : 'No se pudo subir el material.' })
+      }
+      return null
+    } finally {
+      if (!controller.signal.aborted) setMutation((previous) => previous ? { ...previous, isUploading: false } : null)
     }
+  }, [courseId, refetch])
+  const clearError = useCallback(() => setMutation(null), [])
+
+  return {
+    course: current?.course ?? null,
+    subtopics: current?.subtopics ?? [],
+    materials,
+    stats: {
+      total: materials.length,
+      ready: materials.filter((item) => item.status === 'ready').length,
+      processing: materials.filter((item) => item.status === 'processing').length,
+      error: materials.filter((item) => item.status === 'error').length,
+    },
+    isLoading: resource.isLoading,
+    error: resource.error,
+    isUploading: mutation?.courseId === courseId && mutation.isUploading,
+    uploadError: mutation?.courseId === courseId ? mutation.error : null,
+    refreshMaterials: refetch,
+    uploadMaterial,
+    clearError,
+  }
 }

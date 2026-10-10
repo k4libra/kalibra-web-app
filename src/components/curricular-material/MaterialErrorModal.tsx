@@ -1,118 +1,55 @@
-
 /**
- * Modal displaying a curricular material ingestion error.
+ * Explains an ingestion failure and emits the affected material for replacement.
  *
- * @remarks
- * Allows teachers to inspect why a file could not be
- * processed and initiate its replacement.
- *
+ * @author MRamirez202210582
  * @packageDocumentation
  */
 
-import { Icon, Modal } from '@/components/ui'
-
+import { Button, Icon, Modal } from '@/components/ui'
 import type { CurricularMaterial } from '@/types/curricularMaterial'
+import { formatMaterialDate } from '@/utils/materialFile'
 
 /**
- * Props accepted by MaterialErrorModal.
+ * Props accepted by {@link MaterialErrorModal}.
  */
 export interface MaterialErrorModalProps {
-    material: CurricularMaterial | null
-    isOpen: boolean
-    onClose: () => void
-    onReplace: (material: CurricularMaterial) => void
+  /** Failed record whose reason is visible. */
+  material: CurricularMaterial
+  /** Display name resolved from the course's subtopics. */
+  subtopicName: string
+  /** Closes the reason dialog. */
+  onClose: () => void
+  /** Opens the upload form with this material's subtopic selected. */
+  onReplace: (material: CurricularMaterial) => void
 }
 
 /**
- * Displays ingestion error details for a selected material.
+ * Shows the failed file, ingestion reason and recommendations, emitting close and replace actions.
  */
-export function MaterialErrorModal({
-                                       material,
-                                       isOpen,
-                                       onClose,
-                                       onReplace,
-                                   }: MaterialErrorModalProps) {
-    if (!material) {
-        return null
-    }
-
-    return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Motivo del error"
-            description="No se pudo procesar el material curricular."
-        >
-            <div className="space-y-5">
-                {/* Failed file information */}
-                <div className="flex items-start gap-3 rounded-xl border border-border-subtle bg-surface-secondary p-4">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-danger-subtle text-danger">
-                        <Icon name="description" size="xl" />
-                    </div>
-
-                    <div className="min-w-0">
-                        <p className="break-all font-semibold text-content-primary">
-                            {material.fileName}
-                        </p>
-
-                        <p className="mt-1 text-sm text-content-secondary">
-                            El archivo presenta un error de ingestión.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Ingestion error explanation */}
-                <div
-                    role="alert"
-                    className="rounded-xl border border-danger/20 bg-danger-subtle p-4"
-                >
-                    <div className="flex items-start gap-3">
-                        <Icon
-                            name="error"
-                            size="lg"
-                            className="mt-0.5 shrink-0 text-danger"
-                        />
-
-                        <div className="space-y-2">
-                            <h3 className="font-semibold text-danger">
-                                No se pudo procesar el archivo
-                            </h3>
-
-                            <p className="text-sm leading-relaxed text-content-primary">
-                                {material.errorMessage ??
-                                    'Ocurrió un problema durante el procesamiento del material curricular.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Recommendation */}
-                <p className="text-sm leading-relaxed text-content-secondary">
-                    Revisa que el documento sea legible y tenga un
-                    formato compatible. Puedes reemplazarlo por una
-                    versión corregida para intentar procesarlo nuevamente.
-                </p>
-
-                {/* Modal actions */}
-                <div className="flex flex-col-reverse gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:justify-end">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="rounded-lg border border-border-subtle px-5 py-2.5 text-sm font-medium text-content-primary transition-colors hover:bg-surface-secondary"
-                    >
-                        Cerrar
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => onReplace(material)}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                    >
-                        <Icon name="upload_file" size="lg" />
-                        Reemplazar archivo
-                    </button>
-                </div>
-            </div>
-        </Modal>
-    )
+export function MaterialErrorModal({ material, subtopicName, onClose, onReplace }: MaterialErrorModalProps) {
+  return (
+    <Modal isOpen onClose={onClose} title="No pudimos procesar el material" icon="error" iconTone="danger"
+      description={`${material.fileName} · ${subtopicName} · cargado el ${formatMaterialDate(material.uploadedAt)}`}
+      actions={<>
+        <Button label="Cerrar" variant="neutral" onClick={onClose} />
+        <Button label="Reemplazar archivo" icon="upload_file" onClick={() => onReplace(material)} />
+      </>}>
+      <div role="alert" className="flex flex-col gap-1 rounded-md bg-danger-container p-4">
+        <h3 className="text-label-s text-danger-strong">MOTIVO</h3>
+        <p className="text-body-l text-content-primary">{material.errorMessage ?? 'No se pudo extraer el contenido del archivo.'}</p>
+      </div>
+      <div className="flex flex-col gap-4">
+        <h3 className="text-body-m-bold text-content-primary">Para que la ingestión funcione</h3>
+        <ul className="flex flex-col gap-4 text-body-l text-content-secondary">
+          {[
+            'Usa un PDF digital o un escaneo de al menos 300 ppp.',
+            'Evita fotos con reflejos, sombras o texto cortado.',
+            'Incluye solo el contenido de un subtema por archivo.',
+          ].map((recommendation) => <li key={recommendation} className="flex items-start gap-3">
+            <Icon name="check_circle" className="text-secondary-strong" />{recommendation}
+          </li>)}
+        </ul>
+      </div>
+    </Modal>
+  )
 }

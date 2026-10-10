@@ -23,7 +23,7 @@ const router = createBrowserRouter([
   {
     element: <ShellRoute />,
     children: [
-      { index: true, element: <Navigate to={ROUTES.courses} replace /> },
+      { index: true, element: <Navigate to={ROUTES.signIn} replace /> },
       { path: ROUTES.courses, element: <CoursesPage /> },
       { path: 'cursos/:courseId/subtemas', element: <CourseSubtopicsPage /> },
       { path: 'cursos/:courseId/material', element: <CurricularMaterialPage /> },

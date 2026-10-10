@@ -1,199 +1,53 @@
-
 /**
- * Curricular material table.
+ * Presents material metadata and the shared ingestion state in a responsive table.
  *
- * @remarks
- * Displays uploaded files, their associated subtopics,
- * upload dates, ingestion states and available actions.
- *
+ * @author MRamirez202210582
  * @packageDocumentation
  */
 
-import {
-    Icon,
-    MaterialStatusChip,
-    TableCard,
-    TableHeader,
-    TableRow,
-} from '@/components/ui'
-
+import { Button, IconBox, MaterialStatusChip, TableCard, TableHeader, TableRow } from '@/components/ui'
 import type { Subtopic } from '@/types/course'
 import type { CurricularMaterial } from '@/types/curricularMaterial'
+import { formatMaterialDate, materialFileDescription } from '@/utils/materialFile'
 
 /**
- * Props accepted by MaterialTable.
+ * Props accepted by {@link MaterialTable}.
  */
 export interface MaterialTableProps {
-    materials: CurricularMaterial[]
-    subtopics: Subtopic[]
-    onViewError: (material: CurricularMaterial) => void
+  /** Material records in the course's table order. */
+  materials: CurricularMaterial[]
+  /** Subtopics used to resolve generic display names. */
+  subtopics: Subtopic[]
+  /** Opens the ingestion reason for the selected failed record. */
+  onViewError: (material: CurricularMaterial) => void
 }
 
 /**
- * Formats file size in megabytes.
+ * Lists type-specific metadata and emits the failed record when its reason is requested.
  */
-function formatFileSize(bytes: number): string {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-/**
- * Formats the upload date without timezone shifts.
- */
-function formatUploadDate(value: string): string {
-    const date = value.slice(0, 10).split('-')
-
-    if (date.length !== 3) {
-        return value
-    }
-
-    const [year, month, day] = date
-
-    const months = [
-        'ene', 'feb', 'mar', 'abr',
-        'may', 'jun', 'jul', 'ago',
-        'sep', 'oct', 'nov', 'dic',
-    ]
-
-    const monthIndex = Number(month) - 1
-
-    if (monthIndex < 0 || monthIndex > 11) {
-        return value
-    }
-
-    return `${day} ${months[monthIndex]} ${year}`
-}
-
-/**
- * Returns a short description of the uploaded file.
- */
-function getFileDescription(
-    material: CurricularMaterial,
-): string {
-    const type = material.fileType.toUpperCase()
-    const size = formatFileSize(material.fileSize)
-
-    if (material.pageCount) {
-        return `${type} · ${size} · ${material.pageCount} páginas`
-    }
-
-    if (material.fileType !== 'pdf') {
-        return `${type} · ${size} · Escaneo`
-    }
-
-    return `${type} · ${size}`
-}
-
-/**
- * Displays the curricular material records for a course.
- */
-export function MaterialTable({
-                                  materials,
-                                  subtopics,
-                                  onViewError,
-                              }: MaterialTableProps) {
-    const subtopicNames = new Map(
-        subtopics.map((subtopic) => [
-            subtopic.id,
-            subtopic.name,
-        ]),
-    )
-
-    return (
-        <TableCard label="Materiales curriculares del curso">
-            <TableHeader
-                columns={[
-                    'Archivo',
-                    'Subtema',
-                    'Cargado',
-                    'Estado',
-                    'Acción',
-                ]}
-                className="md:grid-cols-12"
-                cellClassNames={[
-                    'md:col-span-4',
-                    'md:col-span-3',
-                    'md:col-span-2',
-                    'md:col-span-2',
-                    'md:col-span-1',
-                ]}
-            />
-
-            {materials.map((material) => (
-                <TableRow
-                    key={material.id}
-                    className="md:grid-cols-12"
-                >
-                    {/* File name and metadata */}
-                    <div
-                        role="cell"
-                        className="flex min-w-0 items-center gap-3 md:col-span-4"
-                    >
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-subtle text-primary">
-                            <Icon
-                                name="description"
-                                size="xl"
-                            />
-                        </div>
-
-                        <div className="min-w-0">
-                            <p className="truncate font-medium text-content-primary">
-                                {material.fileName}
-                            </p>
-
-                            <p className="text-sm text-content-secondary">
-                                {getFileDescription(material)}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Associated subtopic */}
-                    <div
-                        role="cell"
-                        className="min-w-0 md:col-span-3"
-                    >
-                        <p className="text-sm text-content-primary">
-                            {subtopicNames.get(material.subtopicId) ??
-                                'Subtema no encontrado'}
-                        </p>
-                    </div>
-
-                    {/* Upload date */}
-                    <div
-                        role="cell"
-                        className="text-sm text-content-secondary md:col-span-2"
-                    >
-                        {formatUploadDate(material.uploadedAt)}
-                    </div>
-
-                    {/* Ingestion status */}
-                    <div
-                        role="cell"
-                        className="md:col-span-2"
-                    >
-                        <MaterialStatusChip status={material.status} />
-                    </div>
-
-                    {/* Available actions */}
-                    <div
-                        role="cell"
-                        className="md:col-span-1"
-                    >
-                        {material.status === 'error' ? (
-                            <button
-                                type="button"
-                                onClick={() => onViewError(material)}
-                                className="text-sm font-medium text-primary hover:underline"
-                            >
-                                Ver motivo
-                            </button>
-                        ) : (
-                            <span className="text-sm text-content-tertiary">
-                —
-              </span>
-                        )}
-                    </div>
-                </TableRow>
-            ))}
-        </TableCard>
-    )
+export function MaterialTable({ materials, subtopics, onViewError }: MaterialTableProps) {
+  const names = new Map(subtopics.map((subtopic) => [subtopic.id, subtopic.name]))
+  return (
+    <TableCard label="Materiales curriculares del curso">
+      <TableHeader columns={['Archivo', 'Subtema', 'Cargado', 'Estado', 'Acción']}
+        className="md:hidden lg:grid lg:grid-cols-24" cellClassNames={['lg:col-span-7', 'lg:col-span-6', 'lg:col-span-3', 'lg:col-span-5', 'lg:col-span-3']} />
+      {materials.map((material) => <TableRow key={material.id} className="md:grid-cols-1 lg:grid-cols-24">
+        <div role="cell" className="flex min-w-0 items-center gap-2.5 lg:col-span-7">
+          <IconBox icon={material.fileType === 'pdf' ? 'picture_as_pdf' : 'image'} size="sm" tone={material.status === 'error' ? 'danger' : 'primary'} isSubtle={material.status !== 'error'} />
+          <div className="min-w-0">
+            <p className="truncate text-label-l text-content-primary" title={material.fileName}>{material.fileName}</p>
+            <p className="text-body-m text-content-secondary">{materialFileDescription(material.fileName, material.fileSize, material.pageCount, material.isScan)}</p>
+          </div>
+        </div>
+        <div role="cell" className="text-body-l text-content-primary lg:col-span-6">{names.get(material.subtopicId)}</div>
+        <div role="cell" className="text-body-m text-content-secondary lg:col-span-3">{formatMaterialDate(material.uploadedAt)}</div>
+        <div role="cell" className="lg:col-span-5">
+          <MaterialStatusChip status={material.status} processingLabel="Pendiente" processingIcon="hourglass_empty" />
+        </div>
+        <div role="cell" className="lg:col-span-3">
+          {material.status === 'error' ? <Button label="Ver motivo" variant="tonal" size="sm" onClick={() => onViewError(material)} /> : <span className="text-content-muted">—</span>}
+        </div>
+      </TableRow>)}
+    </TableCard>
+  )
 }

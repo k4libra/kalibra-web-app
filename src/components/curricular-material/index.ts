@@ -1,7 +1,7 @@
-
 /**
  * Public exports for the curricular material components.
  *
+ * @author MRamirez202210582
  * @packageDocumentation
  */
 
