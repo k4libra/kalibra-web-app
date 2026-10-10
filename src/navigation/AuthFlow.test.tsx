@@ -8,16 +8,12 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { ActiveCourseProvider } from '@/context/ActiveCourseContext'
 import { ToastProvider } from '@/context/ToastContext'
 import { APP_ROUTES } from '@/navigation/appRoutes'
 import { authService } from '@/services/auth.service'
 
-vi.mock('@/mocks/scenario', () => ({
-  respond: async <T,>(data: T) => structuredClone(data),
-  isEmptyScenario: () => false,
-}))
 afterEach(async () => {
   await act(async () => authService.logout())
 })
@@ -33,7 +29,7 @@ function mount(path: string) {
   )
   return router
 }
-async function fill(email: string, password = 'Kalibra123') {
+async function fill(email: string, password = '@profesortest1') {
   await userEvent.type(screen.getByLabelText('Correo institucional'), email)
   await userEvent.type(screen.getByLabelText('Contraseña'), password)
 }
@@ -57,7 +53,7 @@ describe('authentication navigation', () => {
   })
   it('preserves notice state and values across both password visibility states and dismissal', async () => {
     mount('/iniciar-sesion')
-    await fill('docente@kalibra.com', 'wrong')
+    await fill('profesor.test1@upc.edu.pe', 'wrong')
     await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Correo o contraseña incorrectos')
     await userEvent.click(screen.getByRole('button', { name: 'Mostrar contraseña' }))
@@ -75,17 +71,17 @@ describe('authentication navigation', () => {
     expect(screen.getByLabelText('Nombre completo')).toHaveAttribute('aria-invalid', 'true')
     expect(router.state.location.pathname).toBe('/registro')
     await userEvent.type(screen.getByLabelText('Nombre completo'), 'Ana Torres')
-    await fill('docente@kalibra.com')
+    await fill('profesor.test1@upc.edu.pe')
     await userEvent.click(screen.getByRole('button', { name: 'Mostrar contraseña' }))
-    expect(screen.getByLabelText('Contraseña')).toHaveValue('Kalibra123')
+    expect(screen.getByLabelText('Contraseña')).toHaveValue('@profesortest1')
     await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Ya existe una cuenta con este correo.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Este correo ya tiene una cuenta registrada.')
     expect(screen.getByLabelText('Correo institucional')).toHaveAttribute('aria-invalid', 'true')
     await userEvent.click(screen.getByRole('button', { name: 'Usar otro correo' }))
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Correo institucional')).toHaveValue('')
     expect(screen.getByLabelText('Nombre completo')).toHaveValue('Ana Torres')
-    await userEvent.type(screen.getByLabelText('Correo institucional'), 'docente@kalibra.com')
+    await userEvent.type(screen.getByLabelText('Correo institucional'), 'profesor.test1@upc.edu.pe')
     await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
     await screen.findByRole('alert')
     await userEvent.click(screen.getAllByRole('button', { name: 'Iniciar sesión' })[0])
@@ -103,7 +99,7 @@ describe('authentication navigation', () => {
   })
   it('signs in, switches courses and confirms or cancels logout over the current page', async () => {
     const router = mount('/iniciar-sesion')
-    await fill('docente@kalibra.com')
+    await fill('profesor.test1@upc.edu.pe')
     await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
     expect(await screen.findAllByRole('button', { name: 'Gestionar curso' })).toHaveLength(2)
     await userEvent.click(await screen.findByRole('button', { name: /Cambiar de curso/ }))

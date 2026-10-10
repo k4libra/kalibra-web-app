@@ -10,6 +10,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ActiveCourseProvider, useActiveCourse } from '@/context/ActiveCourseContext'
+import { apiStub } from '@/test/apiStub'
 import { studentMonitoringService } from '@/services/studentMonitoring.service'
 import type { StudentProgress } from '@/types/studentMonitoring'
 import { useGapMap, useMonitoredStudents, useStudentProgress } from '@/hooks/useStudentMonitoring'
@@ -41,8 +42,8 @@ describe('useMonitoredStudents', () => {
     expect(result.current.error).toBeNull()
   })
   it('returns zero groups and counters in the teacher-empty scenario', async () => {
-    window.history.replaceState({}, '', '/?vacio')
-    const { result } = renderHook(() => useMonitoredStudents(), { wrapper: wrapper('/estudiantes?vacio', '/estudiantes') })
+    apiStub.empty()
+    const { result } = renderHook(() => useMonitoredStudents(), { wrapper: wrapper('/estudiantes', '/estudiantes') })
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.groups).toEqual([])
     expect(result.current.stats.totalStudents).toBe(0)
@@ -79,7 +80,8 @@ describe('useStudentProgress', () => {
     act(() => result.current.active.setActiveCourseId('course-2'))
     await waitFor(() => expect(result.current.progress?.student.id).toBe('st-1'))
     expect(result.current.active.activeCourseId).toBe('course-1')
-    expect(result.current.recommendation).toContain('Sus últimas 3 respuestas')
+    expect(result.current.recommendation).toBeNull()
+    expect(result.current.progress?.recentFeedback).toContain('Revisa el caso base de la recursión.')
   })
   it('ignores a late student response after a new student is selected', async () => {
     const original = studentMonitoringService.getStudentProgress

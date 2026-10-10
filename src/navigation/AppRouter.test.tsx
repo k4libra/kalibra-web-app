@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
 import { courseRoutes, ROUTES, studentRoutes } from '@/navigation/routes'
 import { authService } from '@/services/auth.service'
+import { apiStub } from '@/test/apiStub'
 import { studentMonitoringService } from '@/services/studentMonitoring.service'
 
 async function open(path: string) {
@@ -21,7 +22,7 @@ async function open(path: string) {
 }
 
 beforeEach(async () => {
-  await authService.login({ email: 'docente@kalibra.com', password: 'Kalibra123' })
+  await authService.login({ email: 'profesor.test1@upc.edu.pe', password: '@profesortest1' })
 })
 
 afterEach(async () => {
@@ -37,10 +38,10 @@ describe('merged monitoring routes', () => {
     expect(await screen.findByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument()
     expect(window.location.pathname).toBe(ROUTES.signIn)
     await act(async () => {
-      await authService.login({ email: 'docente@kalibra.com', password: 'Kalibra123' })
+      await authService.login({ email: 'profesor.test1@upc.edu.pe', password: '@profesortest1' })
     })
     for (const [path, heading] of [
-      [ROUTES.courses, 'Hola, Ricardo'], [ROUTES.invitations, 'Invitaciones'],
+      [ROUTES.courses, 'Hola, Profesor'], [ROUTES.invitations, 'Invitaciones'],
       [ROUTES.exercises, 'Ejercicios generados'], [courseRoutes.indicators('course-1'), 'Indicadores del curso'],
       [courseRoutes.subtopics('course-1'), 'Subtemas del curso'], [courseRoutes.material('course-1'), 'Material curricular'],
     ]) {
@@ -59,16 +60,16 @@ describe('merged monitoring routes', () => {
     expect(within(summary).getByText('3')).toBeInTheDocument()
     expect(within(summary).getByText('2')).toBeInTheDocument()
     expect(within(summary).getByText('1')).toBeInTheDocument()
-    const names = ['Valentina Morales Rivera', 'Diego Paredes Luna', 'Lucía Ramos Soto']
+    const names = ['Estudiante Test 1', 'Estudiante Test 2', 'Estudiante Test 3']
     for (let index = 0; index < names.length; index++) {
       await userEvent.click((await screen.findAllByRole('button', { name: 'Ver progreso' }))[index])
       expect(await screen.findByRole('heading', { name: names[index], level: 1 })).toBeInTheDocument()
       expect(window.location.pathname).toBe(studentRoutes.progress(`st-${index + 1}`))
-      if (index === 0) expect(screen.getByText(/Sus últimas 3 respuestas/)).toBeInTheDocument()
-      if (index === 1) expect(screen.getByText('Refuerzo sugerido: Programación Dinámica (29%) y Recursividad y Backtracking (58%).')).toBeInTheDocument()
+      if (index === 0) expect(screen.getByText('Revisa el caso base de la recursión.')).toBeInTheDocument()
+      if (index === 1) expect(screen.queryByText(/Refuerzo sugerido/)).not.toBeInTheDocument()
       if (index === 2) {
-        expect(screen.getByRole('heading', { name: 'Lucía aún no registra actividad' })).toBeInTheDocument()
-        expect(screen.getByText(/Lucía aceptó tu invitación el 04 sep 2025/)).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'Estudiante aún no registra actividad' })).toBeInTheDocument()
+        expect(screen.getByText(/Estudiante aceptó tu invitación el 04 sep 2025/)).toBeInTheDocument()
         expect(screen.queryByRole('region', { name: 'Resumen del progreso' })).not.toBeInTheDocument()
       }
       await userEvent.click(screen.getByRole('button', { name: 'Volver a estudiantes' }))
@@ -87,13 +88,13 @@ describe('merged monitoring routes', () => {
     expect(await screen.findByRole('heading', { name: 'Aún no hay datos suficientes' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Ver estudiantes' }))
     await userEvent.click((await screen.findAllByRole('button', { name: 'Ver progreso' }))[0])
-    expect(await screen.findByRole('heading', { name: 'Valentina Morales Rivera', level: 1 })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Estudiante Test 1', level: 1 })).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('link', { name: 'Mapa de brechas' })).toHaveAttribute('href', courseRoutes.gapMap('course-1')))
     await userEvent.click(screen.getByRole('link', { name: 'Mapa de brechas' }))
     expect(await screen.findByRole('heading', { name: 'Prioridad de refuerzo por subtema' })).toBeInTheDocument()
     expect(screen.getByText('56%')).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: /Ver progreso de Diego Paredes Luna: Programación Dinámica/ }))
-    expect(await screen.findByRole('heading', { name: 'Diego Paredes Luna', level: 1 })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /Ver progreso de Estudiante Test 2: Programación Dinámica/ }))
+    expect(await screen.findByRole('heading', { name: 'Estudiante Test 2', level: 1 })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Volver a estudiantes' }))
     expect(await screen.findAllByRole('button', { name: 'Ver progreso' })).toHaveLength(3)
   })
@@ -111,20 +112,21 @@ describe('merged monitoring routes', () => {
   it('keeps unknown students recoverable through the return-to-roster action', async () => {
     await open(studentRoutes.progress('missing'))
     render(<App />)
-    expect(await screen.findByRole('alert')).toHaveTextContent('No se encontró al estudiante.')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Estudiante no encontrado.')
     await userEvent.click(screen.getByRole('button', { name: 'Volver a estudiantes' }))
     expect(await screen.findAllByRole('button', { name: 'Ver progreso' })).toHaveLength(3)
   })
 
   it('renders the teacher-empty state and reaches the accepted course creation dialog', async () => {
-    await open(`${ROUTES.students}?vacio`)
+    apiStub.empty()
+    await open(ROUTES.students)
     render(<App />)
     expect(await screen.findByRole('heading', { name: 'Aún no tienes estudiantes' })).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Resumen de estudiantes' })).not.toBeInTheDocument()
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Crear mi primer curso' }))
     expect(window.location.pathname).toBe(ROUTES.courses)
-    expect(window.location.search).toBe('?vacio')
+    expect(window.location.search).toBe('')
     await userEvent.click(await screen.findByRole('button', { name: 'Crear mi primer curso' }))
     expect(screen.getByRole('dialog', { name: 'Crear curso' })).toBeInTheDocument()
   })

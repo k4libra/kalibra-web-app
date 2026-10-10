@@ -11,7 +11,7 @@ import { createMemoryRouter } from 'react-router'
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
-import { resetCurricularMaterialsMock } from '@/mocks/curricularMaterial.mock'
+import { apiStub } from '@/test/apiStub'
 import { courseRoutes, ROUTES } from '@/navigation/routes'
 import { authService } from '@/services/auth.service'
 
@@ -35,8 +35,8 @@ async function open(path: string) {
 
 beforeEach(async () => {
   window.history.replaceState({}, '', '/')
-  resetCurricularMaterialsMock()
-  await authService.login({ email: 'docente@kalibra.com', password: 'Kalibra123' })
+  apiStub.resetMaterials()
+  await authService.login({ email: 'profesor.test1@upc.edu.pe', password: '@profesortest1' })
 })
 
 afterEach(async () => {

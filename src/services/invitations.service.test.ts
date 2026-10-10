@@ -17,7 +17,7 @@ describe('invitationsService', () => {
   })
 
   it('creates a pending invitation for a registered email', async () => {
-    const result = await invitationsService.sendInvitation('course-1', 'carlos.vega@upc.edu.pe')
+    const result = await invitationsService.sendInvitation('course-1', 'estudiante.test4@upc.edu.pe')
     expect(result.status === 'sent' && result.invitation.status).toBe('pending')
   })
 

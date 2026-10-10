@@ -10,9 +10,10 @@ import { authService } from '@/services/auth.service'
 import { coursesService } from '@/services/courses.service'
 import { invitationsService } from '@/services/invitations.service'
 import { exercisesService } from '@/services/exercises.service'
+import { apiStub } from '@/test/apiStub'
 import { AuthError } from '@/types/auth'
 
-const credentials = { email: 'docente@kalibra.com', password: 'Kalibra123' }
+const credentials = { email: 'profesor.test1@upc.edu.pe', password: '@profesortest1' }
 const registration = {
   firstName: 'Ana',
   lastName: 'Torres',
@@ -59,7 +60,7 @@ describe('authService', () => {
   })
   it('rejects duplicate email without starting a session', async () => {
     await expect(
-      complete(authService.register({ ...registration, email: ' DOCENTE@KALIBRA.COM ' })),
+      complete(authService.register({ ...registration, email: ' PROFESOR.TEST1@UPC.EDU.PE ' })),
     ).rejects.toBeInstanceOf(AuthError)
     await expect(complete(authService.register({ ...registration, email: credentials.email }))).rejects.toMatchObject({
       code: 'duplicate-email',
@@ -83,7 +84,7 @@ describe('authService', () => {
   it('scopes courses, subtopics, invitations and exercises to the registered account across sign-ins', async () => {
     await complete(authService.register(registration))
     expect(await complete(coursesService.listCourses())).toEqual([])
-    expect(await complete(coursesService.listSubtopics('course-1'))).toEqual([])
+    await expect(coursesService.listSubtopics('course-1')).rejects.toMatchObject({ status: 404 })
     await expect(complete(coursesService.getCourse('course-1'))).rejects.toThrow()
     expect(await complete(invitationsService.listInvitations())).toEqual([])
     expect(await complete(exercisesService.listCatalogs())).toEqual([])
@@ -100,11 +101,10 @@ describe('authService', () => {
     await complete(authService.logout())
     await complete(authService.login(credentials))
     expect((await complete(coursesService.listCourses())).some((course) => course.id === created.id)).toBe(false)
-    window.history.replaceState({}, '', '/?vacio')
+    apiStub.empty()
     expect(await complete(coursesService.listCourses())).toEqual([])
     expect(await complete(invitationsService.listInvitations())).toEqual([])
     expect(await complete(exercisesService.listCatalogs())).toEqual([])
-    window.history.replaceState({}, '', '/')
     await complete(authService.logout())
     await complete(authService.login(registration))
     expect(await complete(coursesService.listCourses())).toEqual([created])
