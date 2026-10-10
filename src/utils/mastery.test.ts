@@ -9,6 +9,9 @@ import { describe, expect, it } from 'vitest'
 import { masteryTone } from './mastery'
 
 describe('masteryTone', () => {
+  it.each([[null, 'neutral'], [39, 'danger'], [40, 'warning'], [69, 'warning'], [70, 'success'], [71, 'success']] as const)('classifies the boundary %s as %s', (value, tone) => {
+    expect(masteryTone(value)).toBe(tone)
+  })
   it('is neutral without data', () => {
     expect(masteryTone(null)).toBe('neutral')
   })
