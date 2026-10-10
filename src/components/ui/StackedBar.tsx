@@ -14,7 +14,7 @@ const TONE_CLASS: Record<Tone, string> = {
   success: 'bg-secondary-strong',
   warning: 'bg-tertiary',
   danger: 'bg-danger',
-  neutral: 'bg-primary-pale',
+  neutral: 'bg-primary-container',
 }
 
 /**
