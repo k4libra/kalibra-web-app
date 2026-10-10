@@ -1,6 +1,6 @@
 # Kalibra Web App
 
-Panel web del docente de Kalibra: gestiona cursos y subtemas, ejercicios generados, invitaciones e indicadores.
+Panel web del docente de Kalibra: gestiona cursos y subtemas, ejercicios generados, invitaciones, indicadores y seguimiento de estudiantes.
 
 > Estado actual: **solo interfaz y navegación**. No hay integración con la API; los datos salen de servicios simulados (`src/mocks`).
 
@@ -8,7 +8,7 @@ Panel web del docente de Kalibra: gestiona cursos y subtemas, ejercicios generad
 
 | Paquete | Versión |
 | --- | --- |
-| React / React DOM | 19.3 |
+| React / React DOM | 19.2 |
 | Vite | 7.3 |
 | TypeScript | 5.9 |
 | Tailwind CSS (`@tailwindcss/vite`) | 4.3.3 |
@@ -65,3 +65,24 @@ Toda rama nace de `develop`.
 | `feature/invitations-indicators` | Gonzalo |
 
 Las rutas de otras ramas muestran `PlaceholderPage` hasta que se integran.
+
+## Seguimiento de estudiantes
+
+- `/estudiantes`: matrículas agrupadas por curso, incluyendo cursos sin estudiantes.
+- `/estudiantes/st-1`, `/estudiantes/st-2`, `/estudiantes/st-3`: progreso con actividad o invitación aceptada sin actividad. Los enlaces anteriores `student-1/2/3` siguen funcionando.
+- `/cursos/:courseId/mapa-de-brechas`: prioridades y heatmap; cada nombre o celda abre el progreso individual.
+- `/estudiantes?vacio`: docente sin cursos; la acción de crear un curso conserva el escenario vacío al llegar a `/cursos`.
+- `/cursos/course-2/mapa-de-brechas`: datos insuficientes en un curso existente.
+
+Las identidades y matrículas provienen de `src/mocks/students.fixture.ts`, compartido por seguimiento, indicadores e invitaciones. Las recomendaciones usan subtemas seleccionados y respuestas recientes explícitas del mock; no se deducen respuestas incorrectas de un porcentaje de dominio. Las fechas relativas usan la fecha de la respuesta simulada, no el reloj del equipo.
+
+El dominio sigue `masteryTone`: bajo <40%, medio desde 40% hasta antes de 70%, alto desde 70%; `null` significa sin datos. La leyenda usa ese criterio, resolviendo la discrepancia del frame de Figma en 70%.
+
+La ruta raíz abre `/iniciar-sesion`. Auth y material curricular conservan sus placeholders hasta integrar sus respectivas ramas; esta rama no implementa credenciales de acceso.
+
+La auditoría exige 0 errores. Sus advertencias pendientes tienen estas disposiciones:
+
+- `ARCH-05`: los siete README por capa faltan por la política existente de mantener README solo en carpetas vacías; no se agregan como parte de este refactor.
+- `TEST-02`: cinco hooks de páginas/shell heredados siguen pendientes; el contrato de seguimiento solo declara tipos y no necesita un test de ejecución. El servicio, los tres hooks de seguimiento, las composiciones y los nuevos primitivos sí tienen pruebas.
+
+Se inspeccionaron los siete PNG de referencia de seguimiento. La comparación visual de la app a 1280×832 y 360/768 px queda pendiente: el entorno no tiene navegador conectado y rechazó el acceso a Chrome. Las pruebas DOM cubren flujos y teclado del heatmap, sin certificar la fidelidad de píxeles ni el layout responsive.

@@ -1,25 +1,25 @@
 # MEMORY.md - Kalibra Web App
 
-Inter-session project memory. Keep this file concise (about ~50 lines); remove stale details.
+## Current status (2026-10-10)
+- This worktree is `feature/student-monitoring`; integration merge already committed as `fd4b39c`.
+- Monitoring refactor is uncommitted; no Git write commands were executed.
+- Accepted courses, exercises, invitations and indicators routes remain; root opens sign-in.
+- Auth and curricular material retain placeholders until their branches are integrated.
+- Monitoring includes course-grouped students, individual progress and coordinated gap-map/heatmap resources.
+- Read-only Git only in this sandbox; never touch other worktrees or merge into main/develop.
 
-## Current status (2026-10-08)
-- `develop` (pushed): Tailwind 4 tokens from Figma `kalibra_design_system`, `components/ui` primitives, `AppShell` + sidebar with active-course switcher, routes with `PlaceholderPage`, mock services.
-- Local branches (not pushed): `feature/course-management`, `feature/exercise-management`, `feature/invitations-indicators`.
-- Only UI and navigation: services point to `src/mocks`; no API integration yet.
+## Decisions
+- Layered architecture: pages use hooks, hooks use services plus `useResource`, mocks implement contracts.
+- Canonical `mocks/students.fixture.ts` shares `st-1/2/3` identities, enrollment and activity with indicators/invitations; legacy `student-1/2/3` progress URLs remain supported.
+- Keep `masteryTone`: null = no data, <40 low, 40–<70 medium, >=70 high. Legend reflects accepted thresholds rather than Figma's conflicting 70% boundary.
+- Progress recommendations rely on explicit subtopic IDs and recent responses; never infer recent incorrect answers from mastery alone.
+- Opening progress synchronizes ActiveCourseContext to the student's course; listing all courses does not change it.
+- Tokens and existing UI primitives replace bespoke colors, bars, badges and stats; new HeatmapCell/Legend are generic UI primitives.
+- `?vacio` is shared across courses, monitoring and indicators; preserve it on the first-course CTA.
 
-## Decisions (and why)
-- Layered architecture (qs-react-frontend); Tailwind on web, StyleSheet + `theme/tokens.ts` on mobile, same token names.
-- Mobile-first: base classes for 375 px, `md:`/`lg:` widen; sidebar is a drawer below `lg`, tables become stacked rows below `md`.
-- Each service has a `*.contract.ts`; the service exports the mock today so the HTTP version swaps in without touching hooks.
-- Courses and subtopics are data only; no screen names a specific course. `?vacio` in the URL shows empty states.
-- Shared pieces (MaterialStatusChip, mastery/plural helpers, IconName list) live in `develop` to avoid duplicates across branches.
-- README.md only in empty layer folders (user rule), so ARCH-05 audit warning is expected.
-
-## Lessons learned and mistakes to avoid
-- Vitest runs without globals: Testing Library cleanup is registered in `src/test/setup.ts`.
-- jsdom 30 needs Node >= 24.15; pinned to 29.x.
-- NavLink for `/cursos` needs `end` or it stays active on `/cursos/:id/*`.
-
-## Next steps
-- Partner branches: `feature/auth`, `feature/curricular-material`, `feature/student-monitoring` replace their placeholders.
-- Replace mocks with HTTP services behind the same contracts.
+## Verification and limitations
+- Baseline: 45 tests passed; lint had 2 errors and audit had 289 error hits.
+- Refactor tests cover service projections, boundaries, errors/retry, stale responses, cleanup, shell synchronization and the real merged router.
+- Live visual verification at 1280×832 and 360/768 remains pending: no connected browser; automatic review denied Chrome access.
+- Audit warning disposition: 7 layer READMEs intentionally absent; 5 inherited page/shell hooks lack tests; monitoring's type-only contract needs no runtime test.
+- Vitest has no globals: cleanup is registered in `src/test/setup.ts`; jsdom remains 29.x.
