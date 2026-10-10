@@ -15,10 +15,10 @@ En `kalibra-api`, prepara su archivo `.env` a partir de `.env.example` y complet
 ```dotenv
 KALIBRA_SEED_GENERIC_USERS=true
 JWT_COOKIE_SECURE=false
-MATERIALS_MAX_FILE_SIZE=20MB
+MATERIALS_MAX_FILE_SIZE=10MB
 ```
 
-El último ajuste alinea el límite de la API con los 20 MB admitidos por el formulario. La configuración predeterminada de la API leída es 10 MB.
+El formulario y la API admiten archivos de hasta 10 MB; ese es también el límite predeterminado de la API.
 
 Desde el directorio de la API, inicia PostgreSQL, Redis, el motor adaptativo y la API:
 
