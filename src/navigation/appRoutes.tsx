@@ -17,13 +17,16 @@ import { GeneratedExercisesPage } from '@/pages/GeneratedExercisesPage'
 import { InvitationsPage } from '@/pages/InvitationsPage'
 import { ROUTES } from './routes'
 import { ShellRoute } from './ShellRoute'
-import { SessionGuard, SessionEntry } from '@/navigation/SessionGuard'
+import { SessionGuard, SessionEntry, SessionResolution } from '@/navigation/SessionGuard'
 
+import { AdminShellRoute } from '@/navigation/AdminShellRoute'
+import { AdminPanelPage } from '@/pages/AdminPanelPage'
+import { CriticalSubtopicsPage } from '@/pages/CriticalSubtopicsPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { LoginPage } from '@/pages/LoginPage'
 
 /** Shared route definitions used by the browser and flow tests. */
-export const APP_ROUTES: RouteObject[] = [
+export const APP_ROUTES: RouteObject[] = [{ element: <SessionResolution />, children: [
   { path: '/', element: <SessionEntry /> },
   { path: ROUTES.signUp, element: <RegisterPage /> },
   { path: ROUTES.signIn, element: <LoginPage /> },
@@ -55,5 +58,9 @@ export const APP_ROUTES: RouteObject[] = [
       },
     ],
   },
+  { element: <SessionGuard role="ADMINISTRATOR" />, children: [{ element: <AdminShellRoute />, children: [
+    { path: ROUTES.adminPanel, element: <AdminPanelPage /> },
+    { path: ROUTES.criticalSubtopics, element: <CriticalSubtopicsPage /> },
+  ] }] },
   { path: '*', element: <SessionEntry /> },
-]
+] }]

@@ -9,6 +9,8 @@
  * Static paths of the app.
  */
 export const ROUTES = {
+  adminPanel: '/admin/panel',
+  criticalSubtopics: '/admin/subtemas-criticos',
   signIn: '/iniciar-sesion',
   signUp: '/registro',
   courses: '/cursos',
@@ -57,6 +59,7 @@ export const studentRoutes = {
    * Builds the progress path of a student.
    *
    * @param studentId - Student enrollment to open.
+   * @param courseId - Course of this enrollment, avoiding ambiguous identities across courses.
    * @returns The path of the individual progress page.
    *
    * @example
@@ -64,5 +67,5 @@ export const studentRoutes = {
    * studentRoutes.progress('st-1'); // '/estudiantes/st-1'
    * ```
    */
-  progress: (studentId: string) => `${ROUTES.students}/${encodeURIComponent(studentId)}`,
+  progress: (studentId: string, courseId?: string) => `${ROUTES.students}/${encodeURIComponent(studentId)}${courseId ? `?curso=${encodeURIComponent(courseId)}` : ''}`,
 }

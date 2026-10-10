@@ -10,3 +10,5 @@ export { CourseSwitcherDialog, type CourseSwitcherDialogProps } from './CourseSw
 export { Logo } from './Logo'
 export { Sidebar, type SidebarLink, type SidebarProps } from './Sidebar'
 export { AuthLayout, type AuthLayoutProps } from './AuthLayout'
+
+export { AdminShell, type AdminShellProps } from './AdminShell'

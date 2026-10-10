@@ -5,6 +5,7 @@
  * @packageDocumentation
  */
 
+import { Callout, Button } from '@/components/ui'
 import { Outlet } from 'react-router'
 import { AppShell, CourseSwitcherDialog } from '@/components/layout'
 import { LogoutConfirmModal } from '@/components/auth'
@@ -24,6 +25,7 @@ export function ShellRoute() {
         onSignOut: shell.logout.open,
       }}
     >
+      {shell.workspaceError && <Callout icon="error" tone="danger" action={<Button label="Reintentar" onClick={shell.retryWorkspace} />}>{shell.workspaceError}</Callout>}
       <Outlet />
       <CourseSwitcherDialog
         isOpen={shell.isSwitcherOpen}
