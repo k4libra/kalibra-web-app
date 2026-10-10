@@ -7,8 +7,10 @@
 
 import type { IndicatorsContract } from '@/services/indicators.contract'
 import type { CourseIndicators } from '@/types/indicators'
-import { COURSES } from './courses.mock'
+import { COURSES } from '@/mocks/courses.mock'
 import { isEmptyScenario, respond } from '@/mocks/scenario'
+import { STUDENTS } from '@/mocks/students.fixture'
+
 import { sessionCollection } from '@/mocks/session'
 
 /**
@@ -17,12 +19,11 @@ import { sessionCollection } from '@/mocks/session'
 export const INDICATORS: CourseIndicators[] = [
   {
     courseId: 'course-1',
-    enrolledCount: 3,
-    students: [
-      { studentId: 'st-1', fullName: 'Valentina Morales Rivera', initials: 'VM', answeredCount: 42, correctCount: 31 },
-      { studentId: 'st-2', fullName: 'Diego Paredes Luna', initials: 'DP', answeredCount: 27, correctCount: 17 },
-      { studentId: 'st-3', fullName: 'Lucía Ramos Soto', initials: 'LR', answeredCount: 0, correctCount: 0 },
-    ],
+    enrolledCount: STUDENTS.filter((student) => student.courseId === 'course-1').length,
+    students: STUDENTS.filter((student) => student.courseId === 'course-1').map((student) => ({
+      studentId: student.id, fullName: student.fullName, initials: student.initials,
+      answeredCount: student.resolvedExercises, correctCount: student.correctAnswers,
+    })),
     subtopics: [
       {
         subtopicId: 'sub-1',

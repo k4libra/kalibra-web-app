@@ -8,11 +8,13 @@
 import type { RouteObject } from 'react-router'
 import { CourseIndicatorsPage } from '@/pages/CourseIndicatorsPage'
 import { CoursesPage } from '@/pages/CoursesPage'
+import { GapMapPage } from '@/pages/GapMapPage'
+import { StudentProgressPage } from '@/pages/StudentProgressPage'
+import { StudentsPage } from '@/pages/StudentsPage'
 import { CurricularMaterialPage } from '@/pages/CurricularMaterialPage'
 import { CourseSubtopicsPage } from '@/pages/CourseSubtopicsPage'
 import { GeneratedExercisesPage } from '@/pages/GeneratedExercisesPage'
 import { InvitationsPage } from '@/pages/InvitationsPage'
-import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { ROUTES } from './routes'
 import { ShellRoute } from './ShellRoute'
 import { SessionGuard, SessionEntry } from '@/navigation/SessionGuard'
@@ -39,13 +41,14 @@ export const APP_ROUTES: RouteObject[] = [
           },
           {
             path: 'cursos/:courseId/mapa-de-brechas',
-            element: <PlaceholderPage title="Mapa de brechas" branch="feature/student-monitoring" />,
+            element: <GapMapPage />,
           },
           { path: 'cursos/:courseId/indicadores', element: <CourseIndicatorsPage /> },
           {
             path: ROUTES.students,
-            element: <PlaceholderPage title="Estudiantes" branch="feature/student-monitoring" />,
+            element: <StudentsPage />,
           },
+          { path: 'estudiantes/:studentId', element: <StudentProgressPage /> },
           { path: ROUTES.exercises, element: <GeneratedExercisesPage /> },
           { path: ROUTES.invitations, element: <InvitationsPage /> },
         ],
