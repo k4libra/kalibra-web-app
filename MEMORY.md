@@ -4,7 +4,7 @@ Inter-session project memory. Keep this file concise (about ~50 lines); remove s
 
 ## Current status (2026-10-10)
 - `feature/ui-integration` holds every teacher feature: auth, courses, curricular material, generated exercises, invitations, indicators and student monitoring. Only UI with mock services; no API.
-- The app starts at `/iniciar-sesion`; demo account and session behavior are documented in README.
+- The app starts at `/iniciar-sesion`; demo account and session behavior are documented in README. `docs/ui-integration-audit.md` records the partner-branch audit.
 
 ## Decisions (and why)
 - Layered architecture (qs-react-frontend): pages use hooks, hooks use services plus `useResource`, services export contracts implemented by mocks.
