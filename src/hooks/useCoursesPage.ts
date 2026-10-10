@@ -32,7 +32,7 @@ export function useCoursesPage() {
   const { showToast } = useToast()
   const { courses, isLoading, error } = useCourses()
   const { teacher } = useCurrentTeacher()
-  const { createCourse: submitCourse, isSubmitting } = useCreateCourse()
+  const { createCourse: submitCourse, isSubmitting, error: createError } = useCreateCourse()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
   const manageCourse = useCallback((courseId: string) => navigate(courseRoutes.subtopics(courseId)), [navigate])
@@ -61,6 +61,7 @@ export function useCoursesPage() {
     isCreateOpen,
     openCreate: () => setIsCreateOpen(true),
     closeCreate: () => setIsCreateOpen(false),
+    createError,
     isSubmitting,
     createCourse,
     manageCourse,

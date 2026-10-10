@@ -40,7 +40,7 @@ export function CourseExercisesGroup({ course, catalog, onOpenExercise, onUpload
       <SectionHeader
         icon={course.icon}
         title={course.name}
-        subtitle={`${course.code} · Ciclo ${course.term}`}
+        subtitle={`${course.code}${course.term ? ` · Ciclo ${course.term}` : ''}`}
         trailing={<Chip label={plural(catalog.generatedCount, 'ejercicio', 'ejercicios')} tone="neutral" />}
       />
       {catalog.subtopics.length === 0 ? (

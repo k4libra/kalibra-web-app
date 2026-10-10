@@ -24,10 +24,10 @@ import type { UploadCurricularMaterialRequest } from '@/types/curricularMaterial
  * ```
  */
 export function useCurricularMaterials(courseId: string) {
-  const resource = useResource(async () => {
+  const resource = useResource(async (signal) => {
     const [course, subtopics, materials] = await Promise.all([
-      coursesService.getCourse(courseId), coursesService.listSubtopics(courseId),
-      curricularMaterialService.getByCourse(courseId),
+      coursesService.getCourse(courseId, signal), coursesService.listSubtopics(courseId, signal),
+      curricularMaterialService.getByCourse(courseId, signal),
     ])
     return { course, subtopics, materials }
   }, `curricular-material-${courseId}`)

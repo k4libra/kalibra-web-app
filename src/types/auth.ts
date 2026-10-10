@@ -6,7 +6,7 @@
  */
 
 /** Roles supported by the authentication contract. */
-export type UserRole = 'TEACHER' | 'STUDENT'
+export type UserRole = 'TEACHER' | 'STUDENT' | 'ADMINISTRATOR' | 'REGISTERED_USER'
 
 /** Credentials submitted to sign in. */
 export interface LoginRequest {
@@ -29,7 +29,7 @@ export interface RegisterRequest extends LoginRequest {
 /** Public profile returned after authentication. */
 export interface AuthUser {
   /** Unique account identifier. */
-  id: number
+  id: string
   /** Given names displayed in greetings. */
   firstName: string
   /** Family names displayed in the sidebar. */
@@ -38,16 +38,12 @@ export interface AuthUser {
   email: string
   /** Access role of the account. */
   role: UserRole
-  /** Whether the account is active. */
-  status: boolean
 }
 
-/** Authenticated profile and simulated credential. */
+/** Authenticated public profile; the credential remains in an httpOnly cookie. */
 export interface AuthResponse {
   /** Public account profile. */
   user: AuthUser
-  /** Demo credential retained only in process memory. */
-  accessToken: string
 }
 
 /** Failures the auth interface distinguishes. */

@@ -21,7 +21,7 @@ import { useResource } from './useResource'
  */
 export function useCourseSubtopics(courseId: string) {
   const { data, isLoading, error, refetch } = useResource(
-    () => Promise.all([coursesService.getCourse(courseId), coursesService.listSubtopics(courseId)]),
+    (signal) => Promise.all([coursesService.getCourse(courseId, signal), coursesService.listSubtopics(courseId, signal)]),
     `course-subtopics-${courseId}`,
   )
   return { course: data?.[0] ?? null, subtopics: data?.[1] ?? [], isLoading, error, refetch }

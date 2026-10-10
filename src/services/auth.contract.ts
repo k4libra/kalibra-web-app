@@ -1,5 +1,5 @@
 /**
- * Authentication contract shared by the mock and future remote adapter.
+ * Authentication contract implemented by the HTTP adapter.
  *
  * @author MRamirez202210582
  * @packageDocumentation
@@ -7,7 +7,7 @@
 
 import type { AuthResponse, LoginRequest, RegisterRequest } from '@/types/auth'
 
-/** Operations supplied by a simulated or remote authentication adapter. */
+/** Operations supplied by a remote authentication adapter. */
 export interface AuthServiceContract {
   /**
    * Registers a teacher and starts the account session.
@@ -28,13 +28,15 @@ export interface AuthServiceContract {
    */
   login: (data: LoginRequest, signal?: AbortSignal) => Promise<AuthResponse>
   /**
-   * Ends the in-memory demo session.
+   * Ends the cookie session.
    *
    * @param signal - Cancellation signal for an obsolete submission.
    * @returns Nothing after the session is cleared.
    * @throws Error when the operation is cancelled.
    */
   logout: (signal?: AbortSignal) => Promise<void>
+  /** Restores the cookie session at startup; deduplicates concurrent requests. */
+  restore: () => Promise<void>
   /** Reads a stable session snapshot for the navigation guard. */
   getSession: () => AuthResponse | null
   /** Observes identity changes and returns an unsubscribe callback. */

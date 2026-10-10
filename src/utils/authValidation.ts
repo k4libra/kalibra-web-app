@@ -26,7 +26,7 @@ export function validateAuth(values: AuthFormValues, isRegister: boolean): AuthF
   if (!values.password) errors.password = 'La contraseña es obligatoria.'
   else if (
     isRegister &&
-    (values.password.length < 8 || !/[a-zA-Z]/.test(values.password) || !/\d/.test(values.password))
+    (values.password.length < 8 || values.password.length > 128 || !/[a-zA-Z]/.test(values.password) || !/\d/.test(values.password))
   ) {
     errors.password = 'Usa al menos 8 caracteres, letras y números.'
   }

@@ -101,7 +101,7 @@ export interface CreateCourseInput {
   /** Institutional code. */
   code: string
   /** Academic term. */
-  term: string
+  term?: string
   /** Names of the subtopics, in the order they were added; at least one. */
   subtopics: string[]
 }

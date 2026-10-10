@@ -3,7 +3,7 @@
  *
  * @remarks
  * These types describe the data required by the teacher
- * interface and prepare the feature for a future REST API.
+ * interface and its HTTP adapter.
  *
  * @author MRamirez202210582
  * @packageDocumentation
@@ -34,6 +34,9 @@ export interface CurricularMaterial {
     /** Subtopic associated with the material. */
     subtopicId: string
 
+    /** All associated subtopics, when provided by the API. */
+    subtopicIds?: string[]
+
     /** Original name of the uploaded file. */
     fileName: string
 
@@ -41,7 +44,7 @@ export interface CurricularMaterial {
     fileType: MaterialFileType
 
     /** File size expressed in bytes. */
-    fileSize: number
+    fileSize?: number
 
     /** Number of pages, when available. */
     pageCount?: number
@@ -55,7 +58,7 @@ export interface CurricularMaterial {
     /** Current processing status. */
     status: CurricularMaterialStatus
 
-    /** Optional URL provided by the future backend. */
+    /** Optional download URL, when supplied by the backend. */
     fileUrl?: string
 
     /** Reason for a failed ingestion, if applicable. */
@@ -67,8 +70,7 @@ export interface CurricularMaterial {
  *
  * @remarks
  * The File object belongs to the frontend upload flow.
- * The backend request format will be defined when the
- * REST API is available.
+ * The service sends the bytes and associations as multipart data.
  */
 export interface UploadCurricularMaterialRequest {
     /** Course whose material is being uploaded. */

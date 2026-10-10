@@ -37,7 +37,7 @@ export function SubtopicPriorityList({ subtopics, gaps, totalStudents, updatedAt
   const sorted = [...gaps].sort((a, b) => (a.averageMastery ?? Infinity) - (b.averageMastery ?? Infinity))
   return <Card as="section" padding="lg">
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <SectionHeader title="Prioridad de refuerzo por subtema" subtitle={`Cuántos de tus ${plural(totalStudents, 'estudiante', 'estudiantes')} están en cada nivel · actualizado ${formatMonitoringActivity(updatedAt, updatedAt).toLowerCase()}`} />
+      <SectionHeader title="Prioridad de refuerzo por subtema" subtitle={`Cuántos de tus ${plural(totalStudents, 'estudiante', 'estudiantes')} están en cada nivel${updatedAt ? ` · actualizado ${formatMonitoringActivity(updatedAt, updatedAt).toLowerCase()}` : ''}`} />
       <Legend label="Niveles de dominio" items={[
         { label: `Bajo < ${LOW_MASTERY_THRESHOLD}%`, tone: 'danger' },
         { label: `Medio ${LOW_MASTERY_THRESHOLD}–${HIGH_MASTERY_THRESHOLD - 1}%`, tone: 'warning' },

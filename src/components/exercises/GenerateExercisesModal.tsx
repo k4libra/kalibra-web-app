@@ -37,6 +37,8 @@ export interface GenerationCourse {
  * Props accepted by {@link GenerateExercisesModal}.
  */
 export interface GenerateExercisesModalProps {
+  /** Error returned by the generation request. */
+  error?: string | null
   /** Courses of the teacher; courses without ready material are disabled. */
   courses: GenerationCourse[]
   /** Whether a generation request is in flight. */
@@ -55,7 +57,7 @@ export interface GenerateExercisesModalProps {
  * @remarks
  * Mount it only while open so each opening starts from the first course with ready material.
  */
-export function GenerateExercisesModal({ courses, isSubmitting, onClose, onGenerate, onUploadMaterial }: GenerateExercisesModalProps) {
+export function GenerateExercisesModal({ courses, isSubmitting, error, onClose, onGenerate, onUploadMaterial }: GenerateExercisesModalProps) {
   const readyCount = (item: GenerationCourse) => item.subtopics.filter((subtopic) => subtopic.materialStatus === 'ready').length
   const initialCourse = courses.find((item) => readyCount(item) > 0) ?? courses[0]
   const [courseId, setCourseId] = useState(initialCourse?.course.id ?? '')
@@ -91,6 +93,7 @@ export function GenerateExercisesModal({ courses, isSubmitting, onClose, onGener
       }
     >
       <div className="flex flex-col gap-3">
+        {error && <Callout icon="error" tone="danger">{error}</Callout>}
         <Select
           label="Curso"
           icon="school"

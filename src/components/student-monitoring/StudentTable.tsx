@@ -40,7 +40,7 @@ export function StudentTable({ students, updatedAt, onViewProgress }: StudentTab
         <span className="shrink-0 text-body-m-bold text-content-secondary">{student.averageMastery === null ? 'Sin datos' : formatMastery(student.averageMastery)}</span>
       </div>
       <span role="cell" className={cn('text-body-m text-content-secondary', CELLS[3])}>
-        {student.lastActivityAt ? formatMonitoringActivity(student.lastActivityAt, updatedAt) : <Chip label="Sin actividad" tone="neutral" icon="schedule" />}
+        {student.lastActivityAt ? formatMonitoringActivity(student.lastActivityAt, updatedAt) : <Chip label={student.resolvedExercises ? "Fecha no disponible" : "Sin actividad"} tone="neutral" icon="schedule" />}
       </span>
       <span role="cell" className={CELLS[4]}><Button label="Ver progreso" variant="tonal" size="sm" onClick={() => onViewProgress(student.id)} /></span>
     </TableRow>)}

@@ -35,9 +35,9 @@ export interface CourseExerciseGroup {
  * ```
  */
 export function useGeneratedExercises() {
-  const { data, isLoading, error, refetch } = useResource(async () => {
-    const [courses, catalogs] = await Promise.all([coursesService.listCourses(), exercisesService.listCatalogs()])
-    const subtopics = await Promise.all(courses.map((course) => coursesService.listSubtopics(course.id)))
+  const { data, isLoading, error, refetch } = useResource(async (signal) => {
+    const [courses, catalogs] = await Promise.all([coursesService.listCourses(signal), exercisesService.listCatalogs(signal)])
+    const subtopics = await Promise.all(courses.map((course) => coursesService.listSubtopics(course.id, signal)))
     return courses.map<CourseExerciseGroup>((course, index) => ({
       course,
       subtopics: subtopics[index],

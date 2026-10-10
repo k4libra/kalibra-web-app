@@ -9,6 +9,7 @@ import { useCallback, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { useActiveCourse } from '@/context/ActiveCourseContext'
 import { authService } from '@/services/auth.service'
+import { sessionHome } from '@/utils/sessionHome'
 import { ROUTES } from '@/navigation/routes'
 import type { AuthFieldErrors, AuthFormValues } from '@/types/auth'
 import { validateAuth } from '@/utils/authValidation'
@@ -42,7 +43,7 @@ export function useLogin() {
     const result = await submit({ email: values.email.trim(), password: values.password })
     if (result) {
       setActiveCourseId(null)
-      navigate({ pathname: ROUTES.courses, search }, { replace: true })
+      navigate({ pathname: sessionHome(result.user.role), search }, { replace: true })
     }
   }, [values, submit, navigate, search, setActiveCourseId])
 

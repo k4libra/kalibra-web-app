@@ -27,9 +27,10 @@ export function StudentProgressPage() {
       <section aria-label="Resumen del progreso" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard icon="insights" value={formatMastery(student.averageMastery)} label="Dominio promedio" />
         <StatCard icon="quiz" tone="warning" value={`${student.resolvedExercises}`} label="Ejercicios resueltos" />
-        <StatCard icon="check_circle" tone="success" value={`${student.correctAnswers} de ${student.resolvedExercises}`} label="Respuestas correctas" />
+        <StatCard icon="check_circle" tone="success" value={student.correctAnswers === null ? '—' : `${student.correctAnswers} de ${student.resolvedExercises}`}  label="Respuestas correctas" />
       </section>
       <StudentMasteryTable subtopics={page.courseSubtopics} masteryRecords={subtopics} />
+      {page.progress.recentFeedback?.map((feedback, index) => <Callout key={index} icon="info">{feedback}</Callout>)}
       {page.recommendation && <Callout icon="priority_high" tone="warning">{page.recommendation}</Callout>}
     </> : <>
       <EmptyState icon="hourglass_empty" title={`${page.firstName} aún no registra actividad`} className="py-14"

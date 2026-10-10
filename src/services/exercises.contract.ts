@@ -1,5 +1,5 @@
 /**
- * Contract of the generated exercises endpoints, shared by the real and the simulated service.
+ * Contract of the generated exercises endpoints, implemented by the HTTP service.
  *
  * @author G0nz4loQu3dena
  * @packageDocumentation
@@ -12,7 +12,7 @@ import type { CourseExerciseCatalog, GenerationResult } from '@/types/exercise'
  */
 export interface ExercisesContract {
   /** Lists the generated exercises of every course of the teacher, grouped by course and subtopic. */
-  listCatalogs: () => Promise<CourseExerciseCatalog[]>
+  listCatalogs: (signal?: AbortSignal) => Promise<CourseExerciseCatalog[]>
   /** Generates and verifies a batch of exercises for a subtopic with ready material. */
   generate: (courseId: string, subtopicId: string) => Promise<GenerationResult>
 }

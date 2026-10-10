@@ -47,7 +47,7 @@ export function CourseCard({ course, onManage }: CourseCardProps) {
           <h3 className="text-headline-m text-content-primary">{course.name}</h3>
           <p className="text-body-m text-content-secondary">{meta}</p>
         </div>
-        <Chip label={`Ciclo ${course.term}`} tone="neutral" />
+        {course.term && <Chip label={`Ciclo ${course.term}`} tone="neutral" />}
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Metric icon="account_tree" value={course.subtopicCount} label="Subtemas" />

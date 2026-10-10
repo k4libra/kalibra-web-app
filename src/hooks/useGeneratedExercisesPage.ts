@@ -33,7 +33,7 @@ export function useGeneratedExercisesPage() {
   const { showToast } = useToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const { groups, totals, findExercise, isLoading, error, refetch } = useGeneratedExercises()
-  const { generate: requestGeneration, isSubmitting: isGenerating } = useGenerateExercises()
+  const { generate: requestGeneration, isSubmitting: isGenerating, error: generationError } = useGenerateExercises()
   const [isGenerateOpen, setIsGenerateOpen] = useState(false)
 
   const exerciseId = searchParams.get(DETAIL_PARAM)
@@ -68,6 +68,7 @@ export function useGeneratedExercisesPage() {
     isGenerateOpen,
     openGenerate: () => setIsGenerateOpen(true),
     closeGenerate: () => setIsGenerateOpen(false),
+    generationError,
     isGenerating,
     generate,
     uploadMaterial,

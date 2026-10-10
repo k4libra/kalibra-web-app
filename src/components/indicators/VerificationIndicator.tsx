@@ -6,7 +6,7 @@
  */
 
 import { Button, StackedBar } from '@/components/ui'
-import type { SubtopicIndicator } from '@/types/indicators'
+import type { IndicatorSummary, SubtopicIndicator } from '@/types/indicators'
 import { percent } from '@/utils/percent'
 import { plural } from '@/utils/plural'
 import { IndicatorCard } from './IndicatorCard'
@@ -15,6 +15,8 @@ import { IndicatorCard } from './IndicatorCard'
  * Props accepted by {@link VerificationIndicator}.
  */
 export interface VerificationIndicatorProps {
+  /** Authoritative group summary from the API. */
+  summary?: IndicatorSummary
   /** Indicators of each subtopic; subtopics without generated exercises are left out of the detail. */
   subtopics: SubtopicIndicator[]
   /** Called when the teacher wants to review the generated exercises. */
@@ -24,12 +26,12 @@ export interface VerificationIndicatorProps {
 /**
  * Shows which share of the generated exercises passed verification, in total and per subtopic.
  */
-export function VerificationIndicator({ subtopics, onReviewExercises }: VerificationIndicatorProps) {
+export function VerificationIndicator({ summary, subtopics, onReviewExercises }: VerificationIndicatorProps) {
   const generatedSubtopics = subtopics.filter((subtopic) => subtopic.generatedCount > 0)
   const generated = generatedSubtopics.reduce((sum, subtopic) => sum + subtopic.generatedCount, 0)
-  const approved = generatedSubtopics.reduce((sum, subtopic) => sum + subtopic.approvedCount, 0)
-  const discarded = generated - approved
-  const rate = percent(approved, generated)
+  const approved = summary?.approved ?? generatedSubtopics.reduce((sum, subtopic) => sum + subtopic.approvedCount, 0)
+  const discarded = summary?.discarded ?? generated - approved
+  const rate = summary ? summary.approvalRate : percent(approved, generated)
 
   return (
     <IndicatorCard

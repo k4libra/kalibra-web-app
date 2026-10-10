@@ -34,8 +34,8 @@ export interface CourseInvitationGroup {
  * ```
  */
 export function useInvitations() {
-  const { data, isLoading, error, refetch } = useResource(async () => {
-    const [courses, invitations] = await Promise.all([coursesService.listCourses(), invitationsService.listInvitations()])
+  const { data, isLoading, error, refetch } = useResource(async (signal) => {
+    const [courses, invitations] = await Promise.all([coursesService.listCourses(signal), invitationsService.listInvitations(signal)])
     return courses.map<CourseInvitationGroup>((course) => ({
       course,
       invitations: invitations.filter((invitation) => invitation.courseId === course.id),

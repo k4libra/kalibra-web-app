@@ -40,7 +40,7 @@ export interface ResourceState<T> {
  * const { data, isLoading } = useResource(() => coursesService.listSubtopics(courseId), courseId);
  * ```
  */
-export function useResource<T>(loader: () => Promise<T>, key: string): ResourceState<T> {
+export function useResource<T>(loader: (signal: AbortSignal) => Promise<T>, key: string): ResourceState<T> {
   const [version, setVersion] = useState(0)
   const requestKey = `${key}#${version}`
   const [result, setResult] = useState<{ requestKey: string | null; data: T | null; error: string | null }>({
@@ -51,7 +51,8 @@ export function useResource<T>(loader: () => Promise<T>, key: string): ResourceS
 
   useEffect(() => {
     let isCurrent = true
-    loader()
+    const controller = new AbortController()
+    loader(controller.signal)
       .then((data) => {
         if (isCurrent) setResult({ requestKey, data, error: null })
       })
@@ -61,6 +62,7 @@ export function useResource<T>(loader: () => Promise<T>, key: string): ResourceS
       })
     return () => {
       isCurrent = false
+      controller.abort()
     }
     // The loader is recreated on every render; `requestKey` identifies the request instead.
     // eslint-disable-next-line react-hooks/exhaustive-deps

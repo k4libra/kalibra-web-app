@@ -1,5 +1,5 @@
 /**
- * Contract of the invitations endpoints, shared by the real and the simulated service.
+ * Contract of the invitations endpoints, implemented by the HTTP service.
  *
  * @author G0nz4loQu3dena
  * @packageDocumentation
@@ -12,7 +12,7 @@ import type { Invitation, SendInvitationResult } from '@/types/invitation'
  */
 export interface InvitationsContract {
   /** Lists the invitations sent by the teacher to every course. */
-  listInvitations: () => Promise<Invitation[]>
+  listInvitations: (signal?: AbortSignal) => Promise<Invitation[]>
   /** Invites the owner of an email to a course; resolves with `no-account` when the email is not registered. */
   sendInvitation: (courseId: string, email: string) => Promise<SendInvitationResult>
   /** Withdraws a pending invitation and returns it as cancelled. */

@@ -9,7 +9,7 @@ import { useSyncExternalStore } from 'react'
 import { authService } from '@/services/auth.service'
 
 /**
- * Observes the current demo identity through the authentication contract.
+ * Observes the current public identity through the authentication contract.
  *
  * @returns The authenticated profile or `null` when signed out.
  *
