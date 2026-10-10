@@ -33,7 +33,6 @@ describe('CoursesPage', () => {
     const dialog = screen.getByRole('dialog', { name: 'Crear curso' })
     await userEvent.type(screen.getByLabelText('Nombre del curso'), 'Física I')
     await userEvent.type(screen.getByLabelText('Código'), 'FI-101')
-    await userEvent.type(screen.getByLabelText('Ciclo'), '2025-II')
     const confirm = dialog.querySelectorAll('button')[dialog.querySelectorAll('button').length - 1]
     expect(confirm).toBeDisabled()
     await userEvent.type(screen.getByLabelText('Nuevo subtema'), 'Cinemática{Enter}')

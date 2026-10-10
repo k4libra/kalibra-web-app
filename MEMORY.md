@@ -1,25 +1,29 @@
 # MEMORY.md - Kalibra Web App
 
-Inter-session project memory. Keep this file concise (about ~50 lines); remove stale details.
-
 ## Current status (2026-10-10)
-- `feature/ui-integration` holds every teacher feature: auth, courses, curricular material, generated exercises, invitations, indicators and student monitoring. Only UI with mock services; no API.
-- The app starts at `/iniciar-sesion`; demo account and session behavior are documented in README. `docs/ui-integration-audit.md` records the partner-branch audit.
+- `feature/api-integration` replaces production mocks with cookie-authenticated HTTP services.
+- Teacher features use real endpoints; administrator routes are `/admin/panel` and `/admin/subtemas-criticos`.
+- Startup waits for `/users/me`; role guards isolate teacher/admin shells. Sign-up is followed by sign-in because registration does not issue a cookie.
+- README documents API execution and generic seed accounts. `docs/api-integration.md` lists endpoints, adaptations and validation evidence.
+- Real adapters passed local API smoke checks for teacher reads, individual progress, admin analytics/CSV and cookie auth; student web login and admin teacher access return 403.
+- Final validation: lint, TypeScript, 250 tests and production build pass; frontend audit has zero errors.
+- Changes remain uncommitted: sandbox denies writing `.git/index.lock`; no push was attempted.
 
-## Decisions (and why)
-- Layered architecture (qs-react-frontend): pages use hooks, hooks use services plus `useResource`, services export contracts implemented by mocks.
-- Tailwind tokens in `src/index.css` mirror `theme/tokens.ts` of the mobile app; no hex values outside the tokens file.
-- Mock data is scoped to the signed-in account (`src/mocks/session.ts`); a new account starts empty. `?vacio` forces empty states.
-- One material store (`courseMaterialsStore.mock`) drives material rows, course counters and subtopic `MaterialStatus`.
-- One student fixture (`students.fixture.ts`) is shared by monitoring, invitations and indicators.
-- `masteryTone`: null = no data, <40 low, 40–<70 medium, >=70 high.
-- README.md only in empty layer folders (user rule), so the ARCH-05 audit warning is expected.
+## Decisions
+- Layers remain pages → hooks/useResource → contract-based services → one HTTP client.
+- Tokens remain in `src/index.css`; new pages reuse existing UI primitives and mobile-first shells.
+- Counters derive from rosters, catalogs, invitation groups, complete paginated materials and mastery measurements.
+- Missing academic/file metadata, activity timestamps and recommendations remain unavailable; no derived fake evidence.
+- Progress links carry the enrollment course, avoiding ambiguous multi-course student identities.
+- Mastery tones: null = no data, <40 low, 40–<70 medium, ≥70 high.
+- Institutional practice totals normalize missing activity to null; verification keeps server values because its generation denominator is unavailable. API guide kinds use Spanish product copy.
+- Only tests use fetch stubs and generic fixtures under `src/test`; production has no mocks or URL empty scenario.
+- README files remain omitted from occupied layers by explicit user policy.
 
-## Lessons learned and mistakes to avoid
-- Vitest runs without globals: Testing Library cleanup is registered in `src/test/setup.ts`.
-- jsdom 30 needs Node >= 24.15; pinned to 29.x.
-- NavLink for `/cursos` needs `end` or it stays active on `/cursos/:id/*`.
-- Route table lives in `src/navigation/appRoutes.tsx`; integration tests must sign in through `authService` first.
-
-## Next steps
-- Replace mocks with HTTP services behind the same contracts.
+## Pitfalls and external dependencies
+- Local API implements v2 auth, names, institutional resources and binary multipart. Seed reads had no practice/material; real generation and ingestion remain unverified.
+- API defaults to a 10 MB upload limit; use MATERIALS_MAX_FILE_SIZE=20MB to match UI. Engine/storage may return 503 until configured.
+- Cookie secure must be false for local HTTP; credentials are included on every request. No token is exposed to JavaScript or persisted.
+- Stale restoration and stale protected-request 401 responses must not replace a newer signed-in identity.
+- Testing Library cleanup is explicit; Vitest runs without globals. jsdom remains on 29.x.
+- Browser visual QA was blocked: integrated browser unavailable; Computer Use for Brave not approved.

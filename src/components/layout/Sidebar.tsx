@@ -30,6 +30,8 @@ export interface SidebarLink {
  * Props accepted by {@link Sidebar}.
  */
 export interface SidebarProps {
+  /** Public web role shown next to the brand. */
+  roleLabel?: string
   /** Links that cover every course (block GENERAL). */
   generalLinks: SidebarLink[]
   /** Links of the active course (block CURSO ACTIVO); empty when there is no course. */
@@ -76,13 +78,13 @@ function SidebarNavLink({ link, onNavigate }: { link: SidebarLink; onNavigate?: 
  * <Sidebar generalLinks={general} courseLinks={course} activeCourse={course} teacher={teacher} onSwitchCourse={open} onSignOut={signOut} />
  * ```
  */
-export function Sidebar({ generalLinks, courseLinks, activeCourse, teacher, onSwitchCourse, onSignOut, onNavigate }: SidebarProps) {
+export function Sidebar({ generalLinks, courseLinks, activeCourse, teacher, onSwitchCourse, onSignOut, onNavigate, roleLabel = 'Docente' }: SidebarProps) {
   return (
     <nav aria-label="Navegación principal" className="flex h-full w-66 flex-col border-r border-line-subtle bg-surface-card px-4 pt-6 pb-5">
       <div className="flex items-center gap-2.5 px-2">
         <Logo />
         <span className="flex-1" />
-        <span className="rounded-full bg-primary-container px-2.5 py-1 text-label-s text-content-secondary">Docente</span>
+        <span className="rounded-full bg-primary-container px-2.5 py-1 text-label-s text-content-secondary">{roleLabel}</span>
       </div>
 
       <div className="flex flex-col gap-1 overflow-y-auto pt-7">
@@ -106,7 +108,7 @@ export function Sidebar({ generalLinks, courseLinks, activeCourse, teacher, onSw
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="text-body-m-bold text-content-primary">{activeCourse.name}</span>
                 <span className="text-body-m text-content-secondary">
-                  {activeCourse.code} · Ciclo {activeCourse.term}
+                  {activeCourse.code}{activeCourse.term ? ` · Ciclo ${activeCourse.term}` : ''}
                 </span>
               </span>
               <Icon name="unfold_more" className="text-content-secondary" />

@@ -35,16 +35,44 @@ export interface SubtopicIndicator {
   initialMastery: number | null
   /** Current group mastery, from 0 to 100; `null` without practice. */
   currentMastery: number | null
+  /** Integer percentage-point change supplied by the API. */
+  deltaPoints?: number | null
   /** Generated exercises; `0` when none were generated. */
   generatedCount: number
   /** Generated exercises that passed verification. */
   approvedCount: number
 }
 
+/** Describes authoritative course-level indicator summaries. */
+export interface IndicatorSummary {
+  /** Correct-answer percentage, or null without activity. */
+  groupAccuracy: number | null
+  /** Initial mastery percentage, or null without activity. */
+  groupInitial: number | null
+  /** Current mastery percentage, or null without activity. */
+  groupCurrent: number | null
+  /** Change in integer percentage points, or null without activity. */
+  groupDeltaPoints: number | null
+  /** Total answered exercises. */
+  totalSolved: number
+  /** Mean practice count of active students. */
+  averagePerActiveStudent: number
+  /** Students with practice. */
+  activeStudents: number
+  /** Verification approval percentage, or null without generation. */
+  approvalRate: number | null
+  /** Approved exercises. */
+  approved: number
+  /** Discarded exercises. */
+  discarded: number
+}
+
 /**
  * Describes the indicators that Kalibra calculates for a course.
  */
 export interface CourseIndicators {
+  /** Authoritative API summary, when supplied. */
+  summary?: IndicatorSummary
   /** Course the indicators belong to. */
   courseId: string
   /** Students enrolled in the course. */

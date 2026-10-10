@@ -6,7 +6,7 @@
  */
 
 import { Avatar, Chip, ProgressBar } from '@/components/ui'
-import type { StudentAccuracy } from '@/types/indicators'
+import type { IndicatorSummary, StudentAccuracy } from '@/types/indicators'
 import { masteryTone } from '@/utils/mastery'
 import { percent } from '@/utils/percent'
 import { IndicatorCard } from './IndicatorCard'
@@ -15,6 +15,8 @@ import { IndicatorCard } from './IndicatorCard'
  * Props accepted by {@link AccuracyIndicator}.
  */
 export interface AccuracyIndicatorProps {
+  /** Authoritative group summary from the API. */
+  summary?: IndicatorSummary
   /** Answers of each enrolled student. */
   students: StudentAccuracy[]
 }
@@ -50,11 +52,11 @@ function AccuracyRow({ name, initials, correct, answered }: { name: string; init
 /**
  * Shows the share of correct answers of each student and of the group.
  */
-export function AccuracyIndicator({ students }: AccuracyIndicatorProps) {
+export function AccuracyIndicator({ summary, students }: AccuracyIndicatorProps) {
   const active = students.filter((student) => student.answeredCount > 0)
   const correct = active.reduce((total, student) => total + student.correctCount, 0)
   const answered = active.reduce((total, student) => total + student.answeredCount, 0)
-  const group = percent(correct, answered)
+  const group = summary ? summary.groupAccuracy : percent(correct, answered)
 
   return (
     <IndicatorCard

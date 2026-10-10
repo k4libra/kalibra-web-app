@@ -65,6 +65,7 @@ export function InvitationsPage() {
 
       {page.isInviteOpen && (
         <InviteStudentModal
+          error={page.error}
           courses={page.groups.map((group) => group.course)}
           rejectedEmail={page.rejectedEmail}
           isSubmitting={page.isSubmitting}

@@ -41,7 +41,7 @@ export function ExerciseDetailDrawer({ exercise, subtopicName, onClose }: Exerci
             <Chip label={exercise.difficulty} tone="neutral" />
           </div>
           <p className="text-body-m text-content-secondary">
-            Generado {exercise.generatedAt.toLowerCase()} · Opción múltiple · anclado a {exercise.sourceMaterial}
+            Generado {exercise.generatedAt.toLowerCase()} · Opción múltiple{exercise.sourceMaterial ? ` · anclado a ${exercise.sourceMaterial}` : ''}
           </p>
           <div className="flex flex-col gap-2.5 rounded-md bg-primary-subtle p-4">
             <p className="text-label-s text-content-muted">ENUNCIADO</p>
@@ -72,6 +72,7 @@ export function ExerciseDetailDrawer({ exercise, subtopicName, onClose }: Exerci
               </li>
             ))}
           </ul>
+          {exercise.explanation && <Callout icon="info">{exercise.explanation}</Callout>}
           <p className="text-label-s text-content-muted">RESULTADO DE LA VERIFICACIÓN</p>
           <ul className="flex flex-col gap-3">
             {exercise.checks.map((check) => (

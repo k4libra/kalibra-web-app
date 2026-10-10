@@ -53,10 +53,10 @@ export function CourseIndicatorsPage() {
         <LoadingState />
       ) : page.indicators ? (
         <>
-          <AccuracyIndicator students={page.indicators.students} />
-          <PracticeIndicator subtopics={page.indicators.subtopics} students={page.indicators.students} />
-          <MasteryEvolutionIndicator subtopics={page.indicators.subtopics} />
-          <VerificationIndicator subtopics={page.indicators.subtopics} onReviewExercises={page.goToExercises} />
+          <AccuracyIndicator summary={page.indicators.summary} students={page.indicators.students} />
+          <PracticeIndicator summary={page.indicators.summary} subtopics={page.indicators.subtopics} students={page.indicators.students} />
+          <MasteryEvolutionIndicator summary={page.indicators.summary} subtopics={page.indicators.subtopics} />
+          <VerificationIndicator summary={page.indicators.summary} subtopics={page.indicators.subtopics} onReviewExercises={page.goToExercises} />
         </>
       ) : (
         <>
@@ -69,7 +69,7 @@ export function CourseIndicatorsPage() {
         </>
       )}
 
-      <IndicatorsGuideModal isOpen={page.isGuideOpen} onClose={page.closeGuide} />
+      <IndicatorsGuideModal entries={page.guide} isLoading={page.isGuideLoading} error={page.guideError} onRetry={page.retryGuide} isOpen={page.isGuideOpen} onClose={page.closeGuide} />
       <ExportIndicatorsModal
         isOpen={page.isExportOpen}
         courseName={page.course?.name ?? ''}

@@ -15,14 +15,12 @@ import { useLogin } from '@/hooks/useLogin'
 
 const response = {
   user: {
-    id: 100,
+    id: 'teacher-100',
     firstName: 'Ana',
     lastName: 'Torres',
     email: 'ana@example.edu',
     role: 'TEACHER' as const,
-    status: true,
   },
-  accessToken: 'mock-only',
 }
 afterEach(() => vi.restoreAllMocks())
 

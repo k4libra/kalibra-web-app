@@ -6,8 +6,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { COURSES, SUBTOPICS } from '@/mocks/courses.mock'
-import { resetCurricularMaterialsMock } from '@/mocks/curricularMaterial.mock'
+import { COURSES, SUBTOPICS } from '@/test/uiFixtures'
+import { apiStub } from '@/test/apiStub'
 import { coursesService } from '@/services/courses.service'
 import { curricularMaterialService } from '@/services/curricularMaterial.service'
 import { MATERIAL_UPLOAD_CONFIG } from '@/types/curricularMaterial'
@@ -25,7 +25,7 @@ beforeEach(() => {
   SUBTOPICS.splice(0, SUBTOPICS.length, ...structuredClone(initialSubtopics))
   vi.useFakeTimers()
   window.history.replaceState({}, '', '/')
-  resetCurricularMaterialsMock()
+  apiStub.resetMaterials()
 })
 afterEach(() => {
   vi.useRealTimers()
@@ -69,11 +69,11 @@ describe('curricularMaterialService', () => {
   })
 
   it.each(['getByCourse', 'getStats'] as const)('rejects an unknown course through %s', async (method) => {
-    await expect(curricularMaterialService[method]('missing')).rejects.toThrow('El curso no existe.')
+    await expect(curricularMaterialService[method]('missing')).rejects.toThrow('No se encontró el recurso solicitado.')
   })
 
   it('rejects a subtopic from another course without recording material', async () => {
-    await expect(curricularMaterialService.upload({ courseId: 'course-2', subtopicId: 'sub-1', file: new File(['pdf'], 'notes.pdf') })).rejects.toThrow('no pertenece')
+    await expect(curricularMaterialService.upload({ courseId: 'course-2', subtopicId: 'sub-1', file: new File(['pdf'], 'notes.pdf') })).rejects.toMatchObject({ status: 400, code: 'invalid-input' })
     expect(await settle(curricularMaterialService.getStats('course-2'))).toMatchObject({ total: 0 })
   })
 
@@ -85,17 +85,17 @@ describe('curricularMaterialService', () => {
   })
 
   it('honors the empty teacher scenario across all material and course reads', async () => {
-    window.history.replaceState({}, '', '/?vacio')
-    expect(await settle(curricularMaterialService.getByCourse('course-1'))).toEqual([])
-    expect(await settle(curricularMaterialService.getStats('course-1'))).toMatchObject({ total: 0 })
+    apiStub.empty()
+    await expect(curricularMaterialService.getByCourse('course-1')).rejects.toMatchObject({ status: 404 })
+    await expect(curricularMaterialService.getStats('course-1')).rejects.toMatchObject({ status: 404 })
     expect(await settle(coursesService.listCourses())).toEqual([])
-    expect(await settle(coursesService.listSubtopics('course-1'))).toEqual([])
+    await expect(coursesService.listSubtopics('course-1')).rejects.toMatchObject({ status: 404 })
     await expect(coursesService.getCourse('course-1')).rejects.toThrow()
     await expect(curricularMaterialService.upload({ courseId: 'course-1', subtopicId: 'sub-1', file: new File(['pdf'], 'notes.pdf') })).rejects.toThrow()
   })
 
   it('exposes a course created by an empty teacher and supports its first upload', async () => {
-    window.history.replaceState({}, '', '/?vacio')
+    apiStub.empty()
     const course = await settle(coursesService.createCourse({ name: 'Curso nuevo', code: 'NEW-101', term: '2026-II', subtopics: ['Primer tema'] }))
     expect((await settle(coursesService.listCourses())).map((item) => item.id)).toEqual([course.id])
     const [subtopic] = await settle(coursesService.listSubtopics(course.id))

@@ -19,15 +19,15 @@ export interface CourseStudentsGroupProps {
   /** Snapshot timestamp used by activity labels. */
   updatedAt: string
   /** Called with the student whose progress should open. */
-  onViewProgress: (studentId: string) => void
+  onViewProgress: (studentId: string, courseId?: string) => void
 }
 
 /** Lists a course roster or its inline enrollment notice and emits progress actions. */
 export function CourseStudentsGroup({ course, students, updatedAt, onViewProgress }: CourseStudentsGroupProps) {
   return <section className="flex flex-col gap-3">
-    <SectionHeader icon={course.icon} title={course.name} subtitle={`${course.code} · Ciclo ${course.term}`}
+    <SectionHeader icon={course.icon} title={course.name} subtitle={`${course.code}${course.term ? ` · Ciclo ${course.term}` : ''}`}
       trailing={<Chip label={`${students.length} matriculados`} tone="neutral" className="ml-auto" />} />
-    {students.length ? <StudentTable students={students} updatedAt={updatedAt} onViewProgress={onViewProgress} /> :
+    {students.length ? <StudentTable students={students} updatedAt={updatedAt} onViewProgress={(id) => onViewProgress(id, course.id)} /> :
       <div className="flex items-start gap-3 rounded-lg bg-surface-card p-5 text-body-l text-content-secondary sm:items-center">
         <Icon name="info" size="lg" /><p>Aún no hay estudiantes matriculados en este curso. Invítalos desde Invitaciones eligiendo {course.name}.</p>
       </div>}

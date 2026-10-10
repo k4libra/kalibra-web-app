@@ -25,7 +25,7 @@ import { useResource } from './useResource'
  */
 export function useCourseIndicators(courseId: string) {
   const { data, isLoading, error, refetch } = useResource(
-    () => Promise.all([coursesService.getCourse(courseId), indicatorsService.getIndicators(courseId)]),
+    (signal) => Promise.all([coursesService.getCourse(courseId, signal), indicatorsService.getIndicators(courseId, signal)]),
     `indicators-${courseId}`,
   )
   return { course: data?.[0] ?? null, indicators: data?.[1] ?? null, isLoading, error, refetch }

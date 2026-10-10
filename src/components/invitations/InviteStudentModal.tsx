@@ -17,6 +17,8 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
  * Props accepted by {@link InviteStudentModal}.
  */
 export interface InviteStudentModalProps {
+  /** Error returned by the invitation request. */
+  error?: string | null
   /** Courses the teacher can invite to. */
   courses: CourseOverview[]
   /** Email rejected by the last attempt because it has no account; `null` when there was no rejection. */
@@ -36,7 +38,7 @@ export interface InviteStudentModalProps {
  * When `rejectedEmail` matches the typed email the field turns red and explains that nothing was sent;
  * editing the email clears the error. Mount it only while open so each opening starts empty.
  */
-export function InviteStudentModal({ courses, rejectedEmail, isSubmitting, onClose, onSend }: InviteStudentModalProps) {
+export function InviteStudentModal({ error, courses, rejectedEmail, isSubmitting, onClose, onSend }: InviteStudentModalProps) {
   const [courseId, setCourseId] = useState(courses[0]?.id ?? '')
   const [email, setEmail] = useState('')
   const isRejected = rejectedEmail !== null && rejectedEmail === email.trim()
@@ -59,6 +61,7 @@ export function InviteStudentModal({ courses, rejectedEmail, isSubmitting, onClo
       }
     >
       <div className="flex flex-col gap-3.5">
+        {error && <Callout icon="error" tone="danger">{error}</Callout>}
         <Select
           label="Curso"
           icon="school"

@@ -71,7 +71,7 @@ export function useCurricularMaterialPage(courseId: string) {
     setForm(null)
     showToast({
       title: 'Material cargado',
-      message: `${material.fileName} quedó pendiente de ingestión.`,
+      message: material.status === 'processing' ? `${material.fileName} quedó pendiente de ingestión.` : material.status === 'ready' ? `${material.fileName} está listo para generar ejercicios.` : `${material.fileName} requiere revisar el resultado de la ingestión.`,
       icon: 'check_circle', tone: 'success',
     })
   }, [canSubmit, courseId, uploadMaterial, showToast, uploadForm])

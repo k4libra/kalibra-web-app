@@ -39,7 +39,7 @@ export function CourseInvitationsGroup({ course, invitations, onCancel, onResend
       <SectionHeader
         icon={course.icon}
         title={course.name}
-        subtitle={`${course.code} · Ciclo ${course.term}`}
+        subtitle={`${course.code}${course.term ? ` · Ciclo ${course.term}` : ''}`}
         trailing={<Chip label={plural(invitations.length, 'invitación', 'invitaciones')} tone="neutral" />}
       />
       {invitations.length === 0 ? (

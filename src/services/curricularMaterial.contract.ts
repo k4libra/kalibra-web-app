@@ -3,9 +3,7 @@
  *
  * @remarks
  * Defines the operations required by the frontend.
- * The current implementation will use simulated data.
- * A future REST implementation can use this contract
- * without changing the consuming components.
+ * The HTTP implementation adapts REST resources without coupling the UI to transport details.
  *
  * @author MRamirez202210582
  * @packageDocumentation
@@ -28,7 +26,7 @@ export interface CurricularMaterialServiceContract {
      * @returns The materials belonging to the course.
      * @throws Error when the requested course does not exist.
      */
-    getByCourse(courseId: string): Promise<CurricularMaterial[]>
+    getByCourse(courseId: string, signal?: AbortSignal): Promise<CurricularMaterial[]>
 
     /**
      * Retrieves the material processing counters.
@@ -37,7 +35,7 @@ export interface CurricularMaterialServiceContract {
      * @returns Total, ready, processing and error counters.
      * @throws Error when the requested course does not exist.
      */
-    getStats(courseId: string): Promise<CurricularMaterialStats>
+    getStats(courseId: string, signal?: AbortSignal): Promise<CurricularMaterialStats>
 
     /**
      * Uploads or replaces the material of a subtopic.

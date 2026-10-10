@@ -9,8 +9,8 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { CourseStudentsGroup, StudentHeatmap, StudentMasteryTable, SubtopicPriorityList } from '@/components/student-monitoring'
-import { COURSES, SUBTOPICS } from '@/mocks/courses.mock'
-import { STUDENTS, STUDENT_SUBTOPIC_MASTERY } from '@/mocks/students.fixture'
+import { COURSES, SUBTOPICS } from '@/test/uiFixtures'
+import { STUDENTS, STUDENT_SUBTOPIC_MASTERY } from '@/test/uiFixtures'
 
 const topics = SUBTOPICS.filter((topic) => topic.courseId === 'course-1')
 
@@ -27,7 +27,7 @@ describe('student monitoring compositions', () => {
     expect(screen.getByRole('progressbar', { name: `Dominio de ${STUDENTS[0].fullName}` })).toHaveAttribute('aria-valuenow', '62')
     expect(screen.getByRole('progressbar', { name: `Dominio de ${STUDENTS[2].fullName}` })).not.toHaveAttribute('aria-valuenow')
     await userEvent.click(screen.getAllByRole('button', { name: 'Ver progreso' })[2])
-    expect(onViewProgress).toHaveBeenCalledWith('st-3')
+    expect(onViewProgress).toHaveBeenCalledWith('st-3', 'course-1')
   })
   it.each([[null, 'Sin datos'], [39, 'Dominio bajo'], [40, 'Dominio medio'], [69, 'Dominio medio'], [70, 'Dominio alto'], [71, 'Dominio alto']] as const)('displays the shared level at %s', (mastery, label) => {
     render(<StudentMasteryTable subtopics={[topics[0]]} masteryRecords={[{ studentId: 'st-1', subtopicId: 'sub-1', mastery, resolvedExercises: mastery === null ? 0 : 1, correctAnswers: 0 }]} />)

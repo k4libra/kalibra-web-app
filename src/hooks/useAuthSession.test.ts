@@ -6,14 +6,10 @@
  */
 
 import { act, renderHook } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { authService } from '@/services/auth.service'
 import { useAuthSession } from '@/hooks/useAuthSession'
 
-vi.mock('@/mocks/scenario', () => ({
-  respond: async <T>(data: T) => structuredClone(data),
-  isEmptyScenario: () => false,
-}))
 afterEach(async () => {
   await act(async () => authService.logout())
 })
@@ -23,9 +19,9 @@ describe('useAuthSession', () => {
     const { result } = renderHook(() => useAuthSession())
     expect(result.current).toBeNull()
     await act(async () => {
-      await authService.login({ email: 'docente@kalibra.com', password: 'Kalibra123' })
+      await authService.login({ email: 'profesor.test1@upc.edu.pe', password: '@profesortest1' })
     })
-    expect(result.current?.user.email).toBe('docente@kalibra.com')
+    expect(result.current?.user.email).toBe('profesor.test1@upc.edu.pe')
     await act(async () => authService.logout())
     expect(result.current).toBeNull()
   })

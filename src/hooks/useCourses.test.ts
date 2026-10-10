@@ -7,6 +7,8 @@
 
 import { renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { authService } from '@/services/auth.service'
+import { teacherCredentials } from '@/test/apiStub'
 import { useCourses } from './useCourses'
 import { useCurrentTeacher } from './useCurrentTeacher'
 
@@ -20,6 +22,7 @@ describe('useCourses', () => {
 
 describe('useCurrentTeacher', () => {
   it('exposes the signed-in teacher', async () => {
+    await authService.login(teacherCredentials)
     const { result } = renderHook(() => useCurrentTeacher())
     await waitFor(() => expect(result.current.teacher).not.toBeNull())
   })

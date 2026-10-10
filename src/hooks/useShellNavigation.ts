@@ -12,6 +12,8 @@ import type { SidebarLink } from '@/components/layout'
 import { courseRoutes, ROUTES } from '@/navigation/routes'
 import { useCourses } from './useCourses'
 import { useCurrentTeacher } from './useCurrentTeacher'
+import { coursesService } from '@/services/courses.service'
+import { useResource } from '@/hooks/useResource'
 import { useLogout } from '@/hooks/useLogout'
 
 // Links that cover every course.
@@ -26,7 +28,7 @@ const GENERAL_LINKS: SidebarLink[] = [
  * Resolves the active course, the sidebar links and the course switcher actions.
  *
  * @remarks
- * A `courseId` in the URL becomes the active course; otherwise the first course of the teacher is used.
+ * A `courseId` in the URL takes precedence over the local selection, persisted workspace and first course.
  *
  * @returns The sidebar `generalLinks` and `courseLinks`, the `activeCourse`, the `teacher`, the
  * `courses`, the switcher state (`isSwitcherOpen`, `openSwitcher`, `closeSwitcher`, `selectCourse`)
@@ -43,14 +45,29 @@ export function useShellNavigation() {
   const { courseId } = useParams()
   const { courses, isLoading: isLoadingCourses, refetch: refetchCourses } = useCourses()
   const { teacher } = useCurrentTeacher()
+  const workspace = useResource(coursesService.getWorkspace, 'teacher-workspace')
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null)
   const { activeCourseId, setActiveCourseId } = useActiveCourse()
   const refreshedCourseId = useRef<string | null>(null)
+  const persistedCourseId = useRef<string | null>(null)
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false)
 
   useEffect(() => {
-    if (courseId && courseId !== activeCourseId) setActiveCourseId(courseId)
-    else if (!activeCourseId && courses.length > 0) setActiveCourseId(courses[0].id)
-  }, [courseId, activeCourseId, courses, setActiveCourseId])
+    if (isLoadingCourses || workspace.isLoading || workspace.error || !workspace.data) return
+    const next = courseId || activeCourseId || workspace.data.activeCourseId || courses[0]?.id
+    if (!next || (next === activeCourseId && next === persistedCourseId.current)) return
+    let current = true
+    void coursesService.selectActiveCourse(next).then((selected) => {
+      if (current) {
+        persistedCourseId.current = selected.activeCourseId
+        setWorkspaceError(null)
+        if (selected.activeCourseId !== activeCourseId) setActiveCourseId(selected.activeCourseId)
+      }
+    }).catch((reason: unknown) => {
+      if (current) setWorkspaceError(reason instanceof Error ? reason.message : 'No se pudo seleccionar el curso.')
+    })
+    return () => { current = false }
+  }, [courseId, activeCourseId, courses, isLoadingCourses, workspace.isLoading, workspace.error, workspace.data, setActiveCourseId])
 
   // A course created after the list was loaded is not in it yet: reload once it becomes active.
   const isActiveCourseMissing =
@@ -78,15 +95,22 @@ export function useShellNavigation() {
   )
 
   const selectCourse = useCallback(
-    (nextCourseId: string) => {
-      setActiveCourseId(nextCourseId)
-      setIsSwitcherOpen(false)
-      navigate(courseRoutes.subtopics(nextCourseId))
+    async (nextCourseId: string) => {
+      try {
+        const selected = await coursesService.selectActiveCourse(nextCourseId)
+        persistedCourseId.current = selected.activeCourseId
+        setWorkspaceError(null)
+        setActiveCourseId(selected.activeCourseId)
+        setIsSwitcherOpen(false)
+        navigate(courseRoutes.subtopics(nextCourseId))
+      } catch (reason) { setWorkspaceError(reason instanceof Error ? reason.message : 'No se pudo seleccionar el curso.') }
     },
     [navigate, setActiveCourseId],
   )
 
   return {
+    workspaceError: workspace.error ?? workspaceError,
+    retryWorkspace: workspace.refetch,
     generalLinks: GENERAL_LINKS,
     courseLinks,
     activeCourse,

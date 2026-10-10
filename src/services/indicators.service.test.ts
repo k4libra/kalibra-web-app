@@ -17,7 +17,7 @@ describe('indicatorsService', () => {
     expect(await indicatorsService.getIndicators('course-2')).toBeNull()
   })
 
-  it('names the export after the course code', async () => {
-    expect((await indicatorsService.exportIndicators('course-1')).fileName).toBe('kalibra_CS-204_indicadores.csv')
+  it('downloads the API CSV using a neutral course identifier', async () => {
+    expect((await indicatorsService.exportIndicators('course-1')).fileName).toBe('indicadores-course-1.csv')
   })
 })

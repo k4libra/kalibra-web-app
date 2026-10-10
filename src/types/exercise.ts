@@ -58,6 +58,8 @@ export interface GeneratedExercise {
   generatedAt: string
   /** Name of the curricular material the exercise is anchored to. */
   sourceMaterial: string
+  /** Explanation supplied by the generation endpoint. */
+  explanation?: string
   /** Verification result. */
   status: VerificationStatus
   /** Answer options in display order. */

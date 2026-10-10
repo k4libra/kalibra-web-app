@@ -6,6 +6,8 @@
  */
 
 import { useCallback, useState } from 'react'
+import { useResource } from '@/hooks/useResource'
+import { indicatorsService } from '@/services/indicators.service'
 import { useNavigate } from 'react-router'
 import { useToast } from '@/context/ToastContext'
 import { courseRoutes, ROUTES } from '@/navigation/routes'
@@ -30,6 +32,7 @@ export function useCourseIndicatorsPage(courseId: string) {
   const { course, indicators, isLoading, error } = useCourseIndicators(courseId)
   const { exportIndicators, isExporting, error: exportError } = useExportIndicators()
   const [isGuideOpen, setIsGuideOpen] = useState(false)
+  const guide = useResource((signal) => isGuideOpen ? indicatorsService.getGuide(courseId, signal) : Promise.resolve(null), `guide:${courseId}:${isGuideOpen}`)
   const [isExportOpen, setIsExportOpen] = useState(false)
 
   const download = useCallback(async () => {
@@ -39,6 +42,10 @@ export function useCourseIndicatorsPage(courseId: string) {
   }, [courseId, exportIndicators, showToast])
 
   return {
+    guide: guide.data?.entries ?? [],
+    isGuideLoading: guide.isLoading,
+    guideError: guide.error,
+    retryGuide: guide.refetch,
     course,
     indicators,
     isLoading,

@@ -42,7 +42,7 @@ export interface StudentSubtopicMastery {
   /** Number of exercises answered. */
   resolvedExercises: number
   /** Number of correct responses. */
-  correctAnswers: number
+  correctAnswers: number | null
 }
 
 /** Describes an explicit recent response used to substantiate recommendations. */
@@ -59,9 +59,11 @@ export interface StudentProgress {
   student: MonitoredStudent
   /** Measurements per subtopic. */
   subtopics: StudentSubtopicMastery[]
+  /** Feedback text returned by the progress endpoint. */
+  recentFeedback?: string[]
   /** Latest responses, newest first. */
   recentResponses: RecentResponse[]
-  /** Subtopics selected for reinforcement by the simulated recommendation endpoint. */
+  /** Explicit reinforcement recommendations, empty when unavailable. */
   reinforcementSubtopicIds: string[]
 }
 

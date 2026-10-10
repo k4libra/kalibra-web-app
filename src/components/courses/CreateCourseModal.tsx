@@ -14,6 +14,8 @@ import { plural } from '@/utils/plural'
  * Props accepted by {@link CreateCourseModal}.
  */
 export interface CreateCourseModalProps {
+  /** Error returned by course creation. */
+  error?: string | null
   /** Whether a creation request is in flight. */
   isSubmitting: boolean
   /** Called when the teacher cancels or closes the dialog. */
@@ -23,21 +25,20 @@ export interface CreateCourseModalProps {
 }
 
 /**
- * Collects the name, code, term and subtopics of a new course and emits them on confirm.
+ * Collects the name, code and subtopics of a new course and emits them on confirm.
  *
  * @remarks
  * The create button stays disabled until every field is filled and at least one subtopic is added.
  * Mount it only while open so each opening starts empty.
  */
-export function CreateCourseModal({ isSubmitting, onClose, onSubmit }: CreateCourseModalProps) {
+export function CreateCourseModal({ isSubmitting, error, onClose, onSubmit }: CreateCourseModalProps) {
   const [name, setName] = useState('')
   const [code, setCode] = useState('')
-  const [term, setTerm] = useState('')
   const [draftSubtopic, setDraftSubtopic] = useState('')
   const [subtopics, setSubtopics] = useState<string[]>([])
 
   const canAddSubtopic = draftSubtopic.trim().length > 0
-  const canCreate = name.trim() && code.trim() && term.trim() && subtopics.length > 0 && !isSubmitting
+  const canCreate = name.trim() && code.trim() && subtopics.length > 0 && !isSubmitting
 
   const handleAddSubtopic = () => {
     if (!canAddSubtopic) return
@@ -46,7 +47,7 @@ export function CreateCourseModal({ isSubmitting, onClose, onSubmit }: CreateCou
   }
 
   const handleSubmit = () => {
-    if (canCreate) onSubmit({ name: name.trim(), code: code.trim(), term: term.trim(), subtopics })
+    if (canCreate) onSubmit({ name: name.trim(), code: code.trim(), subtopics })
   }
 
   return (
@@ -64,10 +65,10 @@ export function CreateCourseModal({ isSubmitting, onClose, onSubmit }: CreateCou
       }
     >
       <div className="flex flex-col gap-4">
+        {error && <Callout icon="error" tone="danger">{error}</Callout>}
         <TextField label="Nombre del curso" icon="school" placeholder="Ej. Álgebra Lineal" value={name} onChange={setName} />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <TextField label="Código" icon="tag" placeholder="Ej. MA-201" value={code} onChange={setCode} />
-          <TextField label="Ciclo" icon="calendar_month" placeholder="Ej. 2025-I" value={term} onChange={setTerm} />
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">

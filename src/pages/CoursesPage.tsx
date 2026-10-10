@@ -69,7 +69,7 @@ export function CoursesPage() {
         />
       )}
 
-      {page.isCreateOpen && <CreateCourseModal isSubmitting={page.isSubmitting} onClose={page.closeCreate} onSubmit={page.createCourse} />}
+      {page.isCreateOpen && <CreateCourseModal error={page.createError} isSubmitting={page.isSubmitting} onClose={page.closeCreate} onSubmit={page.createCourse} />}
     </>
   )
 }

@@ -65,6 +65,7 @@ export function GeneratedExercisesPage() {
       <ExerciseDetailDrawer exercise={page.selected?.exercise ?? null} subtopicName={page.selected?.subtopicName ?? ''} onClose={page.closeExercise} />
       {page.isGenerateOpen && (
         <GenerateExercisesModal
+          error={page.generationError}
           courses={page.groups}
           isSubmitting={page.isGenerating}
           onClose={page.closeGenerate}

@@ -8,8 +8,8 @@
 import { describe, expect, it } from 'vitest'
 import { formatMastery, formatMonitoringActivity, formatMonitoringDate, reinforcementNotice } from '@/utils/monitoring'
 import type { StudentProgress } from '@/types/studentMonitoring'
-import { STUDENTS, STUDENT_SUBTOPIC_MASTERY } from '@/mocks/students.fixture'
-import { SUBTOPICS } from '@/mocks/courses.mock'
+import { STUDENTS, STUDENT_SUBTOPIC_MASTERY } from '@/test/uiFixtures'
+import { SUBTOPICS } from '@/test/uiFixtures'
 
 function progress(): StudentProgress {
   return { student: STUDENTS[0], subtopics: STUDENT_SUBTOPIC_MASTERY.filter((item) => item.studentId === 'st-1'), recentResponses: [], reinforcementSubtopicIds: ['sub-3'] }
