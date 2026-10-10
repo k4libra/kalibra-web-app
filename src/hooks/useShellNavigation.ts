@@ -5,13 +5,14 @@
  * @packageDocumentation
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useActiveCourse } from '@/context/ActiveCourseContext'
 import type { SidebarLink } from '@/components/layout'
 import { courseRoutes, ROUTES } from '@/navigation/routes'
 import { useCourses } from './useCourses'
 import { useCurrentTeacher } from './useCurrentTeacher'
+import { useLogout } from '@/hooks/useLogout'
 
 // Links that cover every course.
 const GENERAL_LINKS: SidebarLink[] = [
@@ -29,7 +30,7 @@ const GENERAL_LINKS: SidebarLink[] = [
  *
  * @returns The sidebar `generalLinks` and `courseLinks`, the `activeCourse`, the `teacher`, the
  * `courses`, the switcher state (`isSwitcherOpen`, `openSwitcher`, `closeSwitcher`, `selectCourse`)
- * and `signOut`.
+ * and `logout` confirmation actions.
  *
  * @example
  * ```tsx
@@ -38,16 +39,28 @@ const GENERAL_LINKS: SidebarLink[] = [
  */
 export function useShellNavigation() {
   const navigate = useNavigate()
+  const logout = useLogout()
   const { courseId } = useParams()
-  const { courses } = useCourses()
+  const { courses, isLoading: isLoadingCourses, refetch: refetchCourses } = useCourses()
   const { teacher } = useCurrentTeacher()
   const { activeCourseId, setActiveCourseId } = useActiveCourse()
+  const refreshedCourseId = useRef<string | null>(null)
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false)
 
   useEffect(() => {
     if (courseId && courseId !== activeCourseId) setActiveCourseId(courseId)
     else if (!activeCourseId && courses.length > 0) setActiveCourseId(courses[0].id)
   }, [courseId, activeCourseId, courses, setActiveCourseId])
+
+  // A course created after the list was loaded is not in it yet: reload once it becomes active.
+  const isActiveCourseMissing =
+    Boolean(activeCourseId) && !isLoadingCourses && !courses.some((course) => course.id === activeCourseId)
+  useEffect(() => {
+    if (isActiveCourseMissing && refreshedCourseId.current !== activeCourseId) {
+      refreshedCourseId.current = activeCourseId
+      refetchCourses()
+    }
+  }, [isActiveCourseMissing, activeCourseId, refetchCourses])
 
   const activeCourse = courses.find((course) => course.id === activeCourseId) ?? null
 
@@ -73,9 +86,6 @@ export function useShellNavigation() {
     [navigate, setActiveCourseId],
   )
 
-  // The sign-out confirmation belongs to feature/auth; until then the button goes to the sign-in route.
-  const signOut = useCallback(() => navigate(ROUTES.signIn), [navigate])
-
   return {
     generalLinks: GENERAL_LINKS,
     courseLinks,
@@ -86,6 +96,6 @@ export function useShellNavigation() {
     openSwitcher: () => setIsSwitcherOpen(true),
     closeSwitcher: () => setIsSwitcherOpen(false),
     selectCourse,
-    signOut,
+    logout,
   }
 }

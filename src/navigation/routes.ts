@@ -50,3 +50,19 @@ export const courseRoutes = {
    */
   indicators: (courseId: string) => `/cursos/${courseId}/indicadores`,
 }
+
+/** Builds paths of individual student views. */
+export const studentRoutes = {
+  /**
+   * Builds the progress path of a student.
+   *
+   * @param studentId - Student enrollment to open.
+   * @returns The path of the individual progress page.
+   *
+   * @example
+   * ```ts
+   * studentRoutes.progress('st-1'); // '/estudiantes/st-1'
+   * ```
+   */
+  progress: (studentId: string) => `${ROUTES.students}/${encodeURIComponent(studentId)}`,
+}

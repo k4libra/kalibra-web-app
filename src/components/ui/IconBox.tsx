@@ -7,7 +7,7 @@
 
 import type { IconName, Tone } from '@/types/ui'
 import { cn } from '@/utils/cn'
-import { Icon, type IconSize } from './Icon'
+import { Icon, type IconSize } from '@/components/ui/Icon'
 
 /**
  * Box presets: `sm` 36 px, `md` 44 px, `lg` 48 px and `xl` 64 px.
@@ -20,6 +20,15 @@ const TONE_CLASS: Record<Tone, string> = {
   success: 'bg-secondary-container text-secondary-strong',
   warning: 'bg-tertiary-pale text-tertiary-strong',
   danger: 'bg-danger-container text-danger-strong',
+  neutral: 'bg-primary-subtle text-content-secondary',
+}
+
+// Lower-emphasis icon containers use existing surface tokens and retain the semantic glyph tone.
+const SUBTLE_TONE_CLASS: Record<Tone, string> = {
+  primary: 'bg-primary-subtle text-primary-strong',
+  success: 'bg-secondary-container/30 text-secondary-strong',
+  warning: 'bg-tertiary-pale/50 text-tertiary-strong',
+  danger: 'bg-danger-container/50 text-danger-strong',
   neutral: 'bg-primary-subtle text-content-secondary',
 }
 
@@ -47,6 +56,12 @@ export interface IconBoxProps {
    */
   tone?: Tone
   /**
+   * Uses a lower-emphasis background while retaining the semantic glyph color.
+   *
+   * @defaultValue `false`
+   */
+  isSubtle?: boolean
+  /**
    * Box dimension.
    *
    * @defaultValue `'md'`
@@ -64,9 +79,9 @@ export interface IconBoxProps {
  * <IconBox icon="group" tone="success" />
  * ```
  */
-export function IconBox({ icon, tone = 'primary', size = 'md', className }: IconBoxProps) {
+export function IconBox({ icon, tone = 'primary', size = 'md', isSubtle = false, className }: IconBoxProps) {
   return (
-    <span className={cn('inline-flex shrink-0 items-center justify-center', TONE_CLASS[tone], SIZE_CLASS[size], className)}>
+    <span className={cn('inline-flex shrink-0 items-center justify-center', isSubtle ? SUBTLE_TONE_CLASS[tone] : TONE_CLASS[tone], SIZE_CLASS[size], className)}>
       <Icon name={icon} size={ICON_SIZE[size]} />
     </span>
   )
