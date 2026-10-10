@@ -39,6 +39,8 @@ export interface CourseOverview extends Course {
   approvedExerciseCount: number
   /** Number of enrolled students. */
   studentCount: number
+  /** Enrolled identities used to count distinct students across courses. */
+  studentIds: string[]
   /** Number of invitations sent and not answered yet. */
   pendingInvitationCount: number
   /** Average mastery of the group from 0 to 100; `null` while there is no activity. */
