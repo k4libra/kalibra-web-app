@@ -39,6 +39,8 @@ export interface CourseOverview extends Course {
   approvedExerciseCount: number
   /** Number of enrolled students. */
   studentCount: number
+  /** Number of invitations sent and not answered yet. */
+  pendingInvitationCount: number
   /** Average mastery of the group from 0 to 100; `null` while there is no activity. */
   averageMastery: number | null
 }
@@ -88,4 +90,18 @@ export interface Teacher {
   email: string
   /** Initials for the avatar. */
   initials: string
+}
+
+/**
+ * Data the teacher enters to create a course.
+ */
+export interface CreateCourseInput {
+  /** Name of the course. */
+  name: string
+  /** Institutional code. */
+  code: string
+  /** Academic term. */
+  term: string
+  /** Names of the subtopics, in the order they were added; at least one. */
+  subtopics: string[]
 }
