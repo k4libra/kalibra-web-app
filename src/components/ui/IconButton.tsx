@@ -7,7 +7,7 @@
 
 import type { IconName } from '@/types/ui'
 import { cn } from '@/utils/cn'
-import { Icon } from './Icon'
+import { Icon } from '@/components/ui/Icon'
 
 /**
  * Props accepted by {@link IconButton}.
@@ -19,6 +19,12 @@ export interface IconButtonProps {
   label: string
   /** Called when the user activates the button. */
   onClick?: () => void
+  /**
+   * Blocks the action while the caller submits.
+   *
+   * @defaultValue `false`
+   */
+  disabled?: boolean
   /** Layout classes from the parent. */
   className?: string
 }
@@ -31,14 +37,15 @@ export interface IconButtonProps {
  * <IconButton icon="close" label="Cerrar" onClick={onClose} />
  * ```
  */
-export function IconButton({ icon, label, onClick, className }: IconButtonProps) {
+export function IconButton({ icon, label, onClick, disabled = false, className }: IconButtonProps) {
   return (
     <button
       type="button"
       aria-label={label}
       onClick={onClick}
+      disabled={disabled}
       className={cn(
-        'inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-sm text-content-secondary hover:bg-primary-subtle',
+        'inline-flex size-11 shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 items-center justify-center rounded-sm text-content-secondary hover:bg-primary-subtle',
         className,
       )}
     >

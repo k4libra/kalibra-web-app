@@ -7,9 +7,10 @@
 
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
 import { courseRoutes, ROUTES, studentRoutes } from '@/navigation/routes'
+import { authService } from '@/services/auth.service'
 import { studentMonitoringService } from '@/services/studentMonitoring.service'
 
 async function open(path: string) {
@@ -19,14 +20,25 @@ async function open(path: string) {
   })
 }
 
-afterEach(() => vi.restoreAllMocks())
+beforeEach(async () => {
+  await authService.login({ email: 'docente@kalibra.com', password: 'Kalibra123' })
+})
+
+afterEach(async () => {
+  vi.restoreAllMocks()
+  await act(async () => authService.logout())
+})
 
 describe('merged monitoring routes', () => {
   it('starts at sign-in and keeps the accepted course, invitation, exercise and indicator destinations', async () => {
+    await act(async () => authService.logout())
     await open('/')
     render(<App />)
-    expect(await screen.findByRole('heading', { name: 'Inicio de sesión' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument()
     expect(window.location.pathname).toBe(ROUTES.signIn)
+    await act(async () => {
+      await authService.login({ email: 'docente@kalibra.com', password: 'Kalibra123' })
+    })
     for (const [path, heading] of [
       [ROUTES.courses, 'Hola, Ricardo'], [ROUTES.invitations, 'Invitaciones'],
       [ROUTES.exercises, 'Ejercicios generados'], [courseRoutes.indicators('course-1'), 'Indicadores del curso'],

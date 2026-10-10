@@ -22,9 +22,9 @@
 export type ButtonVariant = 'primary' | 'tonal' | 'neutral' | 'danger' | 'danger-soft' | 'ghost'
 
 /**
- * Height presets of a button: `md` is 44 px and `sm` is 32 px.
+ * Height presets of a button: `lg` is 52 px, `md` is 44 px and `sm` is 32 px.
  */
-export type ButtonSize = 'md' | 'sm'
+export type ButtonSize = 'lg' | 'md' | 'sm'
 
 /**
  * Semantic color families used by chips, icon boxes, callouts and progress bars.
@@ -63,6 +63,7 @@ export type IconName =
   | 'chevron_left'
   | 'chevron_right'
   | 'close'
+  | 'cloud_upload'
   | 'danger'
   | 'description'
   | 'download'
@@ -76,6 +77,7 @@ export type IconName =
   | 'expand_more'
   | 'fact_check'
   | 'forward_to_inbox'
+  | 'folder_open'
   | 'functions'
   | 'gesture'
   | 'ghost'
@@ -86,6 +88,7 @@ export type IconName =
   | 'hourglass_empty'
   | 'how_to_reg'
   | 'info'
+  | 'image'
   | 'insights'
   | 'lightbulb'
   | 'local_fire_department'
@@ -100,6 +103,7 @@ export type IconName =
   | 'pause'
   | 'person'
   | 'person_add'
+  | 'picture_as_pdf'
   | 'play_arrow'
   | 'priority_high'
   | 'psychology'
@@ -124,6 +128,10 @@ export type IconName =
   | 'tune'
   | 'unfold_more'
   | 'upload_file'
+  | 'upload'
   | 'verified'
   | 'warning'
   | 'workspace_premium'
+  | 'badge'
+  | 'visibility'
+  | 'visibility_off'

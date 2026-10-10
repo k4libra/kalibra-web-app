@@ -10,6 +10,7 @@ import type { Invitation } from '@/types/invitation'
 import { isEmptyScenario, respond } from '@/mocks/scenario'
 import { formatMonitoringDate } from '@/utils/monitoring'
 import { STUDENTS } from '@/mocks/students.fixture'
+import { sessionCollection } from '@/mocks/session'
 
 /**
  * Sample invitations sent by the teacher.
@@ -27,7 +28,7 @@ export const REGISTERED_STUDENT_EMAILS = ['carlos.vega@upc.edu.pe', 'mateo.rios@
 
 // Updates an invitation in place and returns it.
 function update(invitationId: string, changes: Partial<Invitation>): Promise<Invitation> {
-  const invitation = INVITATIONS.find((item) => item.id === invitationId)
+  const invitation = sessionCollection('invitations', INVITATIONS).find((item) => item.id === invitationId)
   if (!invitation) return Promise.reject(new Error(`Invitation ${invitationId} not found`))
   Object.assign(invitation, changes)
   return respond(invitation)
@@ -37,20 +38,22 @@ function update(invitationId: string, changes: Partial<Invitation>): Promise<Inv
  * Simulated implementation of {@link InvitationsContract}.
  */
 export const invitationsMock: InvitationsContract = {
-  listInvitations: () => respond(isEmptyScenario() ? [] : INVITATIONS),
+  listInvitations: () => respond(isEmptyScenario() ? [] : sessionCollection('invitations', INVITATIONS)),
   sendInvitation: (courseId, email) => {
-    if (!REGISTERED_STUDENT_EMAILS.includes(email.trim().toLowerCase())) return respond({ status: 'no-account' as const })
+    if (!REGISTERED_STUDENT_EMAILS.includes(email.trim().toLowerCase()))
+      return respond({ status: 'no-account' as const })
     const invitation: Invitation = {
-      id: `inv-${INVITATIONS.length + 1}`,
+      id: `inv-${sessionCollection('invitations', INVITATIONS).length + 1}`,
       courseId,
       email: email.trim().toLowerCase(),
       sentAt: 'Hoy',
       validity: 'Vence en 3 días',
       status: 'pending',
     }
-    INVITATIONS.unshift(invitation)
+    sessionCollection('invitations', INVITATIONS).unshift(invitation)
     return respond({ status: 'sent' as const, invitation })
   },
   cancelInvitation: (invitationId) => update(invitationId, { status: 'cancelled', validity: 'Cancelada hoy' }),
-  resendInvitation: (invitationId) => update(invitationId, { status: 'pending', sentAt: 'Hoy', validity: 'Vence en 3 días' }),
+  resendInvitation: (invitationId) =>
+    update(invitationId, { status: 'pending', sentAt: 'Hoy', validity: 'Vence en 3 días' }),
 }

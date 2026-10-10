@@ -21,6 +21,7 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
 
 // Height, padding and radius of each size.
 const SIZE_CLASS: Record<ButtonSize, string> = {
+  lg: 'h-13 gap-2 rounded-md px-5',
   md: 'h-11 gap-2 rounded-md px-5',
   sm: 'h-8 gap-1.5 rounded-sm px-3',
 }

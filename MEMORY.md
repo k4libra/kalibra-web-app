@@ -1,25 +1,25 @@
 # MEMORY.md - Kalibra Web App
 
+Inter-session project memory. Keep this file concise (about ~50 lines); remove stale details.
+
 ## Current status (2026-10-10)
-- This worktree is `feature/student-monitoring`; integration merge already committed as `fd4b39c`.
-- Monitoring refactor is uncommitted; no Git write commands were executed.
-- Accepted courses, exercises, invitations and indicators routes remain; root opens sign-in.
-- Auth and curricular material retain placeholders until their branches are integrated.
-- Monitoring includes course-grouped students, individual progress and coordinated gap-map/heatmap resources.
-- Read-only Git only in this sandbox; never touch other worktrees or merge into main/develop.
+- `feature/ui-integration` holds every teacher feature: auth, courses, curricular material, generated exercises, invitations, indicators and student monitoring. Only UI with mock services; no API.
+- The app starts at `/iniciar-sesion`; demo account and session behavior are documented in README.
 
-## Decisions
-- Layered architecture: pages use hooks, hooks use services plus `useResource`, mocks implement contracts.
-- Canonical `mocks/students.fixture.ts` shares `st-1/2/3` identities, enrollment and activity with indicators/invitations; legacy `student-1/2/3` progress URLs remain supported.
-- Keep `masteryTone`: null = no data, <40 low, 40–<70 medium, >=70 high. Legend reflects accepted thresholds rather than Figma's conflicting 70% boundary.
-- Progress recommendations rely on explicit subtopic IDs and recent responses; never infer recent incorrect answers from mastery alone.
-- Opening progress synchronizes ActiveCourseContext to the student's course; listing all courses does not change it.
-- Tokens and existing UI primitives replace bespoke colors, bars, badges and stats; new HeatmapCell/Legend are generic UI primitives.
-- `?vacio` is shared across courses, monitoring and indicators; preserve it on the first-course CTA.
+## Decisions (and why)
+- Layered architecture (qs-react-frontend): pages use hooks, hooks use services plus `useResource`, services export contracts implemented by mocks.
+- Tailwind tokens in `src/index.css` mirror `theme/tokens.ts` of the mobile app; no hex values outside the tokens file.
+- Mock data is scoped to the signed-in account (`src/mocks/session.ts`); a new account starts empty. `?vacio` forces empty states.
+- One material store (`courseMaterialsStore.mock`) drives material rows, course counters and subtopic `MaterialStatus`.
+- One student fixture (`students.fixture.ts`) is shared by monitoring, invitations and indicators.
+- `masteryTone`: null = no data, <40 low, 40–<70 medium, >=70 high.
+- README.md only in empty layer folders (user rule), so the ARCH-05 audit warning is expected.
 
-## Verification and limitations
-- Baseline: 45 tests passed; lint had 2 errors and audit had 289 error hits.
-- Refactor tests cover service projections, boundaries, errors/retry, stale responses, cleanup, shell synchronization and the real merged router.
-- Live visual verification at 1280×832 and 360/768 remains pending: no connected browser; automatic review denied Chrome access.
-- Audit warning disposition: 7 layer READMEs intentionally absent; 5 inherited page/shell hooks lack tests; monitoring's type-only contract needs no runtime test.
-- Vitest has no globals: cleanup is registered in `src/test/setup.ts`; jsdom remains 29.x.
+## Lessons learned and mistakes to avoid
+- Vitest runs without globals: Testing Library cleanup is registered in `src/test/setup.ts`.
+- jsdom 30 needs Node >= 24.15; pinned to 29.x.
+- NavLink for `/cursos` needs `end` or it stays active on `/cursos/:id/*`.
+- Route table lives in `src/navigation/appRoutes.tsx`; integration tests must sign in through `authService` first.
+
+## Next steps
+- Replace mocks with HTTP services behind the same contracts.

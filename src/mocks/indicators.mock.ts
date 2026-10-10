@@ -11,6 +11,8 @@ import { COURSES } from '@/mocks/courses.mock'
 import { isEmptyScenario, respond } from '@/mocks/scenario'
 import { STUDENTS } from '@/mocks/students.fixture'
 
+import { sessionCollection } from '@/mocks/session'
+
 /**
  * Sample indicators of the courses that already have activity.
  */
@@ -23,10 +25,42 @@ export const INDICATORS: CourseIndicators[] = [
       answeredCount: student.resolvedExercises, correctCount: student.correctAnswers,
     })),
     subtopics: [
-      { subtopicId: 'sub-1', subtopicName: 'Recursividad y Backtracking', solvedCount: 30, initialMastery: 41, currentMastery: 65, generatedCount: 20, approvedCount: 18 },
-      { subtopicId: 'sub-2', subtopicName: 'Árboles Binarios de Búsqueda', solvedCount: 23, initialMastery: 46, currentMastery: 72, generatedCount: 20, approvedCount: 18 },
-      { subtopicId: 'sub-3', subtopicName: 'Programación Dinámica', solvedCount: 16, initialMastery: 34, currentMastery: 31, generatedCount: 0, approvedCount: 0 },
-      { subtopicId: 'sub-4', subtopicName: 'Grafos y Caminos Mínimos', solvedCount: 0, initialMastery: null, currentMastery: null, generatedCount: 0, approvedCount: 0 },
+      {
+        subtopicId: 'sub-1',
+        subtopicName: 'Recursividad y Backtracking',
+        solvedCount: 30,
+        initialMastery: 41,
+        currentMastery: 65,
+        generatedCount: 20,
+        approvedCount: 18,
+      },
+      {
+        subtopicId: 'sub-2',
+        subtopicName: 'Árboles Binarios de Búsqueda',
+        solvedCount: 23,
+        initialMastery: 46,
+        currentMastery: 72,
+        generatedCount: 20,
+        approvedCount: 18,
+      },
+      {
+        subtopicId: 'sub-3',
+        subtopicName: 'Programación Dinámica',
+        solvedCount: 16,
+        initialMastery: 34,
+        currentMastery: 31,
+        generatedCount: 0,
+        approvedCount: 0,
+      },
+      {
+        subtopicId: 'sub-4',
+        subtopicName: 'Grafos y Caminos Mínimos',
+        solvedCount: 0,
+        initialMastery: null,
+        currentMastery: null,
+        generatedCount: 0,
+        approvedCount: 0,
+      },
     ],
   },
 ]
@@ -35,9 +69,14 @@ export const INDICATORS: CourseIndicators[] = [
  * Simulated implementation of {@link IndicatorsContract}.
  */
 export const indicatorsMock: IndicatorsContract = {
-  getIndicators: (courseId) => respond(isEmptyScenario() ? null : INDICATORS.find((item) => item.courseId === courseId) ?? null),
+  getIndicators: (courseId) =>
+    respond(
+      (isEmptyScenario() ? [] : sessionCollection('indicators', INDICATORS)).find(
+        (item) => item.courseId === courseId,
+      ) ?? null,
+    ),
   exportIndicators: (courseId) => {
-    const code = COURSES.find((course) => course.id === courseId)?.code ?? courseId
+    const code = sessionCollection('courses', COURSES).find((course) => course.id === courseId)?.code ?? courseId
     return respond({ fileName: `kalibra_${code}_indicadores.csv` })
   },
 }
