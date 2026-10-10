@@ -22,9 +22,9 @@
 export type ButtonVariant = 'primary' | 'tonal' | 'neutral' | 'danger' | 'danger-soft' | 'ghost'
 
 /**
- * Height presets of a button: `md` is 44 px and `sm` is 32 px.
+ * Height presets of a button: `lg` is 52 px, `md` is 44 px and `sm` is 32 px.
  */
-export type ButtonSize = 'md' | 'sm'
+export type ButtonSize = 'lg' | 'md' | 'sm'
 
 /**
  * Semantic color families used by chips, icon boxes, callouts and progress bars.
@@ -127,3 +127,6 @@ export type IconName =
   | 'verified'
   | 'warning'
   | 'workspace_premium'
+  | 'badge'
+  | 'visibility'
+  | 'visibility_off'

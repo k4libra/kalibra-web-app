@@ -9,6 +9,7 @@ import type { ReactNode } from 'react'
 import type { IconName } from '@/types/ui'
 import { cn } from '@/utils/cn'
 import { Icon } from './Icon'
+import { IconButton } from './IconButton'
 
 /**
  * Color families of a callout: `info` (indigo), `warning` (amber) and `danger` (red).
@@ -51,6 +52,8 @@ export interface CalloutProps {
   size?: 'sm' | 'md'
   /** Optional action placed at the end, such as a small button. */
   action?: ReactNode
+  /** Called by the accessible notice dismissal control. */
+  onDismiss?: () => void
   /** Layout classes from the parent. */
   className?: string
 }
@@ -63,7 +66,7 @@ export interface CalloutProps {
  * <Callout icon="lightbulb">Carga el material de cada subtema.</Callout>
  * ```
  */
-export function Callout({ icon, children, tone = 'info', size = 'md', action, className }: CalloutProps) {
+export function Callout({ icon, children, tone = 'info', size = 'md', action, onDismiss, className }: CalloutProps) {
   return (
     <div
       role={tone === 'danger' ? 'alert' : undefined}
@@ -78,6 +81,9 @@ export function Callout({ icon, children, tone = 'info', size = 'md', action, cl
         <Icon name={icon} size={size === 'md' ? 'lg' : 'md'} className={ICON_CLASS[tone]} />
         <div className="flex-1">{children}</div>
       </div>
+      {onDismiss && (
+        <IconButton icon="close" label="Descartar aviso" onClick={onDismiss} className="text-danger-strong" />
+      )}
       {action && <div className="self-end sm:self-auto">{action}</div>}
     </div>
   )

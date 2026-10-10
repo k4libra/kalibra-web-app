@@ -27,13 +27,29 @@ export function isEmptyScenario(): boolean {
  *
  * @typeParam T - Shape of the simulated response.
  * @param data - Response returned by the simulated endpoint.
+ * @param signal - Optional signal that cancels the simulated round trip.
  * @returns A promise that resolves with `data` after 150 ms.
+ * @throws Error when the signal is aborted.
  *
  * @example
  * ```ts
  * listCourses: () => respond(COURSES)
  * ```
  */
-export function respond<T>(data: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(structuredClone(data)), 150))
+export function respond<T>(data: T, signal?: AbortSignal): Promise<T> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'))
+      return
+    }
+    const abort = () => {
+      clearTimeout(timer)
+      reject(new DOMException('Aborted', 'AbortError'))
+    }
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', abort)
+      resolve(structuredClone(data))
+    }, 150)
+    signal?.addEventListener('abort', abort, { once: true })
+  })
 }

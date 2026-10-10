@@ -7,25 +7,52 @@
 
 import type { InvitationsContract } from '@/services/invitations.contract'
 import type { Invitation } from '@/types/invitation'
-import { isEmptyScenario, respond } from './scenario'
+import { isEmptyScenario, respond } from '@/mocks/scenario'
+import { sessionCollection } from '@/mocks/session'
 
 /**
  * Sample invitations sent by the teacher.
  */
 export const INVITATIONS: Invitation[] = [
-  { id: 'inv-1', courseId: 'course-1', email: 'mateo.rios@upc.edu.pe', sentAt: '12 sep 2025, 09:30', validity: 'Vence en 2 días', status: 'pending' },
-  { id: 'inv-2', courseId: 'course-1', email: 'ana.torres@upc.edu.pe', sentAt: '06 sep 2025, 11:05', validity: 'Venció el 09 sep 2025', status: 'expired' },
-  { id: 'inv-3', courseId: 'course-1', email: 'l.ramos@upc.edu.pe', sentAt: '03 sep 2025, 15:12', validity: 'Respondida el 04 sep 2025', status: 'accepted' },
+  {
+    id: 'inv-1',
+    courseId: 'course-1',
+    email: 'mateo.rios@upc.edu.pe',
+    sentAt: '12 sep 2025, 09:30',
+    validity: 'Vence en 2 días',
+    status: 'pending',
+  },
+  {
+    id: 'inv-2',
+    courseId: 'course-1',
+    email: 'ana.torres@upc.edu.pe',
+    sentAt: '06 sep 2025, 11:05',
+    validity: 'Venció el 09 sep 2025',
+    status: 'expired',
+  },
+  {
+    id: 'inv-3',
+    courseId: 'course-1',
+    email: 'l.ramos@upc.edu.pe',
+    sentAt: '03 sep 2025, 15:12',
+    validity: 'Respondida el 04 sep 2025',
+    status: 'accepted',
+  },
 ]
 
 /**
  * Emails that already have a student account, used to simulate the account check.
  */
-export const REGISTERED_STUDENT_EMAILS = ['carlos.vega@upc.edu.pe', 'mateo.rios@upc.edu.pe', 'ana.torres@upc.edu.pe', 'l.ramos@upc.edu.pe']
+export const REGISTERED_STUDENT_EMAILS = [
+  'carlos.vega@upc.edu.pe',
+  'mateo.rios@upc.edu.pe',
+  'ana.torres@upc.edu.pe',
+  'l.ramos@upc.edu.pe',
+]
 
 // Updates an invitation in place and returns it.
 function update(invitationId: string, changes: Partial<Invitation>): Promise<Invitation> {
-  const invitation = INVITATIONS.find((item) => item.id === invitationId)
+  const invitation = sessionCollection('invitations', INVITATIONS).find((item) => item.id === invitationId)
   if (!invitation) return Promise.reject(new Error(`Invitation ${invitationId} not found`))
   Object.assign(invitation, changes)
   return respond(invitation)
@@ -35,20 +62,22 @@ function update(invitationId: string, changes: Partial<Invitation>): Promise<Inv
  * Simulated implementation of {@link InvitationsContract}.
  */
 export const invitationsMock: InvitationsContract = {
-  listInvitations: () => respond(isEmptyScenario() ? [] : INVITATIONS),
+  listInvitations: () => respond(isEmptyScenario() ? [] : sessionCollection('invitations', INVITATIONS)),
   sendInvitation: (courseId, email) => {
-    if (!REGISTERED_STUDENT_EMAILS.includes(email.trim().toLowerCase())) return respond({ status: 'no-account' as const })
+    if (!REGISTERED_STUDENT_EMAILS.includes(email.trim().toLowerCase()))
+      return respond({ status: 'no-account' as const })
     const invitation: Invitation = {
-      id: `inv-${INVITATIONS.length + 1}`,
+      id: `inv-${sessionCollection('invitations', INVITATIONS).length + 1}`,
       courseId,
       email: email.trim().toLowerCase(),
       sentAt: 'Hoy',
       validity: 'Vence en 3 días',
       status: 'pending',
     }
-    INVITATIONS.unshift(invitation)
+    sessionCollection('invitations', INVITATIONS).unshift(invitation)
     return respond({ status: 'sent' as const, invitation })
   },
   cancelInvitation: (invitationId) => update(invitationId, { status: 'cancelled', validity: 'Cancelada hoy' }),
-  resendInvitation: (invitationId) => update(invitationId, { status: 'pending', sentAt: 'Hoy', validity: 'Vence en 3 días' }),
+  resendInvitation: (invitationId) =>
+    update(invitationId, { status: 'pending', sentAt: 'Hoy', validity: 'Vence en 3 días' }),
 }
