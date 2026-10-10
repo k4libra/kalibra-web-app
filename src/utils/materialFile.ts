@@ -41,7 +41,7 @@ export function materialFileType(name: string): MaterialFileType | null {
 export function validateMaterialFile(file: File): MaterialValidationError | null {
   if (!materialFileType(file.name)) return { code: 'UNSUPPORTED_FORMAT', message: 'Formato no soportado. Sube un PDF, PNG o JPG; el archivo no se registró.' }
   if (file.size === 0) return { code: 'EMPTY_FILE', message: 'El archivo está vacío. Selecciona un archivo con contenido; el archivo no se registró.' }
-  if (file.size > MATERIAL_UPLOAD_CONFIG.maxFileSizeBytes) return { code: 'FILE_TOO_LARGE', message: 'El archivo supera el límite de 20 MB; el archivo no se registró.' }
+  if (file.size > MATERIAL_UPLOAD_CONFIG.maxFileSizeBytes) return { code: 'FILE_TOO_LARGE', message: 'El archivo supera el límite de 10 MB; el archivo no se registró.' }
   return null
 }
 

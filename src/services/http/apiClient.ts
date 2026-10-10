@@ -21,7 +21,7 @@ const failures: Record<number, [ApiErrorCode, string]> = {
   403: ['forbidden', 'No tienes permiso para realizar esta acción.'],
   404: ['not-found', 'No se encontró el recurso solicitado.'],
   409: ['conflict', 'La operación entra en conflicto con los datos existentes.'],
-  413: ['invalid-input', 'El archivo supera el tamaño permitido por el servidor.'],
+  413: ['invalid-input', 'El archivo supera el límite de 10 MB; el archivo no se registró.'],
   422: ['unprocessable', 'No se pudo procesar la solicitud.'],
   503: ['unavailable', 'Servicio no disponible por el momento'],
 }

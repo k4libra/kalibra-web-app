@@ -141,5 +141,5 @@ export interface MaterialValidationError {
  */
 export const MATERIAL_UPLOAD_CONFIG = {
     acceptedExtensions: ['pdf', 'png', 'jpg'] as const,
-    maxFileSizeBytes: 20 * 1024 * 1024,
+    maxFileSizeBytes: 10 * 1024 * 1024,
 } as const
