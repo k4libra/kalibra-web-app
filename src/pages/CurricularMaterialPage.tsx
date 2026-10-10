@@ -39,7 +39,7 @@ export function CurricularMaterialPage() {
         {page.materials.filter((material) => material.status === 'processing').map((material) => <Callout key={material.id} icon="hourglass_empty">
           Kalibra está extrayendo el contenido de {names.get(material.subtopicId)}. Te avisaremos cuando esté listo para generar ejercicios.
         </Callout>)}
-        <Callout icon="info">Formatos aceptados: PDF, PNG y JPG de hasta 20 MB. Kalibra te avisará cuando cada material esté listo.</Callout>
+        <Callout icon="info">Formatos aceptados: PDF, PNG y JPG de hasta 10 MB. Kalibra te avisará cuando cada material esté listo.</Callout>
       </>}
       {page.selectedErrorMaterial && <MaterialErrorModal material={page.selectedErrorMaterial}
         subtopicName={names.get(page.selectedErrorMaterial.subtopicId) ?? ''} onClose={page.closeError} onReplace={page.replaceMaterial} />}

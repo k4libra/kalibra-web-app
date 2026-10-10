@@ -49,7 +49,7 @@ export interface GapSubtopicDto { subtopicId: string; subtopicName: string; grou
 /** Mastery matrix with one cell per enrolled student and subtopic. */
 export interface GapMapDto { courseId: string; hasSufficientData: boolean; subtopics: GapSubtopicDto[]; students: { studentId: string; email: string; firstName?: string; lastName?: string; subtopicId: string; mastery: number | null; level: string }[] }
 /** Individual progress; feedback is text, not response correctness or recommendations. */
-export interface ProgressDto { studentId: string; courseId: string; hasActivity: boolean; subtopics: { subtopicId: string; subtopicName: string; mastery: number | null; level: string; solvedCount: number }[]; recentFeedback: string[] }
+export interface ProgressDto { studentId: string; courseId: string; hasActivity: boolean; lastActivityAt: string | null; subtopics: { subtopicId: string; subtopicName: string; mastery: number | null; level: string; solvedCount: number }[]; recentFeedback: string[] }
 /** API-provided guide entry. */
 export interface IndicatorGuideEntry { indicator: string; whatItMeasures: string; goodSignal: string }
 /** API-provided guide. */

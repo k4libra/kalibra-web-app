@@ -54,7 +54,7 @@ export function useCoursesPage() {
   return {
     courses,
     teacher,
-    studentCount: courses.reduce((total, course) => total + course.studentCount, 0),
+    studentCount: new Set(courses.flatMap((course) => course.studentIds)).size,
     pendingInvitationCount: courses.reduce((total, course) => total + course.pendingInvitationCount, 0),
     isLoading,
     error,

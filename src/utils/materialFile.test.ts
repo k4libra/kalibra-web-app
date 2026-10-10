@@ -28,12 +28,12 @@ describe('material file utilities', () => {
     expect(validateMaterialFile(new File(['content'], 'png'))?.code).toBe('UNSUPPORTED_FORMAT')
   })
 
-  it('accepts exactly 20 MB and rejects the first byte above the limit', () => {
+  it('accepts exactly 10 MB and rejects the first byte above the limit', () => {
     const file = new File(['content'], 'notes.pdf')
-    Object.defineProperty(file, 'size', { value: MATERIAL_UPLOAD_CONFIG.maxFileSizeBytes, configurable: true })
+    Object.defineProperty(file, 'size', { value: 10 * 1024 * 1024, configurable: true })
     expect(validateMaterialFile(file)).toBeNull()
     Object.defineProperty(file, 'size', { value: MATERIAL_UPLOAD_CONFIG.maxFileSizeBytes + 1 })
-    expect(validateMaterialFile(file)?.code).toBe('FILE_TOO_LARGE')
+    expect(validateMaterialFile(file)).toEqual({ code: 'FILE_TOO_LARGE', message: 'El archivo supera el límite de 10 MB; el archivo no se registró.' })
   })
 
   it('shows known pages without inferring them from the file size', () => {

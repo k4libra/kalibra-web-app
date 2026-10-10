@@ -15,7 +15,7 @@ import { curricularMaterialService } from '@/services/curricularMaterial.service
 import type { CourseOverview, Subtopic } from '@/types/course'
 import type { CurricularMaterial } from '@/types/curricularMaterial'
 
-const course: CourseOverview = { id: 'course', name: 'Curso', code: 'TEST', term: '', faculty: '', semester: '', icon: 'school', subtopicCount: 1, materialCount: 0, approvedExerciseCount: 0, studentCount: 0, pendingInvitationCount: 0, averageMastery: null }
+const course: CourseOverview = { id: 'course', name: 'Curso', code: 'TEST', term: '', faculty: '', semester: '', icon: 'school', subtopicCount: 1, materialCount: 0, approvedExerciseCount: 0, studentCount: 0, studentIds: [], pendingInvitationCount: 0, averageMastery: null }
 const subtopic: Subtopic = { id: 'topic', courseId: course.id, name: 'Tema', order: 1, description: '', materialStatus: 'missing', approvedExerciseCount: 0, averageMastery: null }
 const material: CurricularMaterial = { id: 'material', courseId: course.id, subtopicId: subtopic.id, fileName: 'notes.pdf', fileType: 'pdf', fileSize: 7, status: 'processing', uploadedAt: '2026-10-10' }
 

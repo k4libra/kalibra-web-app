@@ -11,6 +11,7 @@ import { curricularMaterialService } from '@/services/curricularMaterial.service
 import { exercisesService } from '@/services/exercises.service'
 import { invitationsService } from '@/services/invitations.service'
 import { studentMonitoringService } from '@/services/studentMonitoring.service'
+import { apiStub } from '@/test/apiStub'
 import type { RosterDto } from '@/types/api'
 
 function request(path: string, method: string) {
@@ -38,6 +39,22 @@ describe('feature HTTP contract', () => {
     expect(form.get('fileName')).toBe('notes.pdf')
     expect(form.get('format')).toBe('PDF')
     expect(new Headers(init.headers).has('Content-Type')).toBe(false)
+  })
+  it.each([true, false])('maps an upload 413 to a clear 10 MB error (JSON: %s)', async (json) => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(json ? JSON.stringify({ status: 413, detail: 'Maximum upload size exceeded' }) : 'Payload Too Large', { status: 413 }))
+    await expect(curricularMaterialService.upload({ courseId: 'course-1', subtopicId: 'sub-1', file: new File(['bytes'], 'notes.pdf') }))
+      .rejects.toMatchObject({ code: 'invalid-input', status: 413, message: 'El archivo supera el límite de 10 MB; el archivo no se registró.' })
+  })
+  it('joins roster activity dates from each student progress response in the selected course', async () => {
+    const timestamp = '2026-10-10T14:30:00Z'
+    apiStub.respond('/courses/course-1/student-progress', 200, { lastActivityAt: timestamp })
+    const controller = new AbortController()
+    const students = await studentMonitoringService.getStudentsByCourse('course-1', controller.signal)
+    expect(students).toHaveLength(3)
+    expect(students.every((student) => student.lastActivityAt === timestamp)).toBe(true)
+    for (const student of students) {
+      expect(request(`/courses/course-1/student-progress?studentId=${student.id}`, 'GET').signal).toBe(controller.signal)
+    }
   })
   it('requests a generation batch with the selected real subtopic', async () => {
     await exercisesService.generate('course-1', 'sub-1')

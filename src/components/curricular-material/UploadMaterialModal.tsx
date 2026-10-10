@@ -71,7 +71,7 @@ export function UploadMaterialModal({
         <Select label="Subtema" icon="account_tree" options={options} value={subtopicId} onChange={onSubtopicChange} />
         <FileDropzone label="Archivo de material" accept=".pdf,.png,.jpg" disabled={isUploading}
           title={isValid && !hasMaterials ? 'Archivo listo para subir' : 'Arrastra tu archivo aquí'}
-          description="PDF, PNG o JPG · máximo 20 MB"
+          description="PDF, PNG o JPG · máximo 10 MB"
           selectLabel={validationError ? 'Seleccionar otro archivo' : 'Seleccionar archivo'}
           state={file ? (validationError ? 'invalid' : 'valid') : 'empty'}
           selectionLayout={hasMaterials ? 'picker' : 'compact'}

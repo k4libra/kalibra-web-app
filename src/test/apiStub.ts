@@ -164,7 +164,7 @@ export function installApiStub() {
         const studentId = url.searchParams.get('studentId')
         if (!rosters().find((item) => item.courseId === course.id)?.students.some((item) => item.studentId === studentId)) return problem(404)
         const measured = STUDENT_SUBTOPIC_MASTERY.filter((item) => item.studentId === studentId)
-        return json({ courseId: course.id, studentId, hasActivity: measured.some((item) => item.resolvedExercises > 0), subtopics: course.subtopics.map((subtopic) => ({ subtopicId: subtopic.id, subtopicName: subtopic.name, mastery: measured.find((item) => item.subtopicId === subtopic.id)?.mastery ?? null, level: 'NO_DATA', solvedCount: measured.find((item) => item.subtopicId === subtopic.id)?.resolvedExercises ?? 0 })), recentFeedback: measured.length ? ['Revisa el caso base de la recursión.'] : [] })
+        return json({ courseId: course.id, studentId, lastActivityAt: STUDENTS.find((student) => student.id === studentId)?.lastActivityAt ?? null, hasActivity: measured.some((item) => item.resolvedExercises > 0), subtopics: course.subtopics.map((subtopic) => ({ subtopicId: subtopic.id, subtopicName: subtopic.name, mastery: measured.find((item) => item.subtopicId === subtopic.id)?.mastery ?? null, level: 'NO_DATA', solvedCount: measured.find((item) => item.subtopicId === subtopic.id)?.resolvedExercises ?? 0 })), recentFeedback: measured.length ? ['Revisa el caso base de la recursión.'] : [] })
       }
     }
     throw new Error(`Unhandled API stub: ${method} ${path}`)

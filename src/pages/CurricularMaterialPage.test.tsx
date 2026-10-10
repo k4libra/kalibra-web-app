@@ -18,7 +18,7 @@ import type { CurricularMaterial } from '@/types/curricularMaterial'
 
 let materials: CurricularMaterial[]
 let subtopics: Subtopic[]
-const course: CourseOverview = { id: 'course-a', name: 'Curso de referencia', code: 'TEST', term: '', faculty: '', semester: '', icon: 'school', subtopicCount: 4, materialCount: 3, approvedExerciseCount: 0, studentCount: 0, pendingInvitationCount: 0, averageMastery: null }
+const course: CourseOverview = { id: 'course-a', name: 'Curso de referencia', code: 'TEST', term: '', faculty: '', semester: '', icon: 'school', subtopicCount: 4, materialCount: 3, approvedExerciseCount: 0, studentCount: 0, studentIds: [], pendingInvitationCount: 0, averageMastery: null }
 
 beforeEach(() => {
   vi.restoreAllMocks()

@@ -8,7 +8,7 @@
 import { StudentMasteryTable } from '@/components/student-monitoring'
 import { Button, Callout, EmptyState, LoadingState, PageHeader, StatCard } from '@/components/ui'
 import { useStudentProgress } from '@/hooks/useStudentMonitoring'
-import { formatMastery } from '@/utils/monitoring'
+import { formatMastery, formatMonitoringActivity } from '@/utils/monitoring'
 
 /** Shows activity or accepted-enrollment details using {@link useStudentProgress}. */
 export function StudentProgressPage() {
@@ -23,6 +23,7 @@ export function StudentProgressPage() {
   return <>
     <PageHeader eyebrow={`Estudiantes › ${page.course.name}`} title={student.fullName}
       description={`${student.email} · Matriculado el ${page.enrollmentDate}`} actions={back} />
+    <p className="text-body-m text-content-secondary">Última actividad: {formatMonitoringActivity(student.lastActivityAt, '')}</p>
     {student.resolvedExercises > 0 ? <>
       <section aria-label="Resumen del progreso" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard icon="insights" value={formatMastery(student.averageMastery)} label="Dominio promedio" />

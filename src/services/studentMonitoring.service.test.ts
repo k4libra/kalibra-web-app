@@ -55,12 +55,14 @@ describe('studentMonitoringService', () => {
   it('preserves feedback without fabricating recommendations or recent correctness', async () => {
     const progress = await resolveMock(studentMonitoringService.getStudentProgress('st-1', 'course-1'))
     expect(progress.student.id).toBe('st-1')
+    expect(progress.student.lastActivityAt).toBe('2025-09-15T09:48:00')
     expect(progress.recentFeedback).toEqual(['Revisa el caso base de la recursión.'])
     expect(progress.recentResponses).toEqual([])
     expect(progress.reinforcementSubtopicIds).toEqual([])
     expect(progress.subtopics.every((item) => item.correctAnswers === null)).toBe(true)
     const inactive = await resolveMock(studentMonitoringService.getStudentProgress('st-3', 'course-1'))
     expect(inactive.student.resolvedExercises).toBe(0)
+    expect(inactive.student.lastActivityAt).toBeNull()
     expect(inactive.student.enrolledAt).toBe('2025-09-04')
   })
 

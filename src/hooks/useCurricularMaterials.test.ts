@@ -14,7 +14,7 @@ import type { CurricularMaterial } from '@/types/curricularMaterial'
 import type { CourseOverview } from '@/types/course'
 
 function course(id: string): CourseOverview {
-  return { id, name: id, code: '', term: '', faculty: '', semester: '', icon: 'school', subtopicCount: 1, materialCount: 0, approvedExerciseCount: 0, studentCount: 0, pendingInvitationCount: 0, averageMastery: null }
+  return { id, name: id, code: '', term: '', faculty: '', semester: '', icon: 'school', subtopicCount: 1, materialCount: 0, approvedExerciseCount: 0, studentCount: 0, studentIds: [], pendingInvitationCount: 0, averageMastery: null }
 }
 function deferred<T>() {
   let resolve!: (value: T) => void

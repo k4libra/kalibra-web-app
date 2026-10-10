@@ -15,7 +15,7 @@ export function average(values: (number | null)[]): number | null {
 /** Projects counters from actual related endpoint responses. */
 export function mapCourse(dto: CourseDto, materials: MaterialDto[], roster?: RosterDto, catalog?: CatalogDto, invitations?: InvitationGroupDto, gap?: GapMapDto): CourseOverview {
   return { id: dto.id, name: dto.name, code: dto.code, term: '', faculty: '', semester: '', icon: 'school',
-    subtopicCount: dto.subtopics.length, materialCount: materials.length, studentCount: roster?.enrolledCount ?? 0,
+    subtopicCount: dto.subtopics.length, materialCount: materials.length, studentCount: roster?.enrolledCount ?? 0, studentIds: roster?.students.map((student) => student.studentId) ?? [],
     approvedExerciseCount: catalog?.subtopics.reduce((sum, subtopic) => sum + subtopic.approved, 0) ?? 0,
     pendingInvitationCount: invitations?.invitations.filter((invitation) => invitation.status === 'PENDING').length ?? 0,
     averageMastery: gap ? average(gap.students.map((cell) => cell.mastery)) : null }
