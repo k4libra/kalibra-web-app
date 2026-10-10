@@ -28,6 +28,7 @@ export const COURSES: CourseOverview[] = [
     materialCount: 3,
     approvedExerciseCount: 36,
     studentCount: 3,
+    pendingInvitationCount: 1,
     averageMastery: 56,
   },
   {
@@ -42,6 +43,7 @@ export const COURSES: CourseOverview[] = [
     materialCount: 0,
     approvedExerciseCount: 0,
     studentCount: 0,
+    pendingInvitationCount: 0,
     averageMastery: null,
   },
 ]
@@ -80,5 +82,28 @@ export const coursesMock: CoursesContract = {
     return course ? respond(course) : Promise.reject(new Error(`Course ${courseId} not found`))
   },
   listSubtopics: (courseId) => respond(SUBTOPICS.filter((item) => item.courseId === courseId)),
+  createCourse: (input) => {
+    const id = `course-${COURSES.length + 1}`
+    const course: CourseOverview = {
+      id,
+      name: input.name,
+      code: input.code,
+      term: input.term,
+      faculty: 'Facultad de Ingeniería',
+      semester: '',
+      icon: 'school',
+      subtopicCount: input.subtopics.length,
+      materialCount: 0,
+      approvedExerciseCount: 0,
+      studentCount: 0,
+      pendingInvitationCount: 0,
+      averageMastery: null,
+    }
+    COURSES.push(course)
+    input.subtopics.forEach((name, index) =>
+      SUBTOPICS.push({ id: `${id}-sub-${index + 1}`, courseId: id, order: index + 1, name, description: '', materialStatus: 'missing', approvedExerciseCount: 0, averageMastery: null }),
+    )
+    return respond(course)
+  },
   getCurrentTeacher: () => respond(TEACHER),
 }
