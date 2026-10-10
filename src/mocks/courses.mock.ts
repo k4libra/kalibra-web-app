@@ -11,6 +11,7 @@
 import type { CoursesContract } from '@/services/courses.contract'
 import type { CourseOverview, Subtopic, Teacher } from '@/types/course'
 import { isEmptyScenario, respond } from '@/mocks/scenario'
+import { readCourseMaterials } from '@/mocks/courseMaterialsStore.mock'
 import { getMockSession, sessionCollection } from '@/mocks/session'
 
 /**
@@ -26,7 +27,7 @@ export const COURSES: CourseOverview[] = [
     semester: 'Semestre IV',
     icon: 'account_tree',
     subtopicCount: 4,
-    materialCount: 3,
+    materialCount: 0,
     approvedExerciseCount: 36,
     studentCount: 3,
     pendingInvitationCount: 1,
@@ -135,6 +136,19 @@ export const SUBTOPICS: Subtopic[] = [
   },
 ]
 
+// Empty teachers hide the reference courses while retaining courses they create in this session.
+const REFERENCE_COURSE_IDS = new Set(COURSES.map((course) => course.id))
+
+/**
+ * Checks whether a course belongs to the current mock teacher scenario.
+ *
+ * @param courseId - Identifier of the existing or newly created course.
+ * @returns Whether course and material endpoints may expose this course.
+ */
+export function hasMockCourse(courseId: string): boolean {
+  return sessionCollection('courses', COURSES).some((course) => course.id === courseId) && (!isEmptyScenario() || !REFERENCE_COURSE_IDS.has(courseId))
+}
+
 /**
  * Sample signed-in teacher.
  */
@@ -149,14 +163,29 @@ export const TEACHER: Teacher = {
  * Simulated implementation of {@link CoursesContract}.
  */
 export const coursesMock: CoursesContract = {
-  listCourses: () => respond(isEmptyScenario() ? [] : sessionCollection('courses', COURSES)),
+  listCourses: () =>
+    respond(
+      sessionCollection('courses', COURSES)
+        .filter((course) => hasMockCourse(course.id))
+        .map((course) => ({ ...course, materialCount: readCourseMaterials(course.id).length })),
+    ),
   getCourse: (courseId) => {
-    const course = (isEmptyScenario() ? [] : sessionCollection('courses', COURSES)).find((item) => item.id === courseId)
-    return course ? respond(course) : Promise.reject(new Error(`Course ${courseId} not found`))
+    const course = sessionCollection('courses', COURSES).find((item) => item.id === courseId)
+    return course && hasMockCourse(courseId)
+      ? respond({ ...course, materialCount: readCourseMaterials(courseId).length })
+      : Promise.reject(new Error('El curso no existe.'))
   },
   listSubtopics: (courseId) =>
     respond(
-      (isEmptyScenario() ? [] : sessionCollection('subtopics', SUBTOPICS)).filter((item) => item.courseId === courseId),
+      !hasMockCourse(courseId)
+        ? []
+        : sessionCollection('subtopics', SUBTOPICS)
+            .filter((item) => item.courseId === courseId)
+            .map((subtopic) => ({
+              ...subtopic,
+              materialStatus:
+                readCourseMaterials(courseId).find((material) => material.subtopicId === subtopic.id)?.status ?? 'missing',
+            })),
     ),
   createCourse: (input) => {
     const courses = sessionCollection('courses', COURSES)

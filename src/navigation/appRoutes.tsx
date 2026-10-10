@@ -8,6 +8,7 @@
 import type { RouteObject } from 'react-router'
 import { CourseIndicatorsPage } from '@/pages/CourseIndicatorsPage'
 import { CoursesPage } from '@/pages/CoursesPage'
+import { CurricularMaterialPage } from '@/pages/CurricularMaterialPage'
 import { CourseSubtopicsPage } from '@/pages/CourseSubtopicsPage'
 import { GeneratedExercisesPage } from '@/pages/GeneratedExercisesPage'
 import { InvitationsPage } from '@/pages/InvitationsPage'
@@ -34,7 +35,7 @@ export const APP_ROUTES: RouteObject[] = [
           { path: 'cursos/:courseId/subtemas', element: <CourseSubtopicsPage /> },
           {
             path: 'cursos/:courseId/material',
-            element: <PlaceholderPage title="Material curricular" branch="feature/curricular-material" />,
+            element: <CurricularMaterialPage />,
           },
           {
             path: 'cursos/:courseId/mapa-de-brechas',

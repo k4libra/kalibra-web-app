@@ -8,7 +8,7 @@ Panel web del docente de Kalibra: gestiona cursos y subtemas, ejercicios generad
 
 | Paquete | Versión |
 | --- | --- |
-| React / React DOM | 19.3 |
+| React / React DOM | 19.3.0 (lockfile; rango declarado `^19.2.0`) |
 | Vite | 7.3 |
 | TypeScript | 5.9 |
 | Tailwind CSS (`@tailwindcss/vite`) | 4.3.3 |
@@ -30,7 +30,22 @@ npm test
 npm run build
 ```
 
-Para ver los estados vacíos (docente sin cursos, sin invitaciones, sin ejercicios) agrega `?vacio` a la URL.
+Para ver los estados vacíos (docente sin cursos, sin invitaciones, sin ejercicios) agrega `?vacio` a la URL. Los cursos que crees durante esa sesión siguen disponibles.
+
+Material curricular: permite cargar PDF, PNG o JPG de hasta 20 MB por subtema. Las cargas quedan en ingestión en el mock; al reemplazar, se sincronizan el contador del curso y el estado de material de los subtemas. [Criterios y verificación del refactor](docs/curricular-material-refactor.md).
+
+La raíz abre `/iniciar-sesion`. La autenticación sigue siendo un placeholder hasta integrar `feature/auth`; esta rama no define credenciales de inicio de sesión.
+
+## Material curricular
+
+- Ruta: `/cursos/:courseId/material`. Se llega desde el sidebar, Subtemas, Ejercicios generados e Indicadores.
+- PDF, PNG y JPG, con contenido y hasta 20 MB. La validación se comparte entre el hook y el servicio simulado.
+- Una carga reemplaza el material del subtema y queda en ingestión. Los contadores del curso, Subtemas y el diálogo de generación leen la misma fuente; solo `ready` habilita la generación.
+- Los cursos creados en la sesión también funcionan con `?vacio`; los cursos de ejemplo permanecen ocultos en ese escenario.
+- El mock conserva metadatos, no archivos. Las páginas solo se muestran cuando la fuente las proporciona; una carga nueva no inventa ese dato ni simula que la ingestión terminó.
+- `/` abre inicio de sesión; las rutas desconocidas conservan el retorno a Mis cursos. Auth y seguimiento conservan sus placeholders hasta integrar sus ramas.
+
+La auditoría exige cero errores. Se mantienen dos observaciones heredadas de `feature/ui-integration`: `ARCH-05` (los siete README por capa, omitidos según la política registrada en `MEMORY.md`) y `TEST-02` (cinco hooks de páginas/shell sin tests propios). La cobertura nueva incluye servicios, utilidades, hooks, selección de archivos y los flujos de página y navegación; esas observaciones quedan como seguimiento de la integración, sin ampliar este refactor.
 
 
 ## Acceso de demostración

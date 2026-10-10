@@ -1,3 +1,10 @@
+/**
+ * Configures TypeScript, React lifecycle and TSDoc validation for the frontend.
+ *
+ * @author MRamirez202210582
+ * @packageDocumentation
+ */
+
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
@@ -6,6 +13,9 @@ import tsdoc from 'eslint-plugin-tsdoc'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
+/**
+ * Enforces the frontend rules and permits providers with their context access hooks.
+ */
 export default defineConfig([
   globalIgnores(['dist']),
   {

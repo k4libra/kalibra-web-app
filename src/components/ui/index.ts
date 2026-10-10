@@ -29,3 +29,5 @@ export { StatCard, type StatCardProps } from './StatCard'
 export { TableCard, TableHeader, TableRow, type TableCardProps, type TableHeaderProps, type TableRowProps } from './Table'
 export { TextField, type FieldStatus, type TextFieldProps } from './TextField'
 export { Toast, type ToastProps } from './Toast'
+
+export { FileDropzone, type FileDropzoneProps, type FileDropzoneState, type FileSelectionLayout } from './FileDropzone'
