@@ -5,16 +5,19 @@
  * @packageDocumentation
  */
 
-import type { IconName } from '@/types/ui'
+import type { ButtonHTMLAttributes, Ref } from 'react'
+import type { ActionIcon } from './Icon'
 import { cn } from '@/utils/cn'
 import { Icon } from '@/components/ui/Icon'
 
 /**
  * Props accepted by {@link IconButton}.
  */
-export interface IconButtonProps {
+export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onClick' | 'aria-label'> {
   /** Icon drawn inside the button. */
-  icon: IconName
+  icon: ActionIcon
+  /** Native button reference used by focus-managed overlays. */
+  ref?: Ref<HTMLButtonElement>
   /** Accessible name announced by screen readers. */
   label: string
   /** Called when the user activates the button. */
@@ -37,9 +40,12 @@ export interface IconButtonProps {
  * <IconButton icon="close" label="Cerrar" onClick={onClose} />
  * ```
  */
-export function IconButton({ icon, label, onClick, disabled = false, className }: IconButtonProps) {
+export function IconButton({ icon, label, onClick, disabled = false, className, ref, ...attributes }: IconButtonProps) {
+  const Graphic = icon
   return (
     <button
+      {...attributes}
+      ref={ref}
       type="button"
       aria-label={label}
       onClick={onClick}
@@ -49,7 +55,7 @@ export function IconButton({ icon, label, onClick, disabled = false, className }
         className,
       )}
     >
-      <Icon name={icon} size="lg" />
+      {typeof Graphic === 'string' ? <Icon name={Graphic} size="lg" /> : <Graphic size="lg" />}
     </button>
   )
 }

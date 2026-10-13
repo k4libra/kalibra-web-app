@@ -5,23 +5,18 @@
  * @packageDocumentation
  */
 
+import type { ComponentType } from 'react'
 import type { IconName } from '@/types/ui'
 import { cn } from '@/utils/cn'
+import { ICON_SIZE_CLASS } from './iconSizes'
 
 /**
  * Optical sizes of an icon, in pixels: `xs` 14, `sm` 16, `md` 18, `lg` 20, `xl` 22, `2xl` 28.
  */
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 
-// Pixel size of each preset; the glyph box matches the font size.
-const SIZE_CLASS: Record<IconSize, string> = {
-  xs: 'size-3.5 text-[14px]',
-  sm: 'size-4 text-[16px]',
-  md: 'size-[18px] text-[18px]',
-  lg: 'size-5 text-[20px]',
-  xl: 'size-[22px] text-[22px]',
-  '2xl': 'size-7 text-[28px]',
-}
+/** Describes a ligature or a decorative SVG component accepted by action controls. */
+export type ActionIcon = IconName | ComponentType<{ size?: IconSize; className?: string }>
 
 /**
  * Props accepted by {@link Icon}.
@@ -58,7 +53,7 @@ export interface IconProps {
 export function Icon({ name, size = 'md', filled = false, label, className }: IconProps) {
   return (
     <span
-      className={cn('icon-symbol inline-flex shrink-0 items-center justify-center', SIZE_CLASS[size], filled && 'icon-filled', className)}
+      className={cn('icon-symbol inline-flex shrink-0 items-center justify-center', ICON_SIZE_CLASS[size], filled && 'icon-filled', className)}
       aria-hidden={label ? undefined : true}
       aria-label={label}
       role={label ? 'img' : undefined}
