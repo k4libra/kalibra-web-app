@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import type { GapMapDto, IndicatorsDto, ProgressDto, RosterStudentDto } from '@/types/api'
+import type { CourseDto, GapMapDto, IndicatorsDto, ProgressDto, RosterStudentDto } from '@/types/api'
 import type { CourseGapMap, MonitoredStudent, StudentProgress } from '@/types/studentMonitoring'
 import { initials, profileName } from '@/services/mappers/auth.mapper'
 import { average } from '@/services/mappers/courses.mapper'
@@ -24,7 +24,9 @@ export function mapProgress(dto: ProgressDto, student: MonitoredStudent): Studen
     recentResponses: [], reinforcementSubtopicIds: [], recentFeedback: dto.recentFeedback }
 }
 /** Uses API distributions and counts each active identity once. */
-export function mapGap(dto: GapMapDto, totalStudents: number): CourseGapMap {
+export function mapGap(resource: GapMapDto, totalStudents: number, course?: CourseDto): CourseGapMap {
+  const isActive = (id: string) => !course || course.subtopics.some((item) => item.id === id && item.status === 'ACTIVE')
+  const dto = { ...resource, students: resource.students.filter((item) => isActive(item.subtopicId)), subtopics: resource.subtopics.filter((item) => isActive(item.subtopicId)) }
   const measured = dto.students.filter((item) => item.mastery !== null)
   const weakest = [...dto.subtopics].filter((item) => item.lowCount + item.mediumCount + item.highCount > 0).sort((a, b) => a.reinforcementPriority - b.reinforcementPriority)[0]
   return { courseId: dto.courseId, updatedAt: '', stats: { averageMastery: average(measured.map((item) => item.mastery)),

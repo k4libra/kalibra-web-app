@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import type { CatalogDto, IndicatorGuideDto, IndicatorsDto } from '@/types/api'
+import type { CatalogDto, CourseDto, IndicatorGuideDto, IndicatorsDto } from '@/types/api'
 import type { CourseIndicators } from '@/types/indicators'
 import { initials, profileName } from '@/services/mappers/auth.mapper'
 
@@ -24,12 +24,12 @@ export function mapIndicatorGuide(dto: IndicatorGuideDto): IndicatorGuideDto {
 }
 
 /** Joins practice, evolution and actual catalog counts by subtopic identity. */
-export function mapIndicators(dto: IndicatorsDto, catalog?: CatalogDto): CourseIndicators | null {
+export function mapIndicators(dto: IndicatorsDto, catalog?: CatalogDto, course?: CourseDto): CourseIndicators | null {
   if (!dto.hasActivity) return null
   const ids = new Set([...dto.practice.perSubtopic, ...dto.evolution.perSubtopic, ...(catalog?.subtopics ?? [])].map((item) => item.subtopicId))
   return { summary: { groupAccuracy: dto.accuracy.groupAccuracy, groupInitial: dto.evolution.groupInitial, groupCurrent: dto.evolution.groupCurrent, groupDeltaPoints: dto.evolution.groupDeltaPoints, totalSolved: dto.practice.totalSolved, averagePerActiveStudent: dto.practice.averagePerActiveStudent, activeStudents: dto.practice.activeStudents, approvalRate: dto.verification.approvalRate, approved: dto.verification.approved, discarded: dto.verification.discarded }, courseId: dto.courseId, enrolledCount: dto.practice.enrolledStudents,
     students: dto.accuracy.perStudent.map((student) => ({ studentId: student.studentId, fullName: profileName(student), initials: initials(profileName(student)), answeredCount: student.submitted, correctCount: student.correct })),
-    subtopics: [...ids].map((id) => {
+    subtopics: [...ids].filter((id) => !course || course.subtopics.some((subtopic) => subtopic.id === id && subtopic.status === 'ACTIVE')).map((id) => {
       const practice = dto.practice.perSubtopic.find((item) => item.subtopicId === id)
       const evolution = dto.evolution.perSubtopic.find((item) => item.subtopicId === id)
       const count = catalog?.subtopics.find((item) => item.subtopicId === id)

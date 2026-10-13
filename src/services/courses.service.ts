@@ -42,6 +42,20 @@ export const coursesService: CoursesContract = {
     const user = authService.getSession()?.user
     return mapTeacher(user ? { ...user, roles: [user.role] } : await apiClient.get<UserDto>('/users/me', { signal }))
   },
+  /** {@inheritDoc CoursesContract.updateCourse} */
+  async updateCourse(courseId, input) {
+    return mapCourse(await apiClient.patch<CourseDto>(`/courses/${courseId}`, input), [])
+  },
+  /** {@inheritDoc CoursesContract.addSubtopic} */
+  async addSubtopic(courseId, name) {
+    return mapCourse(await apiClient.post<CourseDto>(`/courses/${courseId}/subtopics`, { name }), [])
+  },
+  /** {@inheritDoc CoursesContract.updateSubtopic} */
+  async updateSubtopic(courseId, subtopicId, input) {
+    return mapCourse(await apiClient.patch<CourseDto>(`/courses/${courseId}/subtopics/${subtopicId}`, input), [])
+  },
+  /** {@inheritDoc CoursesContract.deleteSubtopic} */
+  deleteSubtopic: (courseId, subtopicId) => apiClient.delete(`/courses/${courseId}/subtopics/${subtopicId}`),
   async getWorkspace(signal) { return apiClient.get<{ activeCourseId: string | null }>('/teachers/me/workspace', { signal }) },
   async selectActiveCourse(courseId) { return apiClient.put<{ activeCourseId: string | null }>('/teachers/me/workspace/active-course', { courseId }) },
 }

@@ -11,7 +11,7 @@ export interface UserDto { id: string; email: string; firstName?: string; lastNa
 /** Paginated API representation. */
 export interface ApiPage<T> { content: T[]; page: number; size: number; totalElements: number; totalPages: number }
 /** Ordered curriculum label. */
-export interface SubtopicDto { id: string; name: string; displayOrder: number }
+export interface SubtopicDto { id: string; name: string; displayOrder: number; status: 'ACTIVE' | 'ARCHIVED'; locked: boolean }
 /** Course representation without UI-only academic metadata. */
 export interface CourseDto { id: string; name: string; code: string; subtopics: SubtopicDto[]; createdAt: string }
 /** File representation; size and page count are not supplied by the API. */

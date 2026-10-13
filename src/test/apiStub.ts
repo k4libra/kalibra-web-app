@@ -30,7 +30,7 @@ const overrides = new Map<string, Override>()
 function json(body: unknown, status = 200) { return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } }) }
 function problem(status: number) { return json({ status, title: 'API error', detail: 'Server-side explanation' }, status) }
 function makeCourses(): CourseDto[] {
-  return COURSES.map((course) => ({ id: course.id, name: course.name, code: course.code, createdAt: '2026-10-10T10:00:00Z', subtopics: SUBTOPICS.filter((subtopic) => subtopic.courseId === course.id).map((subtopic) => ({ id: subtopic.id, name: subtopic.name, displayOrder: subtopic.order })) }))
+  return COURSES.map((course) => ({ id: course.id, name: course.name, code: course.code, createdAt: '2026-10-10T10:00:00Z', subtopics: SUBTOPICS.filter((subtopic) => subtopic.courseId === course.id).map((subtopic) => ({ id: subtopic.id, name: subtopic.name, displayOrder: subtopic.order, status: subtopic.status, locked: subtopic.locked })) }))
 }
 function materials(): MaterialDto[] {
   return ['recursividad.pdf', 'arboles-bst.pdf', 'programacion-dinamica.jpg'].map((fileName, index) => ({ id: `material-${index + 1}`, courseId: 'course-1', subtopicIds: [`sub-${index + 1}`], fileName, format: index === 2 ? 'JPEG' : 'PDF', status: index === 2 ? 'INGESTION_ERROR' : 'READY', failureReason: index === 2 ? 'No se pudo extraer el contenido de la imagen.' : null, uploadedAt: '2025-09-02T00:00:00Z' }))
@@ -133,7 +133,7 @@ export function installApiStub() {
     }
     if (path === '/courses' && method === 'POST') {
       const id = `course-${current.courses.length + 3}`
-      const course: CourseDto = { id, name: String(body.name), code: String(body.code), createdAt: '2026-10-10T10:00:00Z', subtopics: (body.subtopicNames as string[]).map((name, index) => ({ id: `${id}-sub-${index + 1}`, name, displayOrder: index + 1 })) }
+      const course: CourseDto = { id, name: String(body.name), code: String(body.code), createdAt: '2026-10-10T10:00:00Z', subtopics: (body.subtopicNames as string[]).map((name, index) => ({ id: `${id}-sub-${index + 1}`, name, displayOrder: index + 1, status: 'ACTIVE', locked: false })) }
       current.courses.push(course); return json(course, 201)
     }
     if (path === '/courses') return json(current.courses)
@@ -141,11 +141,48 @@ export function installApiStub() {
     if (match) {
       const course = current.courses.find((item) => item.id === match[1]); if (!course) return problem(404)
       const endpoint = match[2]
-      if (!endpoint) return json(course)
+      if (!endpoint) {
+        if (method === 'PATCH') {
+          if (typeof body.name === 'string') course.name = body.name
+          if (typeof body.code === 'string') course.code = body.code
+        }
+        return json(course)
+      }
+      if (endpoint === '/subtopics' && method === 'POST') {
+        course.subtopics.push({ id: `${course.id}-sub-${course.subtopics.length + 1}`, name: String(body.name), displayOrder: course.subtopics.length + 1, status: 'ACTIVE', locked: false })
+        return json(course, 201)
+      }
+      const subtopicMatch = endpoint.match(/^\/subtopics\/([^/]+)$/)
+      if (subtopicMatch) {
+        const topic = course.subtopics.find((item) => item.id === subtopicMatch[1])
+        if (!topic) return problem(404)
+        const conflict = (detail: string) => json({ status: 409, detail }, 409)
+        if (topic.locked && (body.name !== undefined || method === 'DELETE')) return conflict(method === 'DELETE' ? 'El subtema ya tiene material; archívalo en lugar de eliminarlo.' : 'El subtema ya tiene material y su nombre no se puede cambiar.')
+        if (topic.status === 'ACTIVE' && (body.status === 'ARCHIVED' || method === 'DELETE') && course.subtopics.filter((item) => item.status === 'ACTIVE').length === 1) return conflict('El curso debe conservar al menos un subtema activo.')
+        if (method === 'DELETE') {
+          course.subtopics = course.subtopics.filter((item) => item.id !== topic.id)
+          course.subtopics.forEach((item, index) => { item.displayOrder = index + 1 })
+          return new Response(null, { status: 204 })
+        }
+        if (method === 'PATCH') {
+          if (typeof body.name === 'string') topic.name = body.name
+          if (body.status === 'ACTIVE' || body.status === 'ARCHIVED') topic.status = body.status
+          if (typeof body.displayOrder === 'number') {
+            if (body.displayOrder < 1 || body.displayOrder > course.subtopics.length) return problem(400)
+            course.subtopics = course.subtopics.filter((item) => item.id !== topic.id)
+            course.subtopics.splice(body.displayOrder - 1, 0, topic)
+            course.subtopics.forEach((item, index) => { item.displayOrder = index + 1 })
+          }
+          return json(course)
+        }
+      }
       if (endpoint === '/curricular-materials') {
         if (method === 'POST') {
           const form = init?.body as FormData; const subtopicId = String(form.get('subtopicIds'))
-          if (!course.subtopics.some((item) => item.id === subtopicId)) return problem(400)
+          const topic = course.subtopics.find((item) => item.id === subtopicId)
+          if (!topic) return problem(400)
+          if (topic.status === 'ARCHIVED') return problem(409)
+          topic.locked = true
           const existing = current.materials.find((item) => item.courseId === course.id && item.subtopicIds.includes(subtopicId))
           const material: MaterialDto = { id: existing?.id ?? `material-${current.materials.length + 1}`, courseId: course.id, subtopicIds: [subtopicId], fileName: String(form.get('fileName')), format: String(form.get('format')) as MaterialDto['format'], status: 'PENDING_INGESTION', failureReason: null, uploadedAt: '2026-10-10T10:00:00Z' }
           current.materials = current.materials.filter((item) => item.id !== material.id); current.materials.push(material)

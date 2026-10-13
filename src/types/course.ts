@@ -62,6 +62,10 @@ export type MaterialStatus = 'ready' | 'processing' | 'error' | 'missing'
  * Describes a subtopic of a course and its teaching status.
  */
 export interface Subtopic {
+  /** Availability for teaching actions. */
+  status: 'ACTIVE' | 'ARCHIVED'
+  /** Whether any material prevents renaming and deletion. */
+  locked: boolean
   /** Unique identifier assigned by the server. */
   id: string
   /** Course the subtopic belongs to. */
@@ -106,4 +110,22 @@ export interface CreateCourseInput {
   term?: string
   /** Names of the subtopics, in the order they were added; at least one. */
   subtopics: string[]
+}
+
+/** Course metadata accepted by partial updates. */
+export interface UpdateCourseInput {
+  /** New display name, when changed. */
+  name?: string
+  /** New institutional code, when changed. */
+  code?: string
+}
+
+/** Independent subtopic changes accepted by the API. */
+export interface UpdateSubtopicInput {
+  /** New name, allowed only without material. */
+  name?: string
+  /** Target position among all subtopics, starting at one. */
+  displayOrder?: number
+  /** Availability for teaching actions. */
+  status?: Subtopic['status']
 }

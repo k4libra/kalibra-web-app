@@ -8,7 +8,7 @@
 import type { StudentMonitoringServiceContract } from '@/services/studentMonitoring.contract'
 import { apiClient } from '@/services/http/apiClient'
 import { mapGap, mapProgress, mapStudent } from '@/services/mappers/monitoring.mapper'
-import type { GapMapDto, IndicatorsDto, ProgressDto, RosterDto } from '@/types/api'
+import type { CourseDto, GapMapDto, IndicatorsDto, ProgressDto, RosterDto } from '@/types/api'
 import { ApiError } from '@/types/apiError'
 async function measurements(courseId: string, signal?: AbortSignal) {
   return Promise.all([apiClient.get<IndicatorsDto>(`/courses/${courseId}/indicators`, { signal }), apiClient.get<GapMapDto>(`/courses/${courseId}/mastery-gap-map`, { signal })])
@@ -43,7 +43,7 @@ export const studentMonitoringService: StudentMonitoringServiceContract = {
     return { updatedAt: '', totalStudents, activeStudents, inactiveStudents: totalStudents - activeStudents }
   },
   async getGapMap(courseId, signal) {
-    const [gap, rosters] = await Promise.all([apiClient.get<GapMapDto>(`/courses/${courseId}/mastery-gap-map`, { signal }), apiClient.get<RosterDto[]>('/course-rosters', { signal })])
-    return mapGap(gap, rosters.find((roster) => roster.courseId === courseId)?.enrolledCount ?? 0)
+    const [gap, rosters, course] = await Promise.all([apiClient.get<GapMapDto>(`/courses/${courseId}/mastery-gap-map`, { signal }), apiClient.get<RosterDto[]>('/course-rosters', { signal }), apiClient.get<CourseDto>(`/courses/${courseId}`, { signal })])
+    return mapGap(gap, rosters.find((roster) => roster.courseId === courseId)?.enrolledCount ?? 0, course)
   },
 }
