@@ -22,7 +22,7 @@ const course: CourseOverview = { id: 'course-a', name: 'Curso de referencia', co
 
 beforeEach(() => {
   vi.restoreAllMocks()
-  subtopics = Array.from({ length: 4 }, (_, index) => ({ id: `topic-${index}`, courseId: course.id, order: index + 1, name: `Tema ${index + 1}`, description: '', materialStatus: 'missing', approvedExerciseCount: 0, averageMastery: null }))
+  subtopics = Array.from({ length: 4 }, (_, index) => ({ id: `topic-${index}`, courseId: course.id, order: index + 1, name: `Tema ${index + 1}`, description: '', status: 'ACTIVE', locked: false, materialStatus: 'missing', approvedExerciseCount: 0, averageMastery: null }))
   materials = subtopics.slice(0, 3).map((subtopic, index) => ({ id: `material-${index}`, courseId: course.id, subtopicId: subtopic.id, fileName: index === 2 ? 'failed.jpg' : `notes-${index}.pdf`, fileType: index === 2 ? 'jpg' : 'pdf', fileSize: 1024, pageCount: index === 2 ? undefined : 18, uploadedAt: '2025-09-02', status: index === 2 ? 'error' : 'ready', errorMessage: index === 2 ? 'La imagen tiene baja resolución.' : undefined }))
   vi.spyOn(coursesService, 'getCourse').mockImplementation(async (id) => ({ ...course, id }))
   vi.spyOn(coursesService, 'listSubtopics').mockImplementation(async () => subtopics.map((subtopic) => ({ ...subtopic, materialStatus: materials.find((item) => item.subtopicId === subtopic.id)?.status ?? 'missing' })))
@@ -44,6 +44,20 @@ function renderPage(courseId = course.id) {
 function uploader() { return screen.getByLabelText('Archivo de material') as HTMLInputElement }
 
 describe('CurricularMaterialPage', () => {
+  it('retains archived material names but prevents replacement and omits archived upload choices', async () => {
+    subtopics[2].status = 'ARCHIVED'
+    const user = userEvent.setup()
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Ver motivo' }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('failed.jpg · Tema 3')
+    expect(screen.getByRole('button', { name: 'Reemplazar archivo' })).toBeDisabled()
+    expect(screen.getByText('Este subtema está archivado. Restáuralo para reemplazar su material.')).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    await user.click(screen.getByRole('button', { name: 'Cargar material' }))
+    await user.click(screen.getByRole('button', { name: 'Subtema' }))
+    expect(screen.getAllByRole('option')).toHaveLength(3)
+    expect(screen.queryByRole('option', { name: /Tema 3/ })).not.toBeInTheDocument()
+  })
   it('preserves the failed subtopic through reason, replacement, invalid selection and successful upload', async () => {
     const user = userEvent.setup({ applyAccept: false })
     renderPage()

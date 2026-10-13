@@ -65,6 +65,7 @@ export function useCurricularMaterials(courseId: string) {
   return {
     course: current?.course ?? null,
     subtopics: current?.subtopics ?? [],
+    activeSubtopics: current?.subtopics.filter((subtopic) => subtopic.status === 'ACTIVE') ?? [],
     materials,
     stats: {
       total: materials.length,

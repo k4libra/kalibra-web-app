@@ -25,7 +25,7 @@ import { validateMaterialFile } from '@/utils/materialFile'
  */
 export function useCurricularMaterialPage(courseId: string) {
   const data = useCurricularMaterials(courseId)
-  const { clearError, materials, subtopics, isUploading, uploadMaterial } = data
+  const { clearError, materials, activeSubtopics: subtopics, isUploading, uploadMaterial } = data
   const { showToast } = useToast()
   const [form, setForm] = useState<{ courseId: string; subtopicId: string; file: File | null } | null>(null)
   const [errorMaterial, setErrorMaterial] = useState<CurricularMaterial | null>(null)
@@ -36,7 +36,7 @@ export function useCurricularMaterialPage(courseId: string) {
   const openUpload = useCallback(() => {
     if (isUploading) return
     clearError()
-    const first = materials.find((item) => item.status === 'error')?.subtopicId ?? subtopics[0]?.id ?? ''
+    const first = materials.find((item) => item.status === 'error' && subtopics.some((subtopic) => subtopic.id === item.subtopicId))?.subtopicId ?? subtopics[0]?.id ?? ''
     setForm({ courseId, subtopicId: first, file: null })
   }, [courseId, clearError, isUploading, materials, subtopics])
   const closeUpload = useCallback(() => {
@@ -58,11 +58,11 @@ export function useCurricularMaterialPage(courseId: string) {
   const viewError = useCallback((material: CurricularMaterial) => setErrorMaterial(material), [])
   const closeError = useCallback(() => setErrorMaterial(null), [])
   const replaceMaterial = useCallback((material: CurricularMaterial) => {
-    if (isUploading || material.courseId !== courseId) return
+    if (isUploading || material.courseId !== courseId || !subtopics.some((subtopic) => subtopic.id === material.subtopicId)) return
     clearError()
     setErrorMaterial(null)
     setForm({ courseId, subtopicId: material.subtopicId, file: null })
-  }, [courseId, clearError, isUploading])
+  }, [courseId, clearError, isUploading, subtopics])
   const canSubmit = Boolean(uploadForm?.file && !validationError && subtopics.some((item) => item.id === uploadForm.subtopicId) && !isUploading)
   const submit = useCallback(async () => {
     if (!canSubmit || !uploadForm?.file) return

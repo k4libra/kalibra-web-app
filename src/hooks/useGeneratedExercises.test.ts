@@ -7,10 +7,18 @@
 
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { apiStub } from '@/test/apiStub'
 import { useGenerateExercises } from './useGenerateExercises'
 import { useGeneratedExercises } from './useGeneratedExercises'
 
 describe('useGeneratedExercises', () => {
+  it('excludes archived subtopics from generation choices while retaining exercise history', async () => {
+    apiStub.account.courses[0].subtopics[0].status = 'ARCHIVED'
+    const { result } = renderHook(() => useGeneratedExercises())
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(result.current.groups[0].subtopics.some((item) => item.id === 'sub-1')).toBe(false)
+    expect(result.current.findExercise('ex-1')).not.toBeNull()
+  })
   it('groups the exercises by course, including courses without exercises', async () => {
     const { result } = renderHook(() => useGeneratedExercises())
     await waitFor(() => expect(result.current.isLoading).toBe(false))

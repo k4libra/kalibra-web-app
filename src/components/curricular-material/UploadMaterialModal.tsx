@@ -49,7 +49,9 @@ export function UploadMaterialModal({
   subtopics, materials, subtopicId, file, validationError, uploadError, isUploading,
   canSubmit, onSubtopicChange, onFileSelect, onFileRemove, onClose, onSubmit,
 }: UploadMaterialModalProps) {
-  const options = subtopics.map((subtopic) => {
+  const activeSubtopics = subtopics.filter((subtopic) => subtopic.status === 'ACTIVE')
+  const selectedSubtopic = activeSubtopics.find((subtopic) => subtopic.id === subtopicId)
+  const options = activeSubtopics.map((subtopic) => {
     const material = materials.find((item) => item.subtopicId === subtopic.id)
     return {
       value: subtopic.id, label: subtopic.name,
@@ -65,10 +67,13 @@ export function UploadMaterialModal({
       description="El material se asocia a un subtema y Kalibra lo procesa automáticamente."
       actions={<>
         <Button label="Cancelar" variant="neutral" disabled={isUploading} onClick={onClose} />
-        <Button label={isUploading ? 'Subiendo material...' : 'Subir material'} icon="upload" disabled={!canSubmit} onClick={onSubmit} />
+        <Button label={isUploading ? 'Subiendo material...' : 'Subir material'} icon="upload" disabled={!canSubmit || !selectedSubtopic} onClick={onSubmit} />
       </>}>
       <div className="flex flex-col gap-4" aria-busy={isUploading}>
         <Select label="Subtema" icon="account_tree" options={options} value={subtopicId} onChange={onSubtopicChange} />
+        {selectedSubtopic && !selectedSubtopic.locked && <Callout icon="info" size="sm">
+          Al cargar material, el nombre de este subtema quedará fijo para no afectar los ejercicios ni el progreso de tus estudiantes.
+        </Callout>}
         <FileDropzone label="Archivo de material" accept=".pdf,.png,.jpg" disabled={isUploading}
           title={isValid && !hasMaterials ? 'Archivo listo para subir' : 'Arrastra tu archivo aquí'}
           description="PDF, PNG o JPG · máximo 10 MB"
