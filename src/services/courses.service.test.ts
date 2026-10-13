@@ -10,6 +10,15 @@ import { apiStub } from '@/test/apiStub'
 import { coursesService } from './courses.service'
 
 describe('coursesService', () => {
+  it('retains historical solved counts for archived subtopics from the practice report', async () => {
+    apiStub.account.courses[0].subtopics[0].status = 'ARCHIVED'
+    expect((await coursesService.listSubtopics('course-1', undefined, true))[0]).toMatchObject({ status: 'ARCHIVED', solvedExerciseCount: 30, approvedExerciseCount: 18 })
+  })
+  it('keeps the ordinary curriculum projection independent of the archive practice request', async () => {
+    apiStub.respond('/courses/course-1/indicators', 503)
+    expect(await coursesService.listSubtopics('course-1')).toHaveLength(4)
+    expect(vi.mocked(fetch).mock.calls.some(([path]) => String(path).endsWith('/indicators'))).toBe(false)
+  })
   it('lists the courses of the teacher', async () => {
     const courses = await coursesService.listCourses()
     expect(courses.length).toBeGreaterThan(0)

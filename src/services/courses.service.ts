@@ -11,7 +11,7 @@ import { readAllPages } from '@/services/http/pagination'
 import { authService } from '@/services/auth.service'
 import { mapTeacher } from '@/services/mappers/auth.mapper'
 import { mapCourse, mapSubtopics } from '@/services/mappers/courses.mapper'
-import type { CatalogDto, CourseDto, GapMapDto, InvitationGroupDto, MaterialDto, RosterDto, UserDto } from '@/types/api'
+import type { CatalogDto, CourseDto, GapMapDto, IndicatorsDto, InvitationGroupDto, MaterialDto, RosterDto, UserDto } from '@/types/api'
 
 async function project(courses: CourseDto[], signal?: AbortSignal) {
   if (!courses.length) return []
@@ -27,12 +27,14 @@ async function project(courses: CourseDto[], signal?: AbortSignal) {
 export const coursesService: CoursesContract = {
   async listCourses(signal) { return project(await apiClient.get<CourseDto[]>('/courses', { signal }), signal) },
   async getCourse(courseId, signal) { return (await project([await apiClient.get<CourseDto>(`/courses/${courseId}`, { signal })], signal))[0] },
-  async listSubtopics(courseId, signal) {
-    const [course, materials, catalogs, gap] = await Promise.all([
+  /** {@inheritDoc CoursesContract.listSubtopics} */
+  async listSubtopics(courseId, signal, includePractice = false) {
+    const [course, materials, catalogs, gap, report] = await Promise.all([
       apiClient.get<CourseDto>(`/courses/${courseId}`, { signal }), readAllPages<MaterialDto>(`/courses/${courseId}/curricular-materials`, signal),
       apiClient.get<CatalogDto[]>('/course-exercise-catalogs', { signal }), apiClient.get<GapMapDto>(`/courses/${courseId}/mastery-gap-map`, { signal }),
+      includePractice ? apiClient.get<IndicatorsDto>(`/courses/${courseId}/indicators`, { signal }) : undefined,
     ])
-    return mapSubtopics(course, materials, catalogs.find((item) => item.courseId === courseId), gap)
+    return mapSubtopics(course, materials, catalogs.find((item) => item.courseId === courseId), gap, report)
   },
   async createCourse(input) {
     const dto = await apiClient.post<CourseDto>('/courses', { name: input.name, code: input.code, subtopicNames: input.subtopics })

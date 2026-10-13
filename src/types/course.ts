@@ -80,6 +80,8 @@ export interface Subtopic {
   materialStatus: MaterialStatus
   /** Number of generated exercises that passed verification. */
   approvedExerciseCount: number
+  /** Exercises solved by the group; absent or null when the report lacks this subtopic. */
+  solvedExerciseCount?: number | null
   /** Average mastery of the group from 0 to 100; `null` while there is no activity. */
   averageMastery: number | null
 }

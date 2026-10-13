@@ -19,8 +19,16 @@ export interface CoursesContract {
   listCourses: (signal?: AbortSignal) => Promise<CourseOverview[]>
   /** Fetches one course with its counters; rejects when it does not exist. */
   getCourse: (courseId: string, signal?: AbortSignal) => Promise<CourseOverview>
-  /** Lists the subtopics of a course in their defined order. */
-  listSubtopics: (courseId: string, signal?: AbortSignal) => Promise<Subtopic[]>
+  /**
+   * Lists subtopics in their defined order, optionally including historical practice counts.
+   *
+   * @param courseId - Owned course to read.
+   * @param signal - Cancels all requests in the projection.
+   * @param includePractice - Requests solved counts for the archive screen only.
+   * @returns The ordered curriculum with material, generation and optional practice counters.
+   * @throws ApiError when a required projection resource cannot be read.
+   */
+  listSubtopics: (courseId: string, signal?: AbortSignal, includePractice?: boolean) => Promise<Subtopic[]>
   /** Creates a course with its subtopics and returns it with empty counters. */
   createCourse: (input: CreateCourseInput) => Promise<CourseOverview>
   /**

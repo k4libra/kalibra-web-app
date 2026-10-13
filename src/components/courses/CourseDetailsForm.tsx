@@ -39,9 +39,9 @@ export function CourseDetailsForm({ course, isSubmitting, onSave, onAdd }: Cours
         </div>
         <Button label="Guardar curso" icon="check" variant="tonal" disabled={!canSave}
           onClick={() => { if (canSave) void onSave({ name: name.trim(), code: code.trim() }) }} />
-        <div className="flex items-end gap-2">
-          <TextField label="Nuevo subtema" value={subtopic} onChange={setSubtopic} onSubmit={() => void add()} disabled={isSubmitting} className="flex-1" />
-          <Button label="Agregar subtema" icon="add" variant="tonal" disabled={!subtopic.trim() || isSubmitting} onClick={() => void add()} />
+        <div className="flex flex-col gap-2 md:flex-row md:items-end">
+          <TextField label="Nuevo subtema" value={subtopic} onChange={setSubtopic} onSubmit={() => void add()} disabled={isSubmitting} className="w-full min-w-0 md:flex-1" />
+          <Button label="Agregar subtema" icon="add" variant="tonal" disabled={!subtopic.trim() || isSubmitting} onClick={() => void add()} className="w-full md:w-auto" />
         </div>
       </div>
     </Card>

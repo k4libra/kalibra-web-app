@@ -32,6 +32,11 @@ const report: IndicatorsDto = {
 const exercise: ExerciseDto = { id: 'question', subtopicId: 'topic', origin: 'TEACHER_REQUEST', statement: 'Pregunta', explanation: 'Explicación', options: [{ key: 'A', text: 'Respuesta', correct: true }], difficulty: 'MEDIUM', verdict: 'DISCARDED', rejectionReason: null, generatedAt: '2026-10-10T10:00:00Z' }
 
 describe('DTO mappers', () => {
+  it('keeps missing practice counts unknown instead of substituting approved counts', () => {
+    expect(mapSubtopics(course, [], catalog, gap)[0]).toMatchObject({ solvedExerciseCount: null, approvedExerciseCount: 7 })
+    expect(mapSubtopics(course, [], catalog, gap, report)[0]).toMatchObject({ solvedExerciseCount: 5, approvedExerciseCount: 7 })
+    expect(mapSubtopics(course, [], catalog, gap, { ...report, practice: { ...report.practice, perSubtopic: [] } })[0].solvedExerciseCount).toBeNull()
+  })
   it('preserves status and the authoritative lock even with no material in the supplied page', () => {
     const dto: CourseDto = { ...course, subtopics: [{ ...course.subtopics[0], status: 'ARCHIVED', locked: true }] }
     expect(mapSubtopics(dto, [])[0]).toMatchObject({ status: 'ARCHIVED', locked: true, materialStatus: 'missing' })

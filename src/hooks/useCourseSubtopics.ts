@@ -15,7 +15,8 @@ import { useResource } from './useResource'
  * Loads a course with its counters and the list of its subtopics.
  *
  * @param courseId - Course to load.
- * @returns The course, all and visible subtopics, archive filter, read state and mutation actions,
+ * @param includePractice - Loads historical solved counts for the dedicated archive screen.
+ * @returns The course, all, active and archived subtopics, read state and mutation actions,
  * including `isSubmitting`, `mutationError`, `updateCourse`, `addSubtopic`, `updateSubtopic` and `deleteSubtopic`.
  *
  * @example
@@ -23,12 +24,11 @@ import { useResource } from './useResource'
  * const { course, subtopics, isLoading } = useCourseSubtopics(courseId);
  * ```
  */
-export function useCourseSubtopics(courseId: string) {
+export function useCourseSubtopics(courseId: string, includePractice = false) {
   const { data, isLoading, error, refetch } = useResource(
-    (signal) => Promise.all([coursesService.getCourse(courseId, signal), coursesService.listSubtopics(courseId, signal)]),
-    `course-subtopics-${courseId}`,
+    (signal) => Promise.all([coursesService.getCourse(courseId, signal), coursesService.listSubtopics(courseId, signal, includePractice)]),
+    `course-subtopics-${courseId}-${includePractice}`,
   )
-  const [showArchived, setShowArchived] = useState(false)
   const [mutation, setMutation] = useState<{ courseId: string; error: string | null; isSubmitting: boolean } | null>(null)
   const lifecycle = useRef<AbortController | null>(null)
   const submitting = useRef(false)
@@ -67,8 +67,8 @@ export function useCourseSubtopics(courseId: string) {
   const current = data?.[0].id === courseId ? data : null
   const subtopics = current?.[1] ?? []
   return {
-    course: current?.[0] ?? null, subtopics, visibleSubtopics: subtopics.filter((item) => showArchived || item.status === 'ACTIVE'),
-    showArchived, setShowArchived, isLoading, error, refetch,
+    course: current?.[0] ?? null, subtopics, activeSubtopics: subtopics.filter((item) => item.status === 'ACTIVE'),
+    archivedSubtopics: subtopics.filter((item) => item.status === 'ARCHIVED'), isLoading, error, refetch,
     isSubmitting: mutation?.courseId === courseId && mutation.isSubmitting,
     mutationError: mutation?.courseId === courseId ? mutation.error : null,
     updateCourse, addSubtopic, updateSubtopic, deleteSubtopic,
