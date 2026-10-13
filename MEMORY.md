@@ -1,15 +1,18 @@
 # MEMORY.md - Kalibra Web App
 
-## Current status (2026-10-10)
-- `feature/e2e-fidelity` builds on the cookie-authenticated HTTP integration.
+## Current status (2026-10-12)
+- `feature/course-subtopic-editing` adds draft editing and course/subtopic mutations over cookie-authenticated HTTP.
 - Teacher features use real endpoints; administrator routes are `/admin/panel` and `/admin/subtemas-criticos`.
 - Startup waits for `/users/me`; role guards isolate teacher/admin shells. Sign-up is followed by sign-in because registration does not issue a cookie.
 - README documents API execution and generic seed accounts. `docs/api-integration.md` lists endpoints, adaptations and validation evidence.
 - Real adapters passed local API smoke checks for teacher reads, individual progress, admin analytics/CSV and cookie auth; student web login and admin teacher access return 403.
-- Final validation: lint, TypeScript, 256 tests and production build pass; frontend audit has zero errors.
+- Final validation: lint, TypeScript, 281 tests and production build pass; frontend audit has zero errors.
 - Changes remain uncommitted by explicit task instruction; no push was attempted.
 
 ## Decisions
+- Course/subtopic mutations use PATCH/POST/DELETE and refetch the complete projection; draft creation remains one POST.
+- Server status/locked are authoritative. Archived subtopics are hidden by default and excluded from action selectors, gap maps and indicator rows; historical material/exercise names remain available.
+- Conflict ProblemDetail detail is shown in curriculum callouts; stale-course mutation results are ignored and concurrent writes are blocked.
 - Layers remain pages → hooks/useResource → contract-based services → one HTTP client.
 - Tokens remain in `src/index.css`; new pages reuse existing UI primitives and mobile-first shells.
 - Counters derive from rosters, catalogs, invitation groups, complete paginated materials and mastery measurements.
