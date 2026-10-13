@@ -24,7 +24,7 @@ export function mapCourse(dto: CourseDto, materials: MaterialDto[], roster?: Ros
 export function mapSubtopics(dto: CourseDto, materials: MaterialDto[], catalog?: CatalogDto, gap?: GapMapDto): Subtopic[] {
   return [...dto.subtopics].sort((a, b) => a.displayOrder - b.displayOrder).map((subtopic) => {
     const material = materials.filter((item) => item.subtopicIds.includes(subtopic.id)).sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))[0]
-    return { id: subtopic.id, courseId: dto.id, order: subtopic.displayOrder, name: subtopic.name, description: '',
+    return { id: subtopic.id, courseId: dto.id, order: subtopic.displayOrder, name: subtopic.name, description: '', status: subtopic.status, locked: subtopic.locked,
       materialStatus: material ? material.status === 'READY' ? 'ready' : material.status === 'INGESTION_ERROR' ? 'error' : 'processing' : 'missing',
       approvedExerciseCount: catalog?.subtopics.find((item) => item.subtopicId === subtopic.id)?.approved ?? 0,
       averageMastery: gap ? average(gap.students.filter((item) => item.subtopicId === subtopic.id).map((item) => item.mastery)) : null }

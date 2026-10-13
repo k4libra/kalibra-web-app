@@ -58,18 +58,18 @@ export interface GenerateExercisesModalProps {
  * Mount it only while open so each opening starts from the first course with ready material.
  */
 export function GenerateExercisesModal({ courses, isSubmitting, error, onClose, onGenerate, onUploadMaterial }: GenerateExercisesModalProps) {
-  const readyCount = (item: GenerationCourse) => item.subtopics.filter((subtopic) => subtopic.materialStatus === 'ready').length
+  const readyCount = (item: GenerationCourse) => item.subtopics.filter((subtopic) => subtopic.status === 'ACTIVE' && subtopic.materialStatus === 'ready').length
   const initialCourse = courses.find((item) => readyCount(item) > 0) ?? courses[0]
   const [courseId, setCourseId] = useState(initialCourse?.course.id ?? '')
   const selected = courses.find((item) => item.course.id === courseId)
-  const subtopics = selected?.subtopics ?? []
+  const subtopics = selected?.subtopics.filter((subtopic) => subtopic.status === 'ACTIVE') ?? []
   const [subtopicId, setSubtopicId] = useState(subtopics.find((subtopic) => subtopic.materialStatus === 'ready')?.id ?? '')
   const notReady = subtopics.filter((subtopic) => subtopic.materialStatus !== 'ready')
 
   const handleCourseChange = (nextCourseId: string) => {
     setCourseId(nextCourseId)
     const next = courses.find((item) => item.course.id === nextCourseId)
-    setSubtopicId(next?.subtopics.find((subtopic) => subtopic.materialStatus === 'ready')?.id ?? '')
+    setSubtopicId(next?.subtopics.find((subtopic) => subtopic.status === 'ACTIVE' && subtopic.materialStatus === 'ready')?.id ?? '')
   }
 
   return (
@@ -86,7 +86,7 @@ export function GenerateExercisesModal({ courses, isSubmitting, error, onClose, 
           <Button
             label={`Generar ${EXERCISES_PER_GENERATION} ejercicios`}
             icon="auto_awesome"
-            disabled={!subtopicId || isSubmitting}
+            disabled={!subtopics.some((subtopic) => subtopic.id === subtopicId && subtopic.materialStatus === 'ready') || isSubmitting}
             onClick={() => onGenerate(courseId, subtopicId)}
           />
         </>

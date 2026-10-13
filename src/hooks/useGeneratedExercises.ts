@@ -40,7 +40,7 @@ export function useGeneratedExercises() {
     const subtopics = await Promise.all(courses.map((course) => coursesService.listSubtopics(course.id, signal)))
     return courses.map<CourseExerciseGroup>((course, index) => ({
       course,
-      subtopics: subtopics[index],
+      subtopics: subtopics[index].filter((subtopic) => subtopic.status === 'ACTIVE'),
       catalog: catalogs.find((catalog) => catalog.courseId === course.id) ?? { courseId: course.id, generatedCount: 0, subtopics: [] },
     }))
   }, 'generated-exercises')

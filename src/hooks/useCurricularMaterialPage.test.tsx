@@ -16,7 +16,7 @@ import type { CourseOverview, Subtopic } from '@/types/course'
 import type { CurricularMaterial } from '@/types/curricularMaterial'
 
 const course: CourseOverview = { id: 'course', name: 'Curso', code: 'TEST', term: '', faculty: '', semester: '', icon: 'school', subtopicCount: 1, materialCount: 0, approvedExerciseCount: 0, studentCount: 0, studentIds: [], pendingInvitationCount: 0, averageMastery: null }
-const subtopic: Subtopic = { id: 'topic', courseId: course.id, name: 'Tema', order: 1, description: '', materialStatus: 'missing', approvedExerciseCount: 0, averageMastery: null }
+const subtopic: Subtopic = { id: 'topic', courseId: course.id, name: 'Tema', order: 1, description: '', status: 'ACTIVE', locked: false, materialStatus: 'missing', approvedExerciseCount: 0, averageMastery: null }
 const material: CurricularMaterial = { id: 'material', courseId: course.id, subtopicId: subtopic.id, fileName: 'notes.pdf', fileType: 'pdf', fileSize: 7, status: 'processing', uploadedAt: '2026-10-10' }
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -32,6 +32,20 @@ beforeEach(() => {
 })
 
 describe('useCurricularMaterialPage', () => {
+  it('selects only active subtopics even when archived material needs replacement', async () => {
+    vi.mocked(coursesService.listSubtopics).mockResolvedValue([{ ...subtopic, id: 'archived', status: 'ARCHIVED' }, subtopic])
+    vi.mocked(curricularMaterialService.getByCourse).mockResolvedValue([{ ...material, subtopicId: 'archived', status: 'error' }])
+    const { result } = renderHook(() => useCurricularMaterialPage(course.id), { wrapper })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    act(() => result.current.openUpload())
+    expect(result.current.uploadForm?.subtopicId).toBe(subtopic.id)
+    expect(result.current.activeSubtopics).toHaveLength(1)
+    act(() => result.current.selectSubtopic('archived'))
+    act(() => result.current.selectFile(new File(['content'], 'notes.pdf')))
+    expect(result.current.canSubmit).toBe(false)
+    await act(async () => { await result.current.submit() })
+    expect(curricularMaterialService.upload).not.toHaveBeenCalled()
+  })
   it('blocks submission of invalid files even when the action is called directly', async () => {
     const { result } = renderHook(() => useCurricularMaterialPage(course.id), { wrapper })
     await waitFor(() => expect(result.current.isLoading).toBe(false))

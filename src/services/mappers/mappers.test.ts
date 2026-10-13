@@ -17,7 +17,7 @@ import { mapGap, mapProgress, mapStudent } from '@/services/mappers/monitoring.m
 import { adminDto, institutionalDto, teacherDto } from '@/test/apiStub'
 import type { CatalogDto, CourseDto, ExerciseDto, GapMapDto, IndicatorsDto, MaterialDto, RosterDto } from '@/types/api'
 
-const course: CourseDto = { id: 'course', name: 'Curso', code: 'TEST', createdAt: '2026-10-10', subtopics: [{ id: 'topic', name: 'Tema', displayOrder: 1 }] }
+const course: CourseDto = { id: 'course', name: 'Curso', code: 'TEST', createdAt: '2026-10-10', subtopics: [{ id: 'topic', name: 'Tema', displayOrder: 1, status: 'ACTIVE', locked: false }] }
 const material: MaterialDto = { id: 'material', courseId: course.id, subtopicIds: ['topic', 'other'], fileName: 'notes.jpg', format: 'JPEG', uploadedAt: '2026-10-10', status: 'INGESTION_ERROR', failureReason: 'Ingestión fallida.' }
 const catalog: CatalogDto = { courseId: course.id, courseName: course.name, subtopics: [{ subtopicId: 'topic', subtopicName: 'Tema', generated: 9, approved: 7, discarded: 2 }] }
 const roster: RosterDto = { courseId: course.id, courseName: course.name, courseCode: course.code, enrolledCount: 1, students: [{ studentId: 'student', email: 'estudiante.test1@upc.edu.pe', enrolledAt: '2026-10-10' }] }
@@ -32,6 +32,18 @@ const report: IndicatorsDto = {
 const exercise: ExerciseDto = { id: 'question', subtopicId: 'topic', origin: 'TEACHER_REQUEST', statement: 'Pregunta', explanation: 'Explicación', options: [{ key: 'A', text: 'Respuesta', correct: true }], difficulty: 'MEDIUM', verdict: 'DISCARDED', rejectionReason: null, generatedAt: '2026-10-10T10:00:00Z' }
 
 describe('DTO mappers', () => {
+  it('preserves status and the authoritative lock even with no material in the supplied page', () => {
+    const dto: CourseDto = { ...course, subtopics: [{ ...course.subtopics[0], status: 'ARCHIVED', locked: true }] }
+    expect(mapSubtopics(dto, [])[0]).toMatchObject({ status: 'ARCHIVED', locked: true, materialStatus: 'missing' })
+    expect(mapSubtopics(course, [material])[0].locked).toBe(false)
+  })
+  it('excludes archived catalog and indicator rows while retaining server aggregate totals', () => {
+    const dto: CourseDto = { ...course, subtopics: [{ ...course.subtopics[0], status: 'ARCHIVED' }] }
+    const result = mapIndicators(report, catalog, dto)!
+    expect(result.subtopics).toEqual([])
+    expect(result.summary?.totalSolved).toBe(5)
+    expect(mapGap(gap, 1, dto)).toMatchObject({ subtopics: [], stats: { averageMastery: null, weakestSubtopicId: null, activeStudents: 0 } })
+  })
   it('distinguishes unmeasured institutional accuracy from genuine zero accuracy', () => {
     const dto = { ...institutionalDto, totals: { ...institutionalDto.totals, totalSolved: 0, groupAccuracy: 0, groupDeltaPoints: 0 }, courses: [{ ...institutionalDto.courses[0], hasActivity: false, totalSolved: 0, groupAccuracy: 0, groupDeltaPoints: 0 }] }
     expect(mapInstitutionalIndicators(dto)).toMatchObject({ totals: { groupAccuracy: null, groupDeltaPoints: null }, courses: [{ groupAccuracy: null, groupDeltaPoints: null }] })

@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { Button, Icon, Modal } from '@/components/ui'
+import { Button, Callout, Icon, Modal } from '@/components/ui'
 import type { CurricularMaterial } from '@/types/curricularMaterial'
 import { formatMaterialDate } from '@/utils/materialFile'
 
@@ -17,6 +17,8 @@ export interface MaterialErrorModalProps {
   material: CurricularMaterial
   /** Display name resolved from the course's subtopics. */
   subtopicName: string
+  /** Whether the subtopic is active and accepts material replacement. */
+  canReplace?: boolean
   /** Closes the reason dialog. */
   onClose: () => void
   /** Opens the upload form with this material's subtopic selected. */
@@ -26,18 +28,19 @@ export interface MaterialErrorModalProps {
 /**
  * Shows the failed file, ingestion reason and recommendations, emitting close and replace actions.
  */
-export function MaterialErrorModal({ material, subtopicName, onClose, onReplace }: MaterialErrorModalProps) {
+export function MaterialErrorModal({ material, subtopicName, canReplace = true, onClose, onReplace }: MaterialErrorModalProps) {
   return (
     <Modal isOpen onClose={onClose} title="No pudimos procesar el material" icon="error" iconTone="danger"
       description={`${material.fileName} · ${subtopicName} · cargado el ${formatMaterialDate(material.uploadedAt)}`}
       actions={<>
         <Button label="Cerrar" variant="neutral" onClick={onClose} />
-        <Button label="Reemplazar archivo" icon="upload_file" onClick={() => onReplace(material)} />
+        <Button label="Reemplazar archivo" icon="upload_file" disabled={!canReplace} onClick={() => onReplace(material)} />
       </>}>
       <div role="alert" className="flex flex-col gap-1 rounded-md bg-danger-container p-4">
         <h3 className="text-label-s text-danger-strong">MOTIVO</h3>
         <p className="text-body-l text-content-primary">{material.errorMessage ?? 'No se pudo extraer el contenido del archivo.'}</p>
       </div>
+      {!canReplace && <Callout icon="info">Este subtema está archivado. Restáuralo para reemplazar su material.</Callout>}
       <div className="flex flex-col gap-4">
         <h3 className="text-body-m-bold text-content-primary">Para que la ingestión funcione</h3>
         <ul className="flex flex-col gap-4 text-body-l text-content-secondary">

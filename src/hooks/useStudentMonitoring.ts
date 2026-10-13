@@ -64,7 +64,7 @@ export function useGapMap() {
       studentMonitoringService.getGapMap(courseId, signal), studentMonitoringService.getStudentsByCourse(courseId, signal),
     ])
     const progress = await Promise.all(students.map((student) => studentMonitoringService.getStudentProgress(student.id, courseId, signal)))
-    return { course, courseSubtopics, gapMap, progress }
+    return { course, courseSubtopics: courseSubtopics.filter((subtopic) => subtopic.status === 'ACTIVE'), gapMap, progress }
   }, `gap-map:${courseId}:${search}`)
   const viewProgress = useCallback((studentId: string) => navigate(studentRoutes.progress(studentId, courseId)), [navigate, courseId])
   const viewStudents = useCallback(() => navigate({ pathname: ROUTES.students, search }), [navigate, search])
@@ -92,7 +92,7 @@ export function useStudentProgress() {
     const [course, courseSubtopics] = await Promise.all([
       coursesService.getCourse(progress.student.courseId, signal), coursesService.listSubtopics(progress.student.courseId, signal),
     ])
-    return { progress, course, courseSubtopics }
+    return { progress, course, courseSubtopics: courseSubtopics.filter((subtopic) => subtopic.status === 'ACTIVE') }
   }, `student-progress:${studentId}:${search}`)
   const data = resource.isLoading || resource.error ? null : resource.data
   const courseId = data?.course.id

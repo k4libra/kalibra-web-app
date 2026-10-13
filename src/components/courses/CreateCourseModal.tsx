@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react'
-import { Button, Callout, Chip, Modal, TextField } from '@/components/ui'
+import { Button, Callout, Chip, IconButton, Modal, TextField } from '@/components/ui'
 import type { CreateCourseInput } from '@/types/course'
 import { plural } from '@/utils/plural'
 
@@ -37,8 +37,8 @@ export function CreateCourseModal({ isSubmitting, error, onClose, onSubmit }: Cr
   const [draftSubtopic, setDraftSubtopic] = useState('')
   const [subtopics, setSubtopics] = useState<string[]>([])
 
-  const canAddSubtopic = draftSubtopic.trim().length > 0
-  const canCreate = name.trim() && code.trim() && subtopics.length > 0 && !isSubmitting
+  const canAddSubtopic = draftSubtopic.trim().length > 0 && !isSubmitting
+  const canCreate = name.trim() && code.trim() && subtopics.length > 0 && subtopics.every((subtopic) => subtopic.trim()) && !isSubmitting
 
   const handleAddSubtopic = () => {
     if (!canAddSubtopic) return
@@ -47,7 +47,7 @@ export function CreateCourseModal({ isSubmitting, error, onClose, onSubmit }: Cr
   }
 
   const handleSubmit = () => {
-    if (canCreate) onSubmit({ name: name.trim(), code: code.trim(), subtopics })
+    if (canCreate) onSubmit({ name: name.trim(), code: code.trim(), subtopics: subtopics.map((subtopic) => subtopic.trim()) })
   }
 
   return (
@@ -91,9 +91,12 @@ export function CreateCourseModal({ isSubmitting, error, onClose, onSubmit }: Cr
           {subtopics.length > 0 ? (
             <ol className="flex flex-col gap-1.5">
               {subtopics.map((subtopic, index) => (
-                <li key={`${subtopic}-${index}`} className="flex items-center gap-3 rounded-md bg-primary-subtle px-3 py-2.5">
+                <li key={index} className="flex items-center gap-3 rounded-md bg-primary-subtle px-3 py-2.5">
                   <span className="text-label-l text-primary">{String(index + 1).padStart(2, '0')}</span>
-                  <span className="text-body-l text-content-primary">{subtopic}</span>
+                  <TextField label={`Subtema ${index + 1}`} hideLabel value={subtopic} disabled={isSubmitting} className="flex-1"
+                    onChange={(value) => setSubtopics((current) => current.map((item, position) => position === index ? value : item))} />
+                  <IconButton icon="close" label={`Eliminar subtema ${index + 1}`} disabled={isSubmitting}
+                    onClick={() => setSubtopics((current) => current.filter((_, position) => position !== index))} />
                 </li>
               ))}
             </ol>

@@ -68,4 +68,8 @@ export const apiClient = {
   post: <T>(path: string, body?: unknown, options?: ApiRequestOptions) => request<T>(path, { ...options, method: 'POST', body }),
   /** Updates a resource with JSON data. */
   put: <T>(path: string, body: unknown, options?: ApiRequestOptions) => request<T>(path, { ...options, method: 'PUT', body }),
+  /** Partially updates a resource with JSON data. */
+  patch: <T>(path: string, body: unknown, options?: ApiRequestOptions) => request<T>(path, { ...options, method: 'PATCH', body }),
+  /** Deletes a resource, including no-content responses. */
+  delete: <T = void>(path: string, options?: ApiRequestOptions) => request<T>(path, { ...options, method: 'DELETE' }),
 }
