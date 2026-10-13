@@ -43,7 +43,7 @@ describe('merged monitoring routes', () => {
     for (const [path, heading] of [
       [ROUTES.courses, 'Hola, Profesor'], [ROUTES.invitations, 'Invitaciones'],
       [ROUTES.exercises, 'Ejercicios generados'], [courseRoutes.indicators('course-1'), 'Indicadores del curso'],
-      [courseRoutes.subtopics('course-1'), 'Subtemas del curso'], [courseRoutes.material('course-1'), 'Material curricular'],
+      [courseRoutes.subtopics('course-1'), 'Subtemas del curso'], [courseRoutes.archivedSubtopics('course-1'), 'Subtemas archivados'], [courseRoutes.material('course-1'), 'Material curricular'],
     ]) {
       await open(path)
       expect(await screen.findByRole('heading', { name: heading })).toBeInTheDocument()

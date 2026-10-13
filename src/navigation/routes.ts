@@ -31,6 +31,13 @@ export const courseRoutes = {
    */
   subtopics: (courseId: string) => `/cursos/${courseId}/subtemas`,
   /**
+   * Path of archived subtopics belonging to a course.
+   *
+   * @param courseId - Course to open.
+   * @returns The archived subtopics page path.
+   */
+  archivedSubtopics: (courseId: string) => `/cursos/${courseId}/subtemas/archivados`,
+  /**
    * Path of the curricular material of a course.
    *
    * @param courseId - Course to open.

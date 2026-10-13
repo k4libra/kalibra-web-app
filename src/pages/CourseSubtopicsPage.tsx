@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { CourseDetailsForm, SubtopicsTable } from '@/components/courses'
 import { Button, Callout, EmptyState, LoadingState, Modal, PageHeader, StatCard } from '@/components/ui'
 import { useCourseSubtopics } from '@/hooks/useCourseSubtopics'
@@ -18,10 +18,9 @@ export function CourseSubtopicsPage() {
   const { courseId = '' } = useParams()
   const navigate = useNavigate()
   const page = useCourseSubtopics(courseId)
-  const { course, subtopics, visibleSubtopics, isLoading, error, mutationError, isSubmitting } = page
+  const { course, subtopics, activeSubtopics, archivedSubtopics, isLoading, error, mutationError, isSubmitting } = page
   const [confirmation, setConfirmation] = useState<{ courseId: string; subtopic: Subtopic; action: 'delete' | 'status' } | null>(null)
   const pending = confirmation?.courseId === courseId ? confirmation : null
-  const activeSubtopics = subtopics.filter((subtopic) => subtopic.status === 'ACTIVE')
   const readyCount = activeSubtopics.filter((subtopic) => subtopic.materialStatus === 'ready').length
   const approvedCount = activeSubtopics.reduce((total, subtopic) => total + subtopic.approvedExerciseCount, 0)
   const closeConfirmation = () => { if (!isSubmitting) setConfirmation(null) }
@@ -29,10 +28,10 @@ export function CourseSubtopicsPage() {
     if (!pending || isSubmitting || isLoading) return
     const succeeded = pending.action === 'delete'
       ? await page.deleteSubtopic(pending.subtopic.id)
-      : await page.updateSubtopic(pending.subtopic.id, { status: pending.subtopic.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE' })
+      : await page.updateSubtopic(pending.subtopic.id, { status: 'ARCHIVED' })
     if (succeeded) setConfirmation(null)
   }
-  const confirmationLabel = pending?.action === 'delete' ? 'Eliminar subtema' : pending?.subtopic.status === 'ACTIVE' ? 'Archivar subtema' : 'Restaurar subtema'
+  const confirmationLabel = pending?.action === 'delete' ? 'Eliminar subtema' : 'Archivar subtema'
 
   return (
     <>
@@ -49,19 +48,18 @@ export function CourseSubtopicsPage() {
             <StatCard icon="task_alt" tone="success" value={String(readyCount)} label="Con material listo" />
             <StatCard icon="quiz" tone="warning" value={String(approvedCount)} label="Ejercicios aprobados" />
           </section>
-          <Button label="Mostrar archivados" variant="tonal" isPressed={page.showArchived}
-            icon={page.showArchived ? 'check' : 'visibility'} onClick={() => page.setShowArchived(!page.showArchived)} />
-          {visibleSubtopics.length ? <SubtopicsTable subtopics={visibleSubtopics} total={subtopics.length} isSubmitting={isSubmitting}
+          {archivedSubtopics.length > 0 && <Link to={courseRoutes.archivedSubtopics(courseId)}
+            className="self-start rounded-sm text-label-l text-primary underline">Ver archivados ({archivedSubtopics.length})</Link>}
+          {activeSubtopics.length ? <SubtopicsTable subtopics={activeSubtopics} total={subtopics.length} isSubmitting={isSubmitting}
             onUpdate={page.updateSubtopic} onStatus={(subtopic) => setConfirmation({ courseId, subtopic, action: 'status' })}
             onDelete={(subtopic) => setConfirmation({ courseId, subtopic, action: 'delete' })} />
-            : <EmptyState icon="account_tree" title="No hay subtemas visibles" description="Agrega un subtema o muestra los archivados." />}
+            : <EmptyState icon="account_tree" title="No hay subtemas activos" description="Agrega un subtema para empezar." />}
           <Callout icon="lightbulb">Solo los subtemas activos con material en estado Listo pueden generar ejercicios.</Callout>
         </>
       )}
       {pending && <Modal isOpen title={confirmationLabel} icon="account_tree" size="confirm" onClose={closeConfirmation}
         description={pending.action === 'delete' ? `Se eliminará «${pending.subtopic.name}».`
-          : pending.subtopic.status === 'ACTIVE' ? `«${pending.subtopic.name}» dejará de estar disponible para cargar material y practicar.`
-          : `«${pending.subtopic.name}» volverá a estar disponible para cargar material y practicar.`}
+          : `«${pending.subtopic.name}» dejará de estar disponible para cargar material y practicar.`}
         actions={<>
           <Button label="Cancelar" variant="neutral" disabled={isSubmitting} onClick={closeConfirmation} />
           <Button label={confirmationLabel} variant={pending.action === 'delete' ? 'danger' : 'primary'} disabled={isSubmitting || isLoading} onClick={() => void confirm()} />
