@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react'
-import { Chip, Icon, IconButton, MaterialStatusChip, ProgressBar, TableRow, TextField } from '@/components/ui'
+import { ActionMenu, ArchiveIcon, Button, Icon, MaterialStatusChip, ProgressBar, TableRow, TextField } from '@/components/ui'
 import type { Subtopic } from '@/types/course'
 import { masteryTone } from '@/utils/mastery'
 
@@ -22,7 +22,7 @@ export interface SubtopicEditorRowProps {
   onRename: (name: string) => Promise<boolean>
   /** Moves to an absolute position among all rows. */
   onMove: (displayOrder: number) => void
-  /** Requests archive or restore confirmation. */
+  /** Requests archive confirmation. */
   onStatus: () => void
   /** Requests deletion confirmation. */
   onDelete: () => void
@@ -36,41 +36,48 @@ export function SubtopicEditorRow({ subtopic, total, isSubmitting, onRename, onM
     if (name.trim() && !subtopic.locked && !isSubmitting && await onRename(name.trim())) setIsEditing(false)
   }
   return (
-    <TableRow className={`md:grid-cols-12 ${subtopic.status === 'ARCHIVED' ? 'opacity-60' : ''}`}>
-      <span role="cell" className="text-label-l text-primary md:col-span-1">{String(subtopic.order).padStart(2, '0')}</span>
-      <div role="cell" className="flex flex-col gap-2 md:col-span-4">
-        <div className="flex items-center gap-2">
+    <TableRow className="grid curriculum-mobile-grid md:curriculum-grid">
+      <span role="cell" className="text-label-l text-primary col-start-1 row-start-1">{String(subtopic.order).padStart(2, '0')}</span>
+      <div role="cell" className="flex min-w-0 flex-col gap-2 col-start-1 row-start-2 md:col-start-2 md:row-start-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           {isEditing && !subtopic.locked ? (
             <>
               <TextField label={`Nombre de ${subtopic.name}`} hideLabel value={name} onChange={setName} disabled={isSubmitting} onSubmit={() => void save()} className="min-w-0 flex-1" />
-              <IconButton icon="check" label={`Guardar nombre de ${subtopic.name}`} disabled={isSubmitting || !name.trim()} onClick={() => void save()} />
-              <IconButton icon="close" label="Cancelar cambio de nombre" disabled={isSubmitting} onClick={() => setIsEditing(false)} />
+              <Button size="sm" label="Guardar" disabled={isSubmitting || !name.trim()} onClick={() => void save()} />
+              <Button size="sm" variant="neutral" label="Cancelar" disabled={isSubmitting} onClick={() => setIsEditing(false)} />
             </>
           ) : (
             <>
-              <span className="text-title text-content-primary">{subtopic.name}</span>
+              <span className="break-words text-title text-content-primary">{subtopic.name}</span>
               {subtopic.locked ? (
-                <span tabIndex={0} title="Tiene material: no se puede renombrar ni eliminar">
-                  <Icon name="lock" label="Tiene material: no se puede renombrar ni eliminar" />
+                <span tabIndex={0} title="Tiene material: archívalo en lugar de eliminarlo">
+                  <Icon name="lock" label="Tiene material: archívalo en lugar de eliminarlo" />
                 </span>
-              ) : <IconButton icon="edit" label={`Renombrar ${subtopic.name}`} disabled={isSubmitting} onClick={() => { setName(subtopic.name); setIsEditing(true) }} />}
+               ) : null}
             </>
           )}
         </div>
-        {subtopic.status === 'ARCHIVED' && <Chip label="Archivado" tone="neutral" />}
         {subtopic.description && <span className="text-body-m text-content-secondary">{subtopic.description}</span>}
       </div>
-      <div role="cell" className="flex flex-col gap-2 md:col-span-3">
+      <div role="cell" className="flex min-w-0 flex-col gap-2 col-start-1 row-start-3 md:col-start-3 md:row-start-1">
         <MaterialStatusChip status={subtopic.materialStatus} />
         <span className="text-body-m text-content-secondary">{subtopic.approvedExerciseCount} ejercicios aprobados</span>
         <ProgressBar value={subtopic.averageMastery} tone={masteryTone(subtopic.averageMastery)} label={`Dominio promedio en ${subtopic.name}`} />
         <span className="text-body-m text-content-secondary">{subtopic.averageMastery === null ? 'Sin datos' : `${subtopic.averageMastery}%`}</span>
       </div>
-      <div role="cell" className="flex flex-wrap gap-1 md:col-span-4">
-        <IconButton icon="arrow_upward" label={`Subir ${subtopic.name}`} disabled={isSubmitting || subtopic.order <= 1} onClick={() => onMove(subtopic.order - 1)} />
-        <IconButton icon="arrow_downward" label={`Bajar ${subtopic.name}`} disabled={isSubmitting || subtopic.order >= total} onClick={() => onMove(subtopic.order + 1)} />
-        <IconButton icon={subtopic.status === 'ACTIVE' ? 'pause' : 'play_arrow'} label={`${subtopic.status === 'ACTIVE' ? 'Archivar' : 'Restaurar'} ${subtopic.name}`} disabled={isSubmitting} onClick={onStatus} />
-        {!subtopic.locked && <IconButton icon="close" label={`Eliminar ${subtopic.name}`} disabled={isSubmitting} onClick={onDelete} />}
+      <div role="cell" className="w-actions col-start-2 row-start-1 row-span-3 justify-self-end md:col-start-4 md:row-span-1">
+        <ActionMenu label={`Acciones de ${subtopic.name}`} disabled={isSubmitting} items={[
+          { id: 'rename', label: 'Renombrar', icon: 'edit', disabled: subtopic.locked,
+            disabledReason: 'Tiene material: archívalo en lugar de eliminarlo',
+            onSelect: () => { setName(subtopic.name); setIsEditing(true) } },
+          { id: 'up', label: 'Mover arriba', icon: 'arrow_upward', disabled: subtopic.order <= 1,
+            disabledReason: 'Es el primer subtema del curso', onSelect: () => onMove(subtopic.order - 1) },
+          { id: 'down', label: 'Mover abajo', icon: 'arrow_downward', disabled: subtopic.order >= total,
+            disabledReason: 'Es el último subtema del curso', onSelect: () => onMove(subtopic.order + 1) },
+          { id: 'archive', label: 'Archivar', icon: ArchiveIcon, onSelect: onStatus },
+          { id: 'delete', label: 'Eliminar', icon: 'delete', danger: true, disabled: subtopic.locked,
+            disabledReason: 'Tiene material: archívalo en lugar de eliminarlo', onSelect: onDelete },
+        ]} />
       </div>
     </TableRow>
   )

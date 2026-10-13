@@ -106,6 +106,22 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
+
+  /* Curriculum tables reserve one touch target for every actions cell. */
+  --spacing-actions: 2.75rem;
+  --container-action-menu: 18rem;
+}
+
+@utility curriculum-grid {
+  grid-template-columns: var(--spacing-actions) minmax(0, 1fr) minmax(0, 1fr) var(--spacing-actions);
+}
+
+@utility curriculum-mobile-grid {
+  grid-template-columns: minmax(0, 1fr) var(--spacing-actions);
+}
+
+@utility archived-curriculum-grid {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) var(--spacing-actions);
 }
 
 @layer base {

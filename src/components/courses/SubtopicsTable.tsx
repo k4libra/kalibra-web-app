@@ -30,7 +30,7 @@ export function SubtopicsTable({ subtopics, total, isSubmitting, onUpdate, onSta
   return (
     <TableCard label="Subtemas del curso">
       <TableHeader columns={['#', 'Subtema', 'Material y progreso', 'Acciones']}
-        cellClassNames={['md:col-span-1', 'md:col-span-4', 'md:col-span-3', 'md:col-span-4']} className="md:grid-cols-12" />
+        className="md:curriculum-grid" />
       {subtopics.map((subtopic) => (
         <SubtopicEditorRow key={subtopic.id} subtopic={subtopic} total={total} isSubmitting={isSubmitting}
           onRename={(name) => onUpdate(subtopic.id, { name })}

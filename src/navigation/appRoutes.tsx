@@ -13,6 +13,7 @@ import { StudentProgressPage } from '@/pages/StudentProgressPage'
 import { StudentsPage } from '@/pages/StudentsPage'
 import { CurricularMaterialPage } from '@/pages/CurricularMaterialPage'
 import { CourseSubtopicsPage } from '@/pages/CourseSubtopicsPage'
+import { ArchivedSubtopicsPage } from '@/pages/ArchivedSubtopicsPage'
 import { GeneratedExercisesPage } from '@/pages/GeneratedExercisesPage'
 import { InvitationsPage } from '@/pages/InvitationsPage'
 import { ROUTES } from './routes'
@@ -38,6 +39,7 @@ export const APP_ROUTES: RouteObject[] = [{ element: <SessionResolution />, chil
         children: [
           { path: ROUTES.courses, element: <CoursesPage /> },
           { path: 'cursos/:courseId/subtemas', element: <CourseSubtopicsPage /> },
+          { path: 'cursos/:courseId/subtemas/archivados', element: <ArchivedSubtopicsPage /> },
           {
             path: 'cursos/:courseId/material',
             element: <CurricularMaterialPage />,

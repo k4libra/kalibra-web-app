@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import type { CatalogDto, CourseDto, GapMapDto, InvitationGroupDto, MaterialDto, RosterDto } from '@/types/api'
+import type { CatalogDto, CourseDto, GapMapDto, IndicatorsDto, InvitationGroupDto, MaterialDto, RosterDto } from '@/types/api'
 import type { CourseOverview, Subtopic } from '@/types/course'
 /** Averages only measurements; a missing observation never becomes zero. */
 export function average(values: (number | null)[]): number | null {
@@ -20,12 +20,22 @@ export function mapCourse(dto: CourseDto, materials: MaterialDto[], roster?: Ros
     pendingInvitationCount: invitations?.invitations.filter((invitation) => invitation.status === 'PENDING').length ?? 0,
     averageMastery: gap ? average(gap.students.map((cell) => cell.mastery)) : null }
 }
-/** Selects the latest material of each subtopic and maps curriculum order. */
-export function mapSubtopics(dto: CourseDto, materials: MaterialDto[], catalog?: CatalogDto, gap?: GapMapDto): Subtopic[] {
+/**
+ * Selects the latest material of each subtopic and maps curriculum order and historical practice.
+ *
+ * @param dto - Authoritative course curriculum and lock state.
+ * @param materials - Complete material collection used to resolve the latest ingestion state.
+ * @param catalog - Generated and approved exercise counts, when available.
+ * @param gap - Measured group mastery, when available.
+ * @param report - Optional practice report including archived subtopics supplied by the API.
+ * @returns Ordered subtopics; missing solved counts stay unknown rather than becoming zero.
+ */
+export function mapSubtopics(dto: CourseDto, materials: MaterialDto[], catalog?: CatalogDto, gap?: GapMapDto, report?: IndicatorsDto): Subtopic[] {
   return [...dto.subtopics].sort((a, b) => a.displayOrder - b.displayOrder).map((subtopic) => {
     const material = materials.filter((item) => item.subtopicIds.includes(subtopic.id)).sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))[0]
     return { id: subtopic.id, courseId: dto.id, order: subtopic.displayOrder, name: subtopic.name, description: '', status: subtopic.status, locked: subtopic.locked,
       materialStatus: material ? material.status === 'READY' ? 'ready' : material.status === 'INGESTION_ERROR' ? 'error' : 'processing' : 'missing',
+      solvedExerciseCount: report?.practice.perSubtopic.find((item) => item.subtopicId === subtopic.id)?.solved ?? null,
       approvedExerciseCount: catalog?.subtopics.find((item) => item.subtopicId === subtopic.id)?.approved ?? 0,
       averageMastery: gap ? average(gap.students.filter((item) => item.subtopicId === subtopic.id).map((item) => item.mastery)) : null }
   })
