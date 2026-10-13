@@ -64,6 +64,8 @@ export interface ButtonProps {
    * @defaultValue `false`
    */
   disabled?: boolean
+  /** Pressed state when used as a toggle button; omitted for ordinary actions. */
+  isPressed?: boolean
   /**
    * Native button type.
    *
@@ -95,6 +97,7 @@ export function Button({
   iconPosition = 'start',
   fullWidth = false,
   disabled = false,
+  isPressed,
   type = 'button',
   onClick,
   className,
@@ -103,6 +106,7 @@ export function Button({
     <button
       type={type}
       disabled={disabled}
+      aria-pressed={isPressed}
       onClick={onClick}
       className={cn(
         'inline-flex shrink-0 cursor-pointer items-center justify-center text-label-l whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50',
