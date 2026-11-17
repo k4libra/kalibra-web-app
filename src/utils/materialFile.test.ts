@@ -28,12 +28,12 @@ describe('material file utilities', () => {
     expect(validateMaterialFile(new File(['content'], 'png'))?.code).toBe('UNSUPPORTED_FORMAT')
   })
 
-  it('accepts exactly 10 MB and rejects the first byte above the limit', () => {
+  it('accepts exactly 20 MB and rejects the first byte above the limit', () => {
     const file = new File(['content'], 'notes.pdf')
-    Object.defineProperty(file, 'size', { value: 10 * 1024 * 1024, configurable: true })
+    Object.defineProperty(file, 'size', { value: 20 * 1024 * 1024, configurable: true })
     expect(validateMaterialFile(file)).toBeNull()
     Object.defineProperty(file, 'size', { value: MATERIAL_UPLOAD_CONFIG.maxFileSizeBytes + 1 })
-    expect(validateMaterialFile(file)).toEqual({ code: 'FILE_TOO_LARGE', message: 'El archivo supera el límite de 10 MB; el archivo no se registró.' })
+    expect(validateMaterialFile(file)).toEqual({ code: 'FILE_TOO_LARGE', message: 'El archivo supera el límite de 20 MB; el archivo no se registró.' })
   })
 
   it('shows known pages without inferring them from the file size', () => {
@@ -50,5 +50,15 @@ describe('material file utilities', () => {
 
   it('shows today and the actual local upload time', () => {
     expect(formatMaterialDate(new Date('2025-09-11T10:05:00').toISOString(), new Date('2025-09-11T12:00:00'))).toBe('Hoy, 10:05')
+  })
+})
+
+describe('ingestion failure presentation', () => {
+  it('does not expose provider diagnostics and permits a later retry', async () => {
+    const { ingestionFailureMessage } = await import('./materialFile')
+    const message = ingestionFailureMessage('java.lang.Exception: provider credentials rejected at internal-host')
+    expect(message).toContain('intentarlo más tarde')
+    expect(message).not.toMatch(/java|credentials|internal-host/)
+    expect(ingestionFailureMessage('Imagen de baja resolución')).toContain('texto no es legible')
   })
 })

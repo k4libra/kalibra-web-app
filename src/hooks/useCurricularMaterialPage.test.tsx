@@ -12,6 +12,7 @@ import { ToastProvider } from '@/context/ToastContext'
 import { useCurricularMaterialPage } from '@/hooks/useCurricularMaterialPage'
 import { coursesService } from '@/services/courses.service'
 import { curricularMaterialService } from '@/services/curricularMaterial.service'
+import { curricularExtractionAvailabilityService } from '@/services/curricularExtractionAvailability.service'
 import type { CourseOverview, Subtopic } from '@/types/course'
 import type { CurricularMaterial } from '@/types/curricularMaterial'
 
@@ -32,6 +33,21 @@ beforeEach(() => {
 })
 
 describe('useCurricularMaterialPage', () => {
+  it('blocks opening and direct submission while unavailable, including replacement uploads', async () => {
+    vi.spyOn(curricularExtractionAvailabilityService, 'getAvailability').mockResolvedValue({ available: false })
+    const { result } = renderHook(() => useCurricularMaterialPage(course.id), { wrapper })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    await waitFor(() => expect(result.current.isUploadAvailable).toBe(false))
+    act(() => result.current.openUpload())
+    expect(result.current.uploadForm).toBeNull()
+    act(() => result.current.replaceMaterial(material))
+    act(() => result.current.selectFile(new File(['pdf'], 'notes.pdf')))
+    expect(result.current.uploadForm?.file).not.toBeNull()
+    expect(result.current.canSubmit).toBe(false)
+    await act(async () => { await result.current.submit() })
+    expect(curricularMaterialService.upload).not.toHaveBeenCalled()
+  })
+
   it('selects only active subtopics even when archived material needs replacement', async () => {
     vi.mocked(coursesService.listSubtopics).mockResolvedValue([{ ...subtopic, id: 'archived', status: 'ARCHIVED' }, subtopic])
     vi.mocked(curricularMaterialService.getByCourse).mockResolvedValue([{ ...material, subtopicId: 'archived', status: 'error' }])

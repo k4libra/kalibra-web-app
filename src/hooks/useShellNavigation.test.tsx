@@ -9,6 +9,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it } from 'vitest'
 import { ActiveCourseProvider, useActiveCourse } from '@/context/ActiveCourseContext'
+import { useCourseSubtopics } from '@/hooks/useCourseSubtopics'
 import { useShellNavigation } from '@/hooks/useShellNavigation'
 import { authService } from '@/services/auth.service'
 import { coursesService } from '@/services/courses.service'
@@ -21,11 +22,14 @@ afterEach(async () => {
 
 function ShellProbe() {
   const shell = useShellNavigation()
+  const editor = useCourseSubtopics('course-1')
   const { setActiveCourseId } = useActiveCourse()
   return (
     <>
       <p>{shell.activeCourse?.name ?? 'No active course'}</p>
       <p>{shell.teacher?.email}</p>
+      <p>{shell.activeCourse?.term} {shell.activeCourse?.faculty} {shell.activeCourse?.semester}</p>
+      <button onClick={() => void editor.updateCourse({ term: '2027-I', faculty: 'Ingeniería', semester: 'IV' })}>Save metadata</button>
       <button onClick={() => setActiveCourseId('course-2')}>Select enrollment course</button>
     </>
   )
@@ -38,6 +42,13 @@ describe('useShellNavigation', () => {
     await screen.findByText(COURSES[0].name)
     await act(async () => screen.getByRole('button', { name: 'Select enrollment course' }).click())
     await waitFor(async () => expect(await coursesService.getWorkspace()).toEqual({ activeCourseId: 'course-2' }))
+  })
+  it('refreshes shell metadata after editing an existing course without reloading', async () => {
+    await authService.login(teacherCredentials)
+    render(<ActiveCourseProvider><RouterProvider router={createMemoryRouter([{ path: '/cursos', element: <ShellProbe /> }], { initialEntries: ['/cursos'] })} /></ActiveCourseProvider>)
+    await screen.findByText(COURSES[0].name)
+    await act(async () => screen.getByRole('button', { name: 'Save metadata' }).click())
+    expect(await screen.findByText('2027-I Ingeniería IV')).toBeInTheDocument()
   })
   it('loads the newly created first course into the existing empty shell', async () => {
     await authService.register({
@@ -65,7 +76,7 @@ describe('useShellNavigation', () => {
       name: 'Primer curso de prueba',
       code: 'PC-100',
       term: '2026-II',
-      subtopics: ['Tema inicial'],
+      subtopics: [{ name: 'Tema inicial' }],
     })
     await act(async () => router.navigate(`/cursos/${course.id}/subtemas`))
     await waitFor(() => expect(screen.getByText('Primer curso de prueba')).toBeInTheDocument())

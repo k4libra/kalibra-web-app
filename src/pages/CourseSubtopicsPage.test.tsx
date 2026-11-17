@@ -8,7 +8,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { apiStub } from '@/test/apiStub'
 import { ArchivedSubtopicsPage } from './ArchivedSubtopicsPage'
 import { CourseSubtopicsPage } from './CourseSubtopicsPage'
@@ -21,7 +21,8 @@ function renderPage(courseId = 'course-2') {
 
 describe('CourseSubtopicsPage', () => {
   it('stacks the add-subtopic controls until md and keeps course fields in one column on mobile', async () => {
-    renderPage()
+    const user = renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Editar curso' }))
     const field = (await screen.findByLabelText('Nuevo subtema')).closest('div.flex-col')
     expect(field).toHaveClass('w-full', 'min-w-0', 'md:flex-1')
     expect(field?.parentElement).toHaveClass('flex', 'flex-col', 'md:flex-row', 'md:items-end')
@@ -44,20 +45,53 @@ describe('CourseSubtopicsPage', () => {
 
   it('saves course metadata and appends then renames a subtopic inline', async () => {
     const user = renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Editar curso' }))
     const name = await screen.findByLabelText('Nombre del curso')
     await user.clear(name); await user.type(name, 'Curso actualizado')
     const code = screen.getByLabelText('Código')
     await user.clear(code); await user.type(code, 'NEW')
+    await user.clear(screen.getByLabelText('Ciclo'))
+    await user.type(screen.getByLabelText('Ciclo'), '2027-I')
+    await user.type(screen.getByLabelText('Facultad'), 'Ingeniería')
+    await user.type(screen.getByLabelText('Semestre (opcional)'), 'IV')
     await user.click(screen.getByRole('button', { name: 'Guardar curso' }))
     await waitFor(() => expect(screen.getByLabelText('Nombre del curso')).toHaveValue('Curso actualizado'))
     await user.type(screen.getByLabelText('Nuevo subtema'), 'Nuevo tema')
+    await user.type(screen.getByLabelText('Descripción del nuevo subtema (opcional)'), 'Resumen del nuevo tema')
     await user.click(screen.getByRole('button', { name: 'Agregar subtema' }))
+    await user.click(screen.getByRole('button', { name: 'Cerrar' }))
     await user.click(await screen.findByRole('button', { name: 'Acciones de Nuevo tema' }))
     await user.click(screen.getByRole('menuitem', { name: 'Renombrar' }))
     const topic = screen.getByLabelText('Nombre de Nuevo tema')
     await user.clear(topic); await user.type(topic, 'Tema editado{Enter}')
     expect(await screen.findByText('Tema editado')).toBeInTheDocument()
-    expect(apiStub.account.courses[1]).toMatchObject({ name: 'Curso actualizado', code: 'NEW' })
+    expect(apiStub.account.courses[1]).toMatchObject({ name: 'Curso actualizado', code: 'NEW', term: '2027-I', faculty: 'Ingeniería', semester: 'IV' })
+    expect(apiStub.account.courses[1].subtopics.at(-1)).toMatchObject({ description: 'Resumen del nuevo tema' })
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith('/api/v1/courses/course-2', expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ name: 'Curso actualizado', code: 'NEW', term: '2027-I', faculty: 'Ingeniería', semester: 'IV' }) }))
+  })
+
+
+  it('adds, edits and clears a locked subtopic description with description-only PATCH requests', async () => {
+    const user = renderPage('course-1')
+    const editDescription = async (label: string, value: string) => {
+      await user.click(await screen.findByRole('button', { name: 'Acciones de Recursividad y Backtracking' }))
+      await user.click(screen.getByRole('menuitem', { name: label }))
+      const field = screen.getByLabelText('Descripción de Recursividad y Backtracking (opcional)')
+      expect(field).toHaveAttribute('maxlength', '280')
+      await user.clear(field)
+      if (value) await user.type(field, value)
+      await user.click(screen.getByRole('button', { name: 'Guardar descripción' }))
+      await waitFor(() => expect(screen.queryByLabelText('Descripción de Recursividad y Backtracking (opcional)')).not.toBeInTheDocument())
+    }
+    await editDescription('Agregar descripción', 'Caso base y llamada recursiva')
+    expect(await screen.findByText('Caso base y llamada recursiva')).toBeInTheDocument()
+    await editDescription('Editar descripción', '  Resumen actualizado  ')
+    expect(await screen.findByText('Resumen actualizado')).toBeInTheDocument()
+    await editDescription('Editar descripción', '')
+    expect(apiStub.account.courses[0].subtopics[0]).toMatchObject({ name: 'Recursividad y Backtracking', description: '', locked: true })
+    for (const description of ['Caso base y llamada recursiva', 'Resumen actualizado', '']) {
+      expect(vi.mocked(fetch)).toHaveBeenCalledWith('/api/v1/courses/course-1/subtopics/sub-1', expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ description }) }))
+    }
   })
 
   it('requires confirmation to archive and restore and hides archived rows by default', async () => {

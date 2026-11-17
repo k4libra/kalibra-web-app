@@ -36,9 +36,19 @@ describe('coursesService', () => {
   })
 
   it('creates the entire draft in one POST', async () => {
-    await coursesService.createCourse({ name: 'Curso nuevo', code: 'NEW', subtopics: ['Primero', 'Segundo'] })
+    const input = { name: 'Curso nuevo', code: 'NEW', term: '2027-I', faculty: 'Ingeniería', semester: 'IV', subtopics: [{ name: 'Primero', description: 'Resumen' }, { name: 'Segundo' }] }
+    expect(await coursesService.createCourse(input)).toMatchObject({ term: '2027-I', faculty: 'Ingeniería', semester: 'IV' })
     expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1)
-    expect(vi.mocked(fetch)).toHaveBeenCalledWith('/api/v1/courses', expect.objectContaining({ method: 'POST', body: JSON.stringify({ name: 'Curso nuevo', code: 'NEW', subtopicNames: ['Primero', 'Segundo'] }) }))
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith('/api/v1/courses', expect.objectContaining({ method: 'POST', body: JSON.stringify(input) }))
+  })
+
+  it('clears optional course metadata through PATCH and preserves fallback semantics', async () => {
+    Object.assign(apiStub.account.courses[1], { term: '2024-I', faculty: 'Ingeniería', semester: 'IV' })
+    const input = { term: null, faculty: null, semester: null }
+    const course = await coursesService.updateCourse('course-2', input)
+    expect(course).toMatchObject({ faculty: null, semester: null })
+    expect(apiStub.account.courses[1]).toMatchObject(input)
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith('/api/v1/courses/course-2', expect.objectContaining({ method: 'PATCH', body: JSON.stringify(input) }))
   })
 
   it('patches course metadata and appends an active unlocked subtopic', async () => {

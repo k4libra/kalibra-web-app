@@ -67,9 +67,16 @@ describe('apiClient', () => {
   })
   it('maps non-JSON 503 responses and transport failures to actionable Spanish errors', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response('Unavailable', { status: 503 }))
-    await expect(apiClient.get('/resource')).rejects.toMatchObject({ message: 'Servicio no disponible por el momento', code: 'unavailable' })
+    await expect(apiClient.get('/resource')).rejects.toMatchObject({ message: 'Servicio no disponible por el momento. Puedes intentarlo más tarde.', code: 'unavailable' })
     vi.mocked(fetch).mockRejectedValueOnce(new TypeError('Failed to fetch'))
     await expect(apiClient.get('/resource')).rejects.toMatchObject({ code: 'network', status: 0 })
+  })
+  it('maps the material upload availability code to the exact generic message', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(response({ code: 'MATERIAL_UPLOAD_UNAVAILABLE', detail: 'Material upload is temporarily unavailable.' }, 503))
+    await expect(apiClient.post('/courses/course-1/curricular-materials', new FormData())).rejects.toMatchObject({
+      status: 503, code: 'unavailable',
+      message: 'La carga de materiales no está disponible por el momento. Vuelve a intentarlo más tarde.',
+    })
   })
   it('keeps a newer signed-in identity when an older protected request returns 401', async () => {
     sessionStore.setSession(mapUser(teacherDto))
@@ -87,6 +94,6 @@ describe('apiClient', () => {
   })
   it('reports malformed successful JSON in Spanish', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response('invalid json'))
-    await expect(apiClient.get('/resource')).rejects.toMatchObject({ code: 'unexpected', message: 'El servidor devolvió una respuesta no válida.' })
+    await expect(apiClient.get('/resource')).rejects.toMatchObject({ code: 'unexpected', message: 'No se pudo completar la operación. Puedes intentarlo más tarde.' })
   })
 })

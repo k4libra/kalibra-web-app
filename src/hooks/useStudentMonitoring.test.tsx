@@ -80,7 +80,7 @@ describe('useStudentProgress', () => {
     act(() => result.current.active.setActiveCourseId('course-2'))
     await waitFor(() => expect(result.current.progress?.student.id).toBe('st-1'))
     expect(result.current.active.activeCourseId).toBe('course-1')
-    expect(result.current.recommendation).toBeNull()
+    expect(result.current.recommendation).toBe('Refuerzo sugerido: Programación Dinámica (33%).')
     expect(result.current.progress?.recentFeedback).toContain('Revisa el caso base de la recursión.')
   })
   it('ignores a late student response after a new student is selected', async () => {

@@ -17,11 +17,11 @@ describe('SubtopicEditorRow', () => {
     'disables the unavailable move at order $order and emits the available destination', async ({ order, unavailable, available, destination }) => {
       const move = vi.fn()
       render(<SubtopicEditorRow subtopic={{ ...SUBTOPICS[0], order, locked: false }} total={4} isSubmitting={false}
-        onMove={move} onRename={vi.fn()} onStatus={vi.fn()} onDelete={vi.fn()} />)
+        onMove={move} onDescription={vi.fn()} onRename={vi.fn()} onStatus={vi.fn()} onDelete={vi.fn()} />)
       const user = userEvent.setup()
       expect(screen.getAllByRole('button')).toHaveLength(1)
       await user.click(screen.getByRole('button', { name: /Acciones de/ }))
-      expect(screen.getAllByRole('menuitem')).toHaveLength(5)
+      expect(screen.getAllByRole('menuitem')).toHaveLength(6)
       await user.click(screen.getByRole('menuitem', { name: new RegExp(unavailable) }))
       expect(move).not.toHaveBeenCalled()
       await user.click(screen.getByRole('menuitem', { name: available }))
@@ -32,7 +32,7 @@ describe('SubtopicEditorRow', () => {
   it('opens inline rename from the menu, cancels and saves only the trimmed name', async () => {
     const rename = vi.fn().mockResolvedValue(true)
     render(<SubtopicEditorRow subtopic={{ ...SUBTOPICS[0], locked: false }} total={4} isSubmitting={false}
-      onMove={vi.fn()} onRename={rename} onStatus={vi.fn()} onDelete={vi.fn()} />)
+      onMove={vi.fn()} onDescription={vi.fn()} onRename={rename} onStatus={vi.fn()} onDelete={vi.fn()} />)
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: /Acciones de/ }))
     await user.click(screen.getByRole('menuitem', { name: 'Renombrar' }))

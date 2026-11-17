@@ -68,7 +68,7 @@ describe('useCreateCourse', () => {
     const { result } = renderHook(() => useCreateCourse())
     let created = null
     await act(async () => {
-      created = await result.current.createCourse({ name: 'Física I', code: 'FI-101', term: '2025-II', subtopics: ['Cinemática'] })
+      created = await result.current.createCourse({ name: 'Física I', code: 'FI-101', term: '2025-II', subtopics: [{ name: 'Cinemática' }] })
     })
     expect(created).toMatchObject({ name: 'Física I', subtopicCount: 1 })
   })

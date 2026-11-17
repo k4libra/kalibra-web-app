@@ -100,6 +100,7 @@ export function installApiStub() {
     const method = init?.method ?? 'GET'; const body = typeof init?.body === 'string' ? JSON.parse(init.body) as Record<string, unknown> : {}
     const override = overrides.get(path)
     if (override) return json(override.body, override.status)
+    if (path === '/curricular-extraction-availability') return json({ available: true })
     if (path === '/authentication/sign-out') return new Response(null, { status: 204 })
     if (path === '/authentication/sign-up') {
       if (accounts.some((account) => account.user.email.toLowerCase() === String(body.email).trim().toLowerCase())) return problem(409)
@@ -133,7 +134,9 @@ export function installApiStub() {
     }
     if (path === '/courses' && method === 'POST') {
       const id = `course-${current.courses.length + 3}`
-      const course: CourseDto = { id, name: String(body.name), code: String(body.code), createdAt: '2026-10-10T10:00:00Z', subtopics: (body.subtopicNames as string[]).map((name, index) => ({ id: `${id}-sub-${index + 1}`, name, displayOrder: index + 1, status: 'ACTIVE', locked: false })) }
+      const topics = body.subtopics as { name: string; description?: string }[] | undefined
+      const course: CourseDto = { id, name: String(body.name), code: String(body.code), term: body.term as string | undefined, faculty: body.faculty as string | undefined, semester: body.semester as string | undefined,
+        createdAt: '2026-10-10T10:00:00Z', subtopics: (topics ?? (body.subtopicNames as string[]).map((name) => ({ name }))).map((topic, index) => ({ ...topic, id: `${id}-sub-${index + 1}`, displayOrder: index + 1, status: 'ACTIVE', locked: false })) }
       current.courses.push(course); return json(course, 201)
     }
     if (path === '/courses') return json(current.courses)
@@ -145,11 +148,14 @@ export function installApiStub() {
         if (method === 'PATCH') {
           if (typeof body.name === 'string') course.name = body.name
           if (typeof body.code === 'string') course.code = body.code
+          for (const key of ['term', 'faculty', 'semester'] as const) {
+            if (typeof body[key] === 'string' || body[key] === null) course[key] = body[key] as string | null
+          }
         }
         return json(course)
       }
       if (endpoint === '/subtopics' && method === 'POST') {
-        course.subtopics.push({ id: `${course.id}-sub-${course.subtopics.length + 1}`, name: String(body.name), displayOrder: course.subtopics.length + 1, status: 'ACTIVE', locked: false })
+        course.subtopics.push({ id: `${course.id}-sub-${course.subtopics.length + 1}`, name: String(body.name), description: body.description as string | undefined, displayOrder: course.subtopics.length + 1, status: 'ACTIVE', locked: false })
         return json(course, 201)
       }
       const subtopicMatch = endpoint.match(/^\/subtopics\/([^/]+)$/)
@@ -166,6 +172,7 @@ export function installApiStub() {
         }
         if (method === 'PATCH') {
           if (typeof body.name === 'string') topic.name = body.name
+          if (typeof body.description === 'string') topic.description = body.description
           if (body.status === 'ACTIVE' || body.status === 'ARCHIVED') topic.status = body.status
           if (typeof body.displayOrder === 'number') {
             if (body.displayOrder < 1 || body.displayOrder > course.subtopics.length) return problem(400)

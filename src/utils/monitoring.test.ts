@@ -39,6 +39,12 @@ describe('monitoring formatters', () => {
     data.recentResponses[0].isCorrect = true
     expect(reinforcementNotice(data, SUBTOPICS)).not.toContain('últimas 3')
   })
+  it('derives reinforcement from the weakest measured subtopics without inventing response history', () => {
+    const data = progress(); data.reinforcementSubtopicIds = []
+    expect(reinforcementNotice(data, SUBTOPICS)).toBe('Refuerzo sugerido: Programación Dinámica (33%).')
+    data.subtopics = data.subtopics.map((record) => ({ ...record, mastery: null }))
+    expect(reinforcementNotice(data, SUBTOPICS)).toBeNull()
+  })
   it('renders both recommended subtopics and omits unknown recommendations', () => {
     const data = progress()
     data.reinforcementSubtopicIds = ['sub-3', 'sub-1', 'missing']

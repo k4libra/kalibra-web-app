@@ -60,7 +60,7 @@ describe('curricularMaterialService', () => {
   })
 
   it('supports newly created courses and their real subtopic identifiers', async () => {
-    const course = await settle(coursesService.createCourse({ name: 'Curso de prueba', code: 'TEST', term: '2026-II', subtopics: ['Primer subtema'] }))
+    const course = await settle(coursesService.createCourse({ name: 'Curso de prueba', code: 'TEST', term: '2026-II', subtopics: [{ name: 'Primer subtema' }] }))
     const [subtopic] = await settle(coursesService.listSubtopics(course.id))
     expect(await settle(curricularMaterialService.getByCourse(course.id))).toEqual([])
     await settle(curricularMaterialService.upload({ courseId: course.id, subtopicId: subtopic.id, file: new File(['image'], 'notes.png') }))
@@ -96,7 +96,7 @@ describe('curricularMaterialService', () => {
 
   it('exposes a course created by an empty teacher and supports its first upload', async () => {
     apiStub.empty()
-    const course = await settle(coursesService.createCourse({ name: 'Curso nuevo', code: 'NEW-101', term: '2026-II', subtopics: ['Primer tema'] }))
+    const course = await settle(coursesService.createCourse({ name: 'Curso nuevo', code: 'NEW-101', term: '2026-II', subtopics: [{ name: 'Primer tema' }] }))
     expect((await settle(coursesService.listCourses())).map((item) => item.id)).toEqual([course.id])
     const [subtopic] = await settle(coursesService.listSubtopics(course.id))
     expect(await settle(curricularMaterialService.getByCourse(course.id))).toEqual([])

@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { mapTeacher, mapUser, profileName } from '@/services/mappers/auth.mapper'
-import { average, mapCourse, mapSubtopics } from '@/services/mappers/courses.mapper'
+import { average, courseIcon, currentAcademicTerm, mapCourse, mapSubtopics } from '@/services/mappers/courses.mapper'
 import { mapMaterial } from '@/services/mappers/material.mapper'
 import { mapCatalog, mapExercise } from '@/services/mappers/exercises.mapper'
 import { mapIndicatorGuide, mapIndicators } from '@/services/mappers/indicators.mapper'
@@ -71,9 +71,23 @@ describe('DTO mappers', () => {
   })
   it('derives counts from actual related resources and leaves academic metadata neutral', () => {
     const result = mapCourse(course, [material], roster, catalog, { courseId: course.id, courseName: course.name, courseCode: course.code, invitations: [] }, gap)
-    expect(result).toMatchObject({ term: '', faculty: '', semester: '', icon: 'school', studentCount: 1, subtopicCount: 1, materialCount: 1, approvedExerciseCount: 7, averageMastery: 30 })
+    expect(result).toMatchObject({ term: currentAcademicTerm(), faculty: null, semester: null, studentCount: 1, subtopicCount: 1, materialCount: 1, approvedExerciseCount: 7, averageMastery: 30 })
     expect(average([null, 20, 40])).toBe(30)
     expect(average([null])).toBeNull()
+    expect(currentAcademicTerm(new Date(2026, 2, 10))).toBe('2026-I')
+    expect(currentAcademicTerm(new Date(2026, 10, 14))).toBe('2026-II')
+    expect(courseIcon('Álgebra Lineal')).toBe('functions')
+    expect(courseIcon('Algoritmos y Estructuras de Datos')).toBe('account_tree')
+    expect(courseIcon('Cálculo Multivariable')).toBe('gesture')
+    expect(courseIcon('Historia')).toBe('school')
+  })
+  it('preserves stored metadata and derives a term only for null or absent terms', () => {
+    expect(mapCourse({ ...course, term: '2024-I', faculty: 'Ingeniería', semester: 'IV' }, [])).toMatchObject({ term: '2024-I', faculty: 'Ingeniería', semester: 'IV' })
+    expect(mapCourse({ ...course, term: null, faculty: null, semester: null }, [])).toMatchObject({ term: currentAcademicTerm(), faculty: null, semester: null })
+    expect(mapCourse({ ...course, term: '' }, []).term).toBe('')
+    expect(mapSubtopics({ ...course, subtopics: [{ ...course.subtopics[0], description: 'Resumen real' }] }, [])[0].description).toBe('Resumen real')
+    expect(mapMaterial({ ...material, sizeBytes: 0, pageCount: 0 })).toMatchObject({ fileSize: 0, pageCount: 0 })
+    expect(mapMaterial({ ...material, sizeBytes: null, pageCount: null })).not.toHaveProperty('fileSize')
   })
   it('uses latest ingestion status without mutating the ordered curriculum DTO', () => {
     const latest = { ...material, uploadedAt: '2026-10-11', status: 'READY' as const }

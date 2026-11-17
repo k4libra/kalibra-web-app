@@ -20,8 +20,8 @@ function request(path: string, method: string) {
 
 describe('feature HTTP contract', () => {
   it('creates only the course fields supported by the API', async () => {
-    await coursesService.createCourse({ name: 'Curso nuevo', code: 'NEW', subtopics: ['Tema'] })
-    expect(JSON.parse(String(request('/courses', 'POST').body))).toEqual({ name: 'Curso nuevo', code: 'NEW', subtopicNames: ['Tema'] })
+    await coursesService.createCourse({ name: 'Curso nuevo', code: 'NEW', subtopics: [{ name: 'Tema' }] })
+    expect(JSON.parse(String(request('/courses', 'POST').body))).toEqual({ name: 'Curso nuevo', code: 'NEW', subtopics: [{ name: 'Tema' }] })
   })
   it('reads and persists the workspace course on the server', async () => {
     await coursesService.getWorkspace()
@@ -40,10 +40,10 @@ describe('feature HTTP contract', () => {
     expect(form.get('format')).toBe('PDF')
     expect(new Headers(init.headers).has('Content-Type')).toBe(false)
   })
-  it.each([true, false])('maps an upload 413 to a clear 10 MB error (JSON: %s)', async (json) => {
+  it.each([true, false])('maps an upload 413 to a clear 20 MB error (JSON: %s)', async (json) => {
     vi.mocked(fetch).mockResolvedValueOnce(new Response(json ? JSON.stringify({ status: 413, detail: 'Maximum upload size exceeded' }) : 'Payload Too Large', { status: 413 }))
     await expect(curricularMaterialService.upload({ courseId: 'course-1', subtopicId: 'sub-1', file: new File(['bytes'], 'notes.pdf') }))
-      .rejects.toMatchObject({ code: 'invalid-input', status: 413, message: 'El archivo supera el límite de 10 MB; el archivo no se registró.' })
+      .rejects.toMatchObject({ code: 'invalid-input', status: 413, message: 'El archivo supera el límite de 20 MB; el archivo no se registró.' })
   })
   it('joins roster activity dates from each student progress response in the selected course', async () => {
     const timestamp = '2026-10-10T14:30:00Z'

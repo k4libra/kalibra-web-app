@@ -93,7 +93,7 @@ describe('authService', () => {
         name: 'Curso de prueba',
         code: 'CT-100',
         term: '2026-II',
-        subtopics: ['Tema inicial'],
+        subtopics: [{ name: 'Tema inicial' }],
       }),
     )
     expect(await complete(coursesService.listCourses())).toEqual([created])

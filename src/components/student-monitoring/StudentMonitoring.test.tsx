@@ -19,7 +19,7 @@ describe('student monitoring compositions', () => {
     render(<CourseStudentsGroup course={COURSES[1]} students={[]} updatedAt="2025-09-15T10:15:00" onViewProgress={vi.fn()} />)
     expect(screen.getByRole('heading', { name: COURSES[1].name })).toBeInTheDocument()
     expect(screen.getByText('0 matriculados')).toBeInTheDocument()
-    expect(screen.getByText(/Invítalos desde Invitaciones/)).toHaveTextContent(COURSES[1].name)
+    expect(screen.getByText('Aún no hay estudiantes matriculados en este curso.')).toBeInTheDocument()
   })
   it('opens progress from a roster and distinguishes no activity from low mastery', async () => {
     const onViewProgress = vi.fn()
@@ -32,7 +32,7 @@ describe('student monitoring compositions', () => {
     await userEvent.click(screen.getAllByRole('button', { name: 'Ver progreso' })[2])
     expect(onViewProgress).toHaveBeenCalledWith('st-3', 'course-1')
   })
-  it.each([[null, 'Sin datos'], [39, 'Dominio bajo'], [40, 'Dominio medio'], [69, 'Dominio medio'], [70, 'Dominio alto'], [71, 'Dominio alto']] as const)('displays the shared level at %s', (mastery, label) => {
+  it.each([[null, 'Sin datos'], [39, 'Dominio bajo'], [40, 'Dominio medio'], [69, 'Dominio medio'], [70, 'Dominio medio'], [71, 'Dominio alto']] as const)('displays the shared level at %s', (mastery, label) => {
     render(<StudentMasteryTable subtopics={[topics[0]]} masteryRecords={[{ studentId: 'st-1', subtopicId: 'sub-1', mastery, resolvedExercises: mastery === null ? 0 : 1, correctAnswers: 0 }]} />)
     expect(screen.getByText(label)).toBeInTheDocument()
   })
@@ -49,6 +49,6 @@ describe('student monitoring compositions', () => {
   it('sorts reinforcement priorities and documents the accepted 70 percent threshold', () => {
     render(<SubtopicPriorityList subtopics={topics} totalStudents={3} updatedAt="2025-09-15T10:15:00" gaps={topics.map((topic) => ({ subtopicId: topic.id, averageMastery: topic.averageMastery, lowMasteryCount: 0, mediumMasteryCount: 0, highMasteryCount: 0, noDataCount: 3, studentsWithActivity: 0 }))} />)
     expect(screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent)).toEqual([topics[2].name, topics[0].name, topics[1].name, topics[3].name])
-    expect(within(screen.getByRole('list', { name: 'Niveles de dominio' })).getByText('Alto ≥ 70%')).toBeInTheDocument()
+    expect(within(screen.getByRole('list', { name: 'Niveles de dominio' })).getByText('Alto > 70%')).toBeInTheDocument()
   })
 })

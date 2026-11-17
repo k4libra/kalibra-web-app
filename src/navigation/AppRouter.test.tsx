@@ -66,7 +66,7 @@ describe('merged monitoring routes', () => {
       expect(await screen.findByRole('heading', { name: names[index], level: 1 })).toBeInTheDocument()
       expect(window.location.pathname).toBe(studentRoutes.progress(`st-${index + 1}`))
       if (index === 0) expect(screen.getByText('Revisa el caso base de la recursión.')).toBeInTheDocument()
-      if (index === 1) expect(screen.queryByText(/Refuerzo sugerido/)).not.toBeInTheDocument()
+      if (index === 1) expect(screen.getByText(/Refuerzo sugerido/)).toHaveTextContent('Programación Dinámica (29%) y Recursividad y Backtracking (58%)')
       if (index === 2) {
         expect(screen.getByRole('heading', { name: 'Estudiante aún no registra actividad' })).toBeInTheDocument()
         expect(screen.getByText(/Estudiante aceptó tu invitación el 04 sep 2025/)).toBeInTheDocument()

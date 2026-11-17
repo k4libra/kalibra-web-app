@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -13,12 +13,15 @@ import { ToastProvider } from '@/context/ToastContext'
 import { CurricularMaterialPage } from '@/pages/CurricularMaterialPage'
 import { coursesService } from '@/services/courses.service'
 import { curricularMaterialService } from '@/services/curricularMaterial.service'
+import { curricularExtractionAvailabilityService } from '@/services/curricularExtractionAvailability.service'
+import { apiStub } from '@/test/apiStub'
 import type { CourseOverview, Subtopic } from '@/types/course'
 import type { CurricularMaterial } from '@/types/curricularMaterial'
 
 let materials: CurricularMaterial[]
 let subtopics: Subtopic[]
 const course: CourseOverview = { id: 'course-a', name: 'Curso de referencia', code: 'TEST', term: '', faculty: '', semester: '', icon: 'school', subtopicCount: 4, materialCount: 3, approvedExerciseCount: 0, studentCount: 0, studentIds: [], pendingInvitationCount: 0, averageMastery: null }
+const unavailableMessage = 'La carga de materiales no está disponible por el momento. Vuelve a intentarlo más tarde.'
 
 beforeEach(() => {
   vi.restoreAllMocks()
@@ -44,6 +47,89 @@ function renderPage(courseId = course.id) {
 function uploader() { return screen.getByLabelText('Archivo de material') as HTMLInputElement }
 
 describe('CurricularMaterialPage', () => {
+  it.each([true, false])('applies availability %s to both empty-page upload actions and the info callout', async (available) => {
+    materials = []
+    vi.spyOn(curricularExtractionAvailabilityService, 'getAvailability').mockResolvedValue({ available })
+    const user = userEvent.setup()
+    renderPage()
+    await screen.findByText('Aún no has cargado material')
+    for (const name of ['Cargar material', 'Cargar primer material']) {
+      const button = screen.getByRole('button', { name })
+      if (available) {
+        expect(button).toBeEnabled()
+        expect(button).not.toHaveAttribute('title')
+      } else {
+        expect(button).toBeDisabled()
+        expect(button).toHaveAttribute('title', unavailableMessage)
+        await user.click(button)
+      }
+    }
+    if (available) expect(screen.queryByText(unavailableMessage)).not.toBeInTheDocument()
+    else {
+      const notice = screen.getByText(unavailableMessage)
+      expect(notice.closest('.bg-primary-subtle')).toBeInTheDocument()
+      expect(notice.closest('[role="alert"]')).toBeNull()
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    }
+  })
+
+  it('disables upload on a populated page when unavailable', async () => {
+    vi.spyOn(curricularExtractionAvailabilityService, 'getAvailability').mockResolvedValue({ available: false })
+    renderPage()
+    await screen.findByRole('table')
+    expect(screen.getByText(unavailableMessage)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Cargar material' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Cargar material' })).toHaveAttribute('title', unavailableMessage)
+  })
+
+  it('blocks submission in an open modal on focus refresh and restores it when available again', async () => {
+    const read = vi.spyOn(curricularExtractionAvailabilityService, 'getAvailability').mockResolvedValue({ available: true })
+    const user = userEvent.setup()
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Cargar material' }))
+    await user.upload(uploader(), new File(['pdf'], 'notes.pdf', { type: 'application/pdf' }))
+    expect(screen.getByRole('button', { name: 'Subir material' })).toBeEnabled()
+    read.mockResolvedValue({ available: false })
+    act(() => window.dispatchEvent(new Event('focus')))
+    const submit = screen.getByRole('button', { name: 'Subir material' })
+    await waitFor(() => expect(submit).toBeDisabled())
+    expect(submit).toHaveAttribute('title', unavailableMessage)
+    expect(within(screen.getByRole('dialog')).getByText(unavailableMessage)).toBeInTheDocument()
+    await user.click(submit)
+    expect(curricularMaterialService.upload).not.toHaveBeenCalled()
+    read.mockResolvedValue({ available: true })
+    act(() => window.dispatchEvent(new Event('focus')))
+    await waitFor(() => expect(submit).toBeEnabled())
+    expect(submit).not.toHaveAttribute('title')
+    expect(screen.queryByText(unavailableMessage)).not.toBeInTheDocument()
+  })
+
+  it('keeps first upload enabled after an availability request fails', async () => {
+    materials = []
+    vi.spyOn(curricularExtractionAvailabilityService, 'getAvailability').mockRejectedValue(new Error('read failed'))
+    const user = userEvent.setup()
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Cargar primer material' }))
+    await user.upload(uploader(), new File(['pdf'], 'notes.pdf', { type: 'application/pdf' }))
+    expect(screen.getByRole('button', { name: 'Subir material' })).toBeEnabled()
+    expect(screen.queryByText(unavailableMessage)).not.toBeInTheDocument()
+  })
+
+  it('shows the exact generic notice after a real 503 upload response and retains the file', async () => {
+    vi.mocked(curricularMaterialService.upload).mockRestore()
+    apiStub.respond(`/courses/${course.id}/curricular-materials`, 503, { code: 'MATERIAL_UPLOAD_UNAVAILABLE', detail: 'Material upload is temporarily unavailable.' })
+    const user = userEvent.setup()
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Cargar material' }))
+    await user.upload(uploader(), new File(['pdf'], 'notes.pdf', { type: 'application/pdf' }))
+    await user.click(screen.getByRole('button', { name: 'Subir material' }))
+    const dialog = screen.getByRole('dialog', { name: 'Cargar material' })
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(unavailableMessage)
+    expect(dialog).toHaveTextContent('notes.pdf')
+    expect(screen.queryByText('Material upload is temporarily unavailable.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Material cargado')).not.toBeInTheDocument()
+  })
+
   it('retains archived material names but prevents replacement and omits archived upload choices', async () => {
     subtopics[2].status = 'ARCHIVED'
     const user = userEvent.setup()
