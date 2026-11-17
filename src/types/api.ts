@@ -6,17 +6,19 @@
  */
 
 import type { UserRole } from '@/types/auth'
+import type { ExplanationStep } from '@/types/exercise'
 /** Public account returned by the v2 contract; names are optional for older API deployments. */
 export interface UserDto { id: string; email: string; firstName?: string; lastName?: string; roles: UserRole[] }
 /** Paginated API representation. */
 export interface ApiPage<T> { content: T[]; page: number; size: number; totalElements: number; totalPages: number }
 /** Ordered curriculum label. */
-export interface SubtopicDto { id: string; name: string; displayOrder: number; status: 'ACTIVE' | 'ARCHIVED'; locked: boolean }
-/** Course representation without UI-only academic metadata. */
-export interface CourseDto { id: string; name: string; code: string; subtopics: SubtopicDto[]; createdAt: string }
-/** File representation; size and page count are not supplied by the API. */
+export interface SubtopicDto { id: string; name: string; description?: string | null; displayOrder: number; status: 'ACTIVE' | 'ARCHIVED'; locked: boolean }
+/** Course representation with optional academic metadata. */
+export interface CourseDto { id: string; name: string; code: string; term?: string | null; faculty?: string | null; semester?: string | null; subtopics: SubtopicDto[]; createdAt: string }
+/** File representation with nullable processor metadata. */
 export interface MaterialDto {
   id: string; courseId: string; subtopicIds: string[]; fileName: string; format: 'PDF' | 'PNG' | 'JPEG'
+  sizeBytes?: number | null; pageCount?: number | null
   status: 'PENDING_INGESTION' | 'READY' | 'INGESTION_ERROR'; failureReason: string | null; uploadedAt: string
 }
 /** Catalog counts, independent of the paginated exercise rows. */
@@ -24,6 +26,7 @@ export interface CatalogDto { courseId: string; courseName: string; subtopics: {
 /** Generated question and its actual verification verdict. */
 export interface ExerciseDto {
   id: string; subtopicId: string; origin: string; statement: string; options: { key: string; text: string; correct: boolean }[]
+  explanationSteps?: ExplanationStep[] | null; keyIdea?: string | null
   explanation: string; difficulty: 'EASY' | 'MEDIUM' | 'HARD'; verdict: 'APPROVED' | 'DISCARDED'; rejectionReason: string | null; generatedAt: string
 }
 /** Student enrollment without inferred activity dates. */

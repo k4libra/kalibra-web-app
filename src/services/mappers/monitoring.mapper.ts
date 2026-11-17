@@ -29,7 +29,7 @@ export function mapGap(resource: GapMapDto, totalStudents: number, course?: Cour
   const dto = { ...resource, students: resource.students.filter((item) => isActive(item.subtopicId)), subtopics: resource.subtopics.filter((item) => isActive(item.subtopicId)) }
   const measured = dto.students.filter((item) => item.mastery !== null)
   const weakest = [...dto.subtopics].filter((item) => item.lowCount + item.mediumCount + item.highCount > 0).sort((a, b) => a.reinforcementPriority - b.reinforcementPriority)[0]
-  return { courseId: dto.courseId, updatedAt: '', stats: { averageMastery: average(measured.map((item) => item.mastery)),
+  return { courseId: dto.courseId, hasSufficientData: resource.hasSufficientData, updatedAt: '', stats: { averageMastery: average(measured.map((item) => item.mastery)),
     weakestSubtopicId: weakest?.subtopicId ?? null, activeStudents: new Set(measured.map((item) => item.studentId)).size, totalStudents },
     subtopics: dto.subtopics.map((item) => ({ subtopicId: item.subtopicId,
       averageMastery: item.lowCount + item.mediumCount + item.highCount > 0 ? item.groupMastery : null,

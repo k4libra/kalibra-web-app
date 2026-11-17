@@ -7,7 +7,7 @@
 
 import type { ReactNode } from 'react'
 import type { IconName } from '@/types/ui'
-import { Icon } from '@/components/ui'
+import { BackgroundGlow, Icon } from '@/components/ui'
 import { Logo } from '@/components/layout/Logo'
 
 /** Props accepted by {@link AuthLayout}. */
@@ -32,7 +32,7 @@ const FEATURES: { icon: IconName; title: string; description: string }[] = [
     description: 'Todo ejercicio pasa la capa de verificación antes de publicarse.',
   },
   {
-    icon: 'insights',
+    icon: 'map',
     title: 'Mapa de brechas del grupo',
     description: 'Prioriza qué reforzar según el dominio real por subtema.',
   },
@@ -51,13 +51,14 @@ const FEATURES: { icon: IconName; title: string; description: string }[] = [
  */
 export function AuthLayout({ children, title, description }: AuthLayoutProps) {
   return (
-    <div className="min-h-dvh bg-surface-background lg:grid lg:grid-cols-[7fr_9fr]">
-      <aside className="flex flex-col gap-10 bg-linear-to-br from-primary to-primary-strong px-6 py-8 text-content-on-primary sm:px-14 lg:min-h-dvh lg:py-12">
+    <div className="relative isolate min-h-dvh overflow-hidden bg-surface-background lg:grid lg:grid-cols-[7fr_9fr]">
+      <BackgroundGlow />
+      <aside className="relative flex flex-col gap-10 bg-linear-to-br from-primary to-primary-strong px-6 py-8 text-content-on-primary sm:px-14 lg:min-h-dvh lg:py-12">
         <Logo tone="inverse" />
         <div className="flex flex-1 flex-col justify-center gap-6 lg:py-8">
           <div className="flex flex-col gap-4">
             <span className="inline-flex w-fit items-center gap-1 rounded-full bg-content-on-primary/15 px-2.5 py-1 text-label-m">
-              <Icon name="badge" size="sm" />
+              <Icon name="presentation" size="sm" />
               PORTAL DOCENTE
             </span>
             <h1 className="text-display">{title}</h1>
@@ -65,7 +66,7 @@ export function AuthLayout({ children, title, description }: AuthLayoutProps) {
           </div>
           <div className="flex flex-col gap-3">
             {FEATURES.map((feature) => (
-              <div key={feature.title} className="flex items-center gap-3 rounded-md bg-content-on-primary/10 p-3">
+              <div key={feature.title} className="flex items-center gap-3 rounded-lg bg-content-on-primary/10 p-3">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-sm bg-content-on-primary/15">
                   <Icon name={feature.icon} />
                 </span>
@@ -82,7 +83,7 @@ export function AuthLayout({ children, title, description }: AuthLayoutProps) {
           Tus datos académicos están protegidos
         </p>
       </aside>
-      <main className="flex items-center justify-center px-6 py-12 sm:px-10">
+      <main className="relative flex items-center justify-center px-6 py-12 sm:px-10">
         <div className="w-full max-w-[400px]">{children}</div>
       </main>
     </div>

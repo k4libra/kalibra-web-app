@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { Avatar, Button, Chip, ProgressBar, TableCard, TableHeader, TableRow } from '@/components/ui'
+import { Avatar, IconButton, Chip, ProgressBar, TableCard, TableHeader, TableRow } from '@/components/ui'
 import type { MonitoredStudent } from '@/types/studentMonitoring'
 import { cn } from '@/utils/cn'
 import { masteryTone } from '@/utils/mastery'
@@ -13,7 +13,7 @@ import { formatMastery, formatMonitoringActivity } from '@/utils/monitoring'
 
 /** Column layout shared by the roster header and rows. */
 const GRID = 'md:grid-cols-12'
-const CELLS = ['md:col-span-5', 'md:col-span-1', 'md:col-span-2', 'md:col-span-2', 'md:col-span-2']
+const CELLS = ['md:col-span-5', 'md:col-span-1', 'md:col-span-3', 'md:col-span-2', 'md:col-span-1']
 
 /** Props accepted by {@link StudentTable}. */
 export interface StudentTableProps {
@@ -42,7 +42,7 @@ export function StudentTable({ students, updatedAt, onViewProgress }: StudentTab
       <span role="cell" className={cn('text-body-m text-content-secondary', CELLS[3])}>
         {student.lastActivityAt ? formatMonitoringActivity(student.lastActivityAt, updatedAt) : <Chip label="Sin actividad" tone="neutral" icon="schedule" />}
       </span>
-      <span role="cell" className={CELLS[4]}><Button label="Ver progreso" variant="tonal" size="sm" onClick={() => onViewProgress(student.id)} /></span>
+      <span role="cell" className={CELLS[4]}><IconButton label="Ver progreso" icon="chevron_right" variant="tinted" size="sm" onClick={() => onViewProgress(student.id)} /></span>
     </TableRow>)}
   </TableCard>
 }

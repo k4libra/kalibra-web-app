@@ -5,10 +5,11 @@
  * @packageDocumentation
  */
 
-import { Button, StackedBar } from '@/components/ui'
+import { Button, Chip, StackedBar } from '@/components/ui'
 import type { IndicatorSummary, SubtopicIndicator } from '@/types/indicators'
 import { percent } from '@/utils/percent'
 import { plural } from '@/utils/plural'
+import { formatNumber } from '@/utils/number'
 import { IndicatorCard } from './IndicatorCard'
 
 /**
@@ -40,7 +41,7 @@ export function VerificationIndicator({ summary, subtopics, onReviewExercises }:
       title="¿Qué tan confiables son los ejercicios generados?"
       subtitle="Ejercicios creados por la IA que aprobaron la verificación de corrección y dificultad"
       chip={{ label: `${approved} de ${generated} aprobados`, tone: 'success', icon: 'verified' }}
-      kpi={rate === null ? '—' : `${rate}%`}
+      kpi={rate === null ? '—' : `${formatNumber(rate)}%`}
       kpiLabel="de los ejercicios generados aprobó la verificación"
       kpiDetail={`${discarded === 1 ? 'El descartado nunca se mostró' : `Los ${discarded} descartados nunca se mostraron`} a tus estudiantes.`}
       howToRead="cada ejercicio que crea la IA se revisa en corrección y dificultad antes de mostrarse. Un 90 % significa que 9 de cada 10 ejercicios generados fueron válidos; los descartados se reemplazan y nunca llegan a tus estudiantes."
@@ -61,10 +62,10 @@ export function VerificationIndicator({ summary, subtopics, onReviewExercises }:
         />
         <div className="flex gap-4 text-body-m text-content-secondary">
           <span className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-secondary-strong" aria-hidden /> Aprobados
+            <Chip label="Aprobados" tone="success" icon="check_circle" />
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-danger" aria-hidden /> Descartados
+            <Chip label="Descartados" tone="danger" icon="cancel" />
           </span>
         </div>
       </div>

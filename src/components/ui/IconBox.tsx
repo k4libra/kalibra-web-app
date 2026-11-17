@@ -16,28 +16,28 @@ export type IconBoxSize = 'sm' | 'md' | 'lg' | 'xl'
 
 // Background and glyph color of each tone.
 const TONE_CLASS: Record<Tone, string> = {
-  primary: 'bg-primary-container text-primary-strong',
-  success: 'bg-secondary-container text-secondary-strong',
-  warning: 'bg-tertiary-pale text-tertiary-strong',
+  primary: 'bg-primary-container-soft text-primary-strong',
+  success: 'bg-secondary-pale text-secondary-strong',
+  warning: 'bg-tertiary-subtle text-tertiary-strong',
   danger: 'bg-danger-container text-danger-strong',
-  neutral: 'bg-primary-subtle text-content-secondary',
+  neutral: 'border border-line-default bg-white text-content-secondary',
 }
 
 // Lower-emphasis icon containers use existing surface tokens and retain the semantic glyph tone.
 const SUBTLE_TONE_CLASS: Record<Tone, string> = {
   primary: 'bg-primary-subtle text-primary-strong',
-  success: 'bg-secondary-container/30 text-secondary-strong',
-  warning: 'bg-tertiary-pale/50 text-tertiary-strong',
+  success: 'bg-secondary-pale text-secondary-strong',
+  warning: 'bg-tertiary-subtle text-tertiary-strong',
   danger: 'bg-danger-container/50 text-danger-strong',
-  neutral: 'bg-primary-subtle text-content-secondary',
+  neutral: 'border border-line-default bg-white text-content-secondary',
 }
 
 // Box dimension and radius of each size.
 const SIZE_CLASS: Record<IconBoxSize, string> = {
-  sm: 'size-9 rounded-sm',
-  md: 'size-11 rounded-md',
-  lg: 'size-12 rounded-md',
-  xl: 'size-16 rounded-lg',
+  sm: 'size-10 rounded-lg',
+  md: 'size-11 rounded-lg',
+  lg: 'size-12 rounded-lg',
+  xl: 'size-14 rounded-lg',
 }
 
 // Glyph size that matches each box.

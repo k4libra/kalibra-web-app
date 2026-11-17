@@ -51,5 +51,5 @@ export interface CardProps {
  * ```
  */
 export function Card({ children, padding = 'md', as: Element = 'div', className }: CardProps) {
-  return <Element className={cn('rounded-lg bg-surface-card shadow-card', PADDING_CLASS[padding], className)}>{children}</Element>
+  return <Element className={cn('rounded-2xl bg-surface-card shadow-card', PADDING_CLASS[padding], className)}>{children}</Element>
 }

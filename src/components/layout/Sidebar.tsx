@@ -59,7 +59,7 @@ function SidebarNavLink({ link, onNavigate }: { link: SidebarLink; onNavigate?: 
       onClick={onNavigate}
       className={({ isActive }) =>
         cn(
-          'flex items-center gap-3 rounded-md px-3 py-2.5 text-label-l transition-colors',
+          'flex items-center gap-3 rounded-full px-3 py-2.5 text-label-l transition-colors',
           isActive ? 'bg-primary-container text-primary-strong' : 'text-content-secondary hover:bg-primary-subtle',
         )
       }
@@ -88,7 +88,7 @@ export function Sidebar({ generalLinks, courseLinks, activeCourse, teacher, onSw
       </div>
 
       <div className="flex flex-col gap-1 overflow-y-auto pt-7">
-        <p className="px-1 pb-1 text-label-s text-content-muted">GENERAL</p>
+        <p className="px-0 text-label-s text-content-muted">GENERAL</p>
         {generalLinks.map((link) => (
           <SidebarNavLink key={link.to} link={link} onNavigate={onNavigate} />
         ))}
@@ -100,15 +100,15 @@ export function Sidebar({ generalLinks, courseLinks, activeCourse, teacher, onSw
               type="button"
               onClick={onSwitchCourse}
               aria-label={`Curso activo: ${activeCourse.name}. Cambiar de curso`}
-              className="mb-1 flex cursor-pointer items-center gap-2.5 rounded-md bg-primary-subtle p-2.5 text-left hover:bg-primary-container-soft"
+              className="mb-1 flex min-h-17.5 cursor-pointer items-center gap-2.5 rounded-xl bg-primary-subtle p-2.5 text-left hover:bg-primary-container-soft"
             >
-              <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-sm bg-primary-container text-primary-strong">
+              <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-primary-container text-primary-strong">
                 <Icon name={activeCourse.icon} size="lg" />
               </span>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="text-body-m-bold text-content-primary">{activeCourse.name}</span>
                 <span className="text-body-m text-content-secondary">
-                  {activeCourse.code}{activeCourse.term ? ` · Ciclo ${activeCourse.term}` : ''}
+                  {[activeCourse.code, activeCourse.term ? `Ciclo ${activeCourse.term}` : '', activeCourse.faculty, activeCourse.semester].filter(Boolean).join(' · ')}
                 </span>
               </span>
               <Icon name="unfold_more" className="text-content-secondary" />

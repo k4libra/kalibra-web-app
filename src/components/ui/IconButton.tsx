@@ -16,6 +16,10 @@ import { Icon } from '@/components/ui/Icon'
 export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onClick' | 'aria-label'> {
   /** Icon drawn inside the button. */
   icon: ActionIcon
+  /** Default elevation, tinted action, or unadorned overlay control. */
+  variant?: 'default' | 'tinted' | 'plain'
+  /** Intrinsic diameter. */
+  size?: 'md' | 'sm' | 'xs'
   /** Native button reference used by focus-managed overlays. */
   ref?: Ref<HTMLButtonElement>
   /** Accessible name announced by screen readers. */
@@ -40,7 +44,7 @@ export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonEle
  * <IconButton icon="close" label="Cerrar" onClick={onClose} />
  * ```
  */
-export function IconButton({ icon, label, onClick, disabled = false, className, ref, ...attributes }: IconButtonProps) {
+export function IconButton({ icon, label, onClick, disabled = false, className, ref, variant = 'default', size = 'md', ...attributes }: IconButtonProps) {
   const Graphic = icon
   return (
     <button
@@ -51,7 +55,9 @@ export function IconButton({ icon, label, onClick, disabled = false, className, 
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'inline-flex size-11 shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 items-center justify-center rounded-sm text-content-secondary hover:bg-primary-subtle',
+        'inline-flex shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 items-center justify-center rounded-full hover:bg-primary-subtle',
+        size === 'sm' ? 'size-8' : size === 'xs' ? 'size-5' : 'size-10',
+        variant === 'default' ? 'bg-white text-content-secondary shadow-subtle' : variant === 'tinted' ? 'bg-primary-subtle text-primary' : 'bg-transparent text-content-secondary',
         className,
       )}
     >

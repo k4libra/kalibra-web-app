@@ -6,7 +6,7 @@
  */
 
 import { useState, type ReactNode } from 'react'
-import { IconButton } from '@/components/ui'
+import { BackgroundGlow, IconButton } from '@/components/ui'
 import { Logo } from './Logo'
 import { Sidebar, type SidebarProps } from './Sidebar'
 
@@ -35,7 +35,8 @@ export function AppShell({ sidebar, children }: AppShellProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-dvh bg-surface-background lg:pl-66">
+    <div className="relative isolate min-h-dvh overflow-x-clip bg-surface-background lg:pl-66">
+      <BackgroundGlow />
       <header className="sticky top-0 z-20 flex h-16 items-center gap-2 bg-surface-background/90 px-2 shadow-subtle backdrop-blur lg:hidden">
         <IconButton icon="menu" label="Abrir menú" onClick={() => setIsMenuOpen(true)} />
         <Logo />
@@ -54,7 +55,7 @@ export function AppShell({ sidebar, children }: AppShellProps) {
         </div>
       )}
 
-      <main className="mx-auto flex w-full max-w-[1016px] flex-col gap-6 px-4 pt-6 pb-10 md:px-8 lg:px-10 lg:pt-8">{children}</main>
+      <main className="relative mx-auto flex w-full max-w-[1016px] flex-col gap-6 px-4 pt-6 pb-10 md:px-8 lg:px-10 lg:pt-8">{children}</main>
     </div>
   )
 }

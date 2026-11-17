@@ -39,7 +39,7 @@ export interface StatCardProps {
  */
 export function StatCard({ icon, tone = 'primary', value, label, className }: StatCardProps) {
   return (
-    <div className={cn('flex items-center gap-3.5 rounded-lg bg-surface-card px-5 py-4.5 shadow-card', className)}>
+    <div className={cn('flex items-center gap-3.5 rounded-xl bg-surface-card px-5 py-4.5 shadow-card', className)}>
       <IconBox icon={icon} tone={tone} />
       <div className="flex min-w-0 flex-col">
         <span className="text-display text-content-primary">{value}</span>

@@ -7,6 +7,7 @@
 
 import { Chip, ComparisonBar } from '@/components/ui'
 import type { IndicatorSummary, SubtopicIndicator } from '@/types/indicators'
+import { formatDelta, formatNumber } from '@/utils/number'
 import { masteryTone } from '@/utils/mastery'
 import { IndicatorCard } from './IndicatorCard'
 
@@ -19,9 +20,6 @@ export interface MasteryEvolutionIndicatorProps {
   /** Indicators of each subtopic. */
   subtopics: SubtopicIndicator[]
 }
-
-// Formats a change in points with an explicit sign.
-const formatDelta = (delta: number) => `${delta > 0 ? '+' : delta < 0 ? '−' : ''}${Math.abs(delta)} pts`
 
 /**
  * Compares the group mastery at the start and today for each subtopic.
@@ -42,10 +40,10 @@ export function MasteryEvolutionIndicator({ summary, subtopics }: MasteryEvoluti
       subtitle="Dominio del grupo en cada subtema · al empezar frente a hoy"
       chip={{ label: `Avanza en ${improving.length} de ${practiced.length} subtemas`, tone: 'success', icon: 'trending_up' }}
       kpi={summary ? summary.groupDeltaPoints === null ? '—' : formatDelta(summary.groupDeltaPoints) : start === null || now === null ? '—' : formatDelta(now - start)}
-      kpiLabel={start === null || now === null ? 'Sin estimaciones de dominio' : `Dominio promedio del grupo: de ${start}% a ${now}%`}
+      kpiLabel={start === null || now === null ? 'Sin estimaciones de dominio' : `Dominio promedio del grupo: de ${formatNumber(start)}% a ${formatNumber(now)}%`}
       kpiDetail={
         declining.length > 0
-          ? `${declining.map((subtopic) => `${subtopic.subtopicName} retrocede ${Math.abs((subtopic.currentMastery ?? 0) - (subtopic.initialMastery ?? 0))} pts`).join('; ')}: conviene reforzarla en clase.`
+          ? `${declining.map((subtopic) => `${subtopic.subtopicName} retrocede ${formatNumber(Math.abs((subtopic.currentMastery ?? 0) - (subtopic.initialMastery ?? 0)))} pts`).join('; ')}: conviene reforzarla en clase.`
           : 'Ningún subtema retrocede.'
       }
       howToRead="el dominio indica qué tan preparado está tu grupo para resolver bien los ejercicios del subtema (de 0 % a 100 %) y Kalibra lo actualiza con cada respuesta. La marca oscura muestra cómo empezó el grupo y la barra de color cómo va hoy: si la barra supera la marca, el grupo aprendió en ese subtema."
@@ -69,8 +67,9 @@ export function MasteryEvolutionIndicator({ summary, subtopics }: MasteryEvoluti
                 {hasData ? (
                   <>
                     <span className="text-body-l text-content-secondary">
-                      {subtopic.initialMastery}% → {subtopic.currentMastery}%
+                      {formatNumber(subtopic.initialMastery!)}% → {formatNumber(subtopic.currentMastery!)}%
                     </span>
+                    <Chip label={subtopic.currentMastery! < 40 ? 'Bajo' : subtopic.currentMastery! <= 70 ? 'Medio' : 'Alto'} tone={masteryTone(subtopic.currentMastery)} />
                     <Chip
                       label={formatDelta(delta)}
                       tone={delta >= 0 ? 'success' : 'danger'}

@@ -19,7 +19,7 @@ export type CalloutTone = 'info' | 'warning' | 'danger'
 // Background and text color of each tone.
 const TONE_CLASS: Record<CalloutTone, string> = {
   info: 'bg-primary-subtle text-content-primary',
-  warning: 'bg-tertiary-pale text-content-primary',
+  warning: 'bg-tertiary-subtle text-tertiary-strong',
   danger: 'bg-danger-container text-danger-strong',
 }
 
@@ -72,7 +72,7 @@ export function Callout({ icon, children, tone = 'info', size = 'md', action, on
       role={tone === 'danger' ? 'alert' : undefined}
       className={cn(
         'flex flex-col gap-2 sm:flex-row sm:items-center',
-        size === 'md' ? 'rounded-md px-4 py-3 text-body-l' : 'rounded-sm px-3 py-2.5 text-body-m',
+        size === 'md' ? 'rounded-lg px-4 py-3.5 text-body-l' : 'rounded-sm px-3 py-2.5 text-body-m',
         TONE_CLASS[tone],
         className,
       )}

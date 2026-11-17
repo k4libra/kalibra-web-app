@@ -19,7 +19,7 @@ export function GapMapPage() {
     <Callout icon="error" tone="danger" action={<Button label="Reintentar" variant="neutral" onClick={page.refetch} />}>{page.error ?? 'No se pudo cargar el mapa de brechas.'}</Callout>
   </>
   const { course, courseSubtopics, gapMap, progress } = page.map
-  const hasActivity = gapMap.stats.activeStudents > 0
+  const hasActivity = gapMap.hasSufficientData ?? gapMap.stats.activeStudents > 0
   const weakest = gapMap.subtopics.find((item) => item.subtopicId === gapMap.stats.weakestSubtopicId)
   return <>
     <PageHeader eyebrow={`Mis cursos › ${course.name}`} title="Mapa de brechas"
@@ -27,8 +27,8 @@ export function GapMapPage() {
       actions={<Button label="Ver estudiantes" icon="group" variant="tonal" onClick={page.viewStudents} />} />
     {hasActivity ? <>
       <section aria-label="Resumen del mapa de brechas" className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <StatCard icon="insights" value={formatMastery(gapMap.stats.averageMastery)} label="Dominio promedio del grupo" />
-        <StatCard icon="monitoring" tone="danger" value={formatMastery(weakest?.averageMastery ?? null)} label="Subtema más débil" />
+        <StatCard icon="map" value={formatMastery(gapMap.stats.averageMastery)} label="Dominio promedio del grupo" />
+        <StatCard icon="trending_down" tone="danger" value={formatMastery(weakest?.averageMastery ?? null)} label="Subtema más débil" />
         <StatCard icon="group" tone="success" value={`${gapMap.stats.activeStudents} de ${gapMap.stats.totalStudents}`} label="Estudiantes con actividad" />
       </section>
       <SubtopicPriorityList subtopics={courseSubtopics} gaps={gapMap.subtopics} totalStudents={gapMap.stats.totalStudents} updatedAt={gapMap.updatedAt} />

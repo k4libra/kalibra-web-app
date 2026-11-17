@@ -35,7 +35,7 @@ export function Logo({ tone = 'default' }: LogoProps) {
   return (
     <span className="flex items-center gap-2.5">
       <img src={logoUrl} alt="" width={32} height={32} className={tone === 'inverse' ? 'size-10' : 'size-8'} />
-      <span className={cn(tone === 'inverse' ? 'text-headline-l' : 'text-headline-m', TONE_CLASS[tone])}>Kalibra</span>
+      <span className={cn(tone === 'inverse' ? 'text-headline-l font-extrabold' : 'text-headline-m font-extrabold', TONE_CLASS[tone])}>Kalibra</span>
     </span>
   )
 }

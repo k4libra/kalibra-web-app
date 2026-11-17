@@ -9,6 +9,7 @@ import { Avatar, Chip, ProgressBar } from '@/components/ui'
 import type { IndicatorSummary, StudentAccuracy } from '@/types/indicators'
 import { masteryTone } from '@/utils/mastery'
 import { percent } from '@/utils/percent'
+import { formatNumber } from '@/utils/number'
 import { IndicatorCard } from './IndicatorCard'
 
 /**
@@ -65,7 +66,7 @@ export function AccuracyIndicator({ summary, students }: AccuracyIndicatorProps)
       title="¿Qué tan bien responden tus estudiantes?"
       subtitle="Porcentaje de respuestas correctas en los ejercicios resueltos"
       chip={{ label: `${active.length} de ${students.length} estudiantes con actividad`, tone: 'neutral', icon: 'group' }}
-      kpi={group === null ? '—' : `${group}%`}
+      kpi={group === null ? '—' : `${formatNumber(group)}%`}
       kpiLabel="de respuestas correctas del grupo"
       kpiDetail={`${correct} de ${answered} respuestas correctas.`}
       howToRead="es la parte de las respuestas que tus estudiantes contestaron bien, y se actualiza con cada ejercicio resuelto. Si baja, revisa el mapa de brechas para ver en qué subtemas fallan más."

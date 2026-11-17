@@ -36,7 +36,7 @@ export interface EmptyStateProps {
  */
 export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
   return (
-    <div className={cn('flex flex-col items-center gap-3 rounded-lg bg-surface-card px-6 py-12 text-center shadow-card', className)}>
+    <div className={cn('flex flex-col items-center gap-3 rounded-2xl bg-surface-card px-6 py-12 text-center shadow-card', className)}>
       <IconBox icon={icon} size="xl" />
       <h2 className="text-headline-m text-content-primary">{title}</h2>
       <p className="max-w-[560px] text-body-l text-content-secondary">{description}</p>

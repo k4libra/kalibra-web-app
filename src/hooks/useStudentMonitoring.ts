@@ -38,7 +38,7 @@ export function useMonitoredStudents() {
   const students = groups.flatMap((group) => group.students)
   const activeStudents = students.filter((student) => student.resolvedExercises > 0).length
   const viewProgress = useCallback((studentId: string, enrollmentCourseId?: string) => navigate(studentRoutes.progress(studentId, enrollmentCourseId)), [navigate])
-  const inviteStudent = useCallback(() => navigate(ROUTES.invitations), [navigate])
+  const inviteStudent = useCallback((courseId?: string) => navigate(`${ROUTES.invitations}?invitar=1${courseId ? `&curso=${encodeURIComponent(courseId)}` : ''}`), [navigate])
   const createFirstCourse = useCallback(() => navigate({ pathname: ROUTES.courses, search }), [navigate, search])
   return { isLoading: resource.isLoading, error: resource.error, refetch: resource.refetch, groups, updatedAt: resource.data?.stats.updatedAt ?? '', stats: { totalStudents: students.length, activeStudents, inactiveStudents: students.length - activeStudents },
     viewProgress, inviteStudent, createFirstCourse }

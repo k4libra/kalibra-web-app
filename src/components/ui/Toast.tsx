@@ -45,7 +45,7 @@ export function Toast({ title, message, icon = 'check_circle', tone = 'success',
   return (
     <div
       role="status"
-      className={cn('flex items-center gap-3 rounded-md border border-line-subtle bg-surface-card p-3.5 shadow-floating', className)}
+      className={cn('flex items-center gap-3 rounded-xl border border-line-subtle bg-surface-card p-3.5 shadow-floating', className)}
     >
       <IconBox icon={icon} tone={tone} size="sm" />
       <div className="flex min-w-0 flex-col gap-0.5">

@@ -27,6 +27,6 @@ export interface AdminShellProps {
  */
 export function AdminShell({ profile, onSignOut, children }: AdminShellProps) {
   return <AppShell sidebar={{ roleLabel: 'Administrador', teacher: profile, activeCourse: null, courseLinks: [], onSwitchCourse: () => {}, onSignOut,
-    generalLinks: [{ to: '/admin/panel', label: 'Panel institucional', icon: 'query_stats', end: true },
-      { to: '/admin/subtemas-criticos', label: 'Subtemas críticos', icon: 'insights' }] }}>{children}</AppShell>
+    generalLinks: [{ to: '/admin/panel', label: 'Panel institucional', icon: 'bar_chart', end: true },
+      { to: '/admin/subtemas-criticos', label: 'Subtemas críticos', icon: 'map' }] }}>{children}</AppShell>
 }

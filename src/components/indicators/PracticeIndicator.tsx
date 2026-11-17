@@ -8,6 +8,7 @@
 import { BarChart } from '@/components/ui'
 import type { IndicatorSummary, StudentAccuracy, SubtopicIndicator } from '@/types/indicators'
 import { plural } from '@/utils/plural'
+import { formatNumber } from '@/utils/number'
 import { IndicatorCard } from './IndicatorCard'
 
 /**
@@ -44,7 +45,7 @@ export function PracticeIndicator({ summary, subtopics, students }: PracticeIndi
       }
       kpi={String(total)}
       kpiLabel="ejercicios resueltos en total"
-      kpiDetail={`${average} por estudiante con actividad · ${active} de ${students.length} estudiantes practican.`}
+      kpiDetail={`${formatNumber(average, 1)} por estudiante con actividad · ${active} de ${students.length} estudiantes practican.`}
       howToRead="cada barra es la cantidad de ejercicios que tu grupo resolvió en ese subtema. Una barra baja o vacía indica un subtema que casi no practican: puedes generar ejercicios o reforzarlo en clase."
     >
       <BarChart

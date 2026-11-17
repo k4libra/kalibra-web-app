@@ -1,6 +1,6 @@
 /*
  * Global stylesheet: Tailwind entry point, design tokens from the Kalibra design system and base styles.
- * Tokens mirror `src/theme/tokens.ts` in kalibra-mobile-app; change both at the same time.
+ * Desktop UI v2 tokens.
  */
 @import 'tailwindcss';
 
@@ -23,11 +23,13 @@
   --color-secondary-text: #00714d;
   --color-secondary-container: #6cf8bb;
   --color-secondary-accent: #4edea3;
+  --color-secondary-pale: #ddfbee;
 
   --color-tertiary: #f59e0b;
   --color-tertiary-strong: #684000;
   --color-tertiary-container: #ffb95f;
   --color-tertiary-pale: #ffddb8;
+  --color-tertiary-subtle: #fff3e2;
 
   --color-danger: #ba1a1a;
   --color-danger-strong: #93000a;
@@ -35,19 +37,23 @@
 
   --color-surface-background: #faf8ff;
   --color-surface-card: #ffffff;
-  --color-surface-code: #131b2e;
+  --color-surface-code: #171b29;
+  --color-surface-border: #e6e4f2;
+  --color-code-text: #e2e4f5;
+  --color-code-comment: #8b90a7;
 
   --color-content-primary: #131b2e;
   --color-content-secondary: #464555;
   --color-content-muted: #777587;
   --color-content-on-primary: #ffffff;
 
-  --color-line-subtle: #eaedff;
-  --color-line-default: #e2e7ff;
+  --color-line-subtle: #e6e4f2;
+  --color-line-default: #e6e4f2;
 
   /* Typography: Kalibra text styles. */
   --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-mono: 'Roboto Mono', ui-monospace, monospace;
+  --font-formula: 'STIX Two Text', Georgia, serif;
 
   --text-display: 26px;
   --text-display--line-height: 32px;
@@ -92,13 +98,15 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
   --radius-full: 9999px;
 
   --shadow-*: initial;
-  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-subtle: 0 1px 8px 0 rgb(0 0 0 / 0.03);
+  --shadow-card: 0 8px 24px 0 #4f45e514;
+  --shadow-subtle: 0 8px 12px rgb(79 69 229 / 0.08);
   --shadow-raised: 0 2px 4px 0 rgb(0 0 0 / 0.1);
-  --shadow-floating: 0 4px 6px 0 rgb(0 0 0 / 0.1);
+  --shadow-floating: 0 8px 24px 0 #4f45e514;
   --shadow-nav: 0 -2px 12px 0 rgb(0 0 0 / 0.04);
 
   --breakpoint-*: initial;
@@ -113,7 +121,7 @@
 }
 
 @utility curriculum-grid {
-  grid-template-columns: var(--spacing-actions) minmax(0, 1fr) minmax(0, 1fr) var(--spacing-actions);
+  grid-template-columns: 28px minmax(0, 1.65fr) minmax(0, 1fr) minmax(0, 0.95fr) minmax(0, 1fr) var(--spacing-actions);
 }
 
 @utility curriculum-mobile-grid {
@@ -138,22 +146,15 @@
   }
 }
 
-/* Material Symbols are rendered by ligature through the `Icon` primitive. */
-@utility icon-symbol {
-  font-family: 'Material Symbols Rounded';
-  font-weight: normal;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  user-select: none;
-  font-feature-settings: 'liga';
-  font-variation-settings: 'FILL' 0, 'GRAD' 0, 'opsz' 24;
+
+@utility institutional-grid {
+  grid-template-columns: 28px minmax(0, 2fr) minmax(0, 1.05fr) minmax(0, 0.65fr) minmax(0, 1.05fr) minmax(0, 0.8fr);
 }
 
-@utility icon-filled {
-  font-variation-settings: 'FILL' 1, 'GRAD' 0, 'opsz' 24;
+@utility critical-grid {
+  grid-template-columns: 28px minmax(0, 2fr) minmax(0, 1fr) minmax(0, 0.65fr) minmax(0, 1.4fr);
+}
+
+@utility background-glow {
+  background-image: radial-gradient(ellipse 70% 75% at 15% 0%, #e2dfff 0%, #e2dfff99 35%, transparent 100%), radial-gradient(ellipse 65% 75% at 95% 0%, #ddfbee 0%, #ddfbee99 35%, transparent 100%);
 }

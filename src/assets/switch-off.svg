@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Switch">
+<path d="M21 27C21 19.268 27.268 13 35 13H55C62.732 13 69 19.268 69 27V27C69 34.732 62.732 41 55 41H35C27.268 41 21 34.732 21 27V27Z" fill="#E6E4F2"/>
+<g id="Knob" filter="url(#filter0_d_0_223)">
+<circle cx="35" cy="27" r="11" fill="white"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_223" x="0" y="0" width="70" height="70" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="8"/>
+<feGaussianBlur stdDeviation="12"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.31 0 0 0 0 0.27 0 0 0 0 0.9 0 0 0 0.08 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_223"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_223" result="shape"/>
+</filter>
+</defs>
+</svg>

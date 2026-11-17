@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Brand/Logo mark" clip-path="url(#clip0_0_466)">
+<path id="Vector" d="M34 0H14C6.26801 0 0 6.26801 0 14V34C0 41.732 6.26801 48 14 48H34C41.732 48 48 41.732 48 34V14C48 6.26801 41.732 0 34 0Z" fill="url(#paint0_linear_0_466)"/>
+<path id="Vector_2" d="M37.3 18.8C38.6759 23.9186 37.9637 29.374 35.3199 33.9678C32.6761 38.5616 28.3169 41.9181 23.2 43.3" stroke-width="2.5" stroke-linecap="round" stroke="white" stroke-opacity="0.32"/>
+<path id="Vector_3" d="M35.3 34C33.5474 37.0303 31.0303 39.5474 28 41.3" stroke-width="3" stroke-linecap="round" stroke="#4EDEA3"/>
+<path id="Vector_4" d="M17.5 12.75C17.5 11.2312 16.2688 10 14.75 10C13.2312 10 12 11.2312 12 12.75V35.25C12 36.7688 13.2312 38 14.75 38C16.2688 38 17.5 36.7688 17.5 35.25V12.75Z" fill="white"/>
+<path id="Vector_5" d="M18 23.5L31 10.5" stroke-width="5.5" stroke-linecap="round" stroke="white"/>
+<path id="Vector_6" d="M18.5 24.5L28.3 34.3" stroke-width="5" stroke-linecap="round" stroke="#4EDEA3"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_466" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+<stop stop-color="#6366F1"/>
+<stop offset="1" stop-color="#3525CD"/>
+</linearGradient>
+<clipPath id="clip0_0_466">
+<rect width="48" height="48" fill="white"/>
+</clipPath>
+</defs>
+</svg>

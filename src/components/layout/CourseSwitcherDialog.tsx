@@ -54,7 +54,7 @@ export function CourseSwitcherDialog({ isOpen, courses, activeCourseId, onSelect
                 aria-pressed={isActive}
                 onClick={() => (isActive ? onClose() : onSelect(course.id))}
                 className={cn(
-                  'flex w-full cursor-pointer items-center gap-3 rounded-md border p-3 text-left',
+                  'flex w-full cursor-pointer items-center gap-3 rounded-lg border p-3 text-left',
                   isActive ? 'border-primary-container bg-primary-subtle' : 'border-line-subtle bg-surface-card hover:bg-primary-subtle',
                 )}
               >
@@ -64,7 +64,7 @@ export function CourseSwitcherDialog({ isOpen, courses, activeCourseId, onSelect
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="text-label-l text-content-primary">{course.name}</span>
                   <span className="text-body-m text-content-secondary">
-                    {course.code} · Ciclo {course.term}
+                    {[course.code, course.term ? `Ciclo ${course.term}` : '', course.faculty, course.semester].filter(Boolean).join(' · ')}
                   </span>
                 </span>
                 {isActive && <Icon name="check" className="text-primary-strong" />}

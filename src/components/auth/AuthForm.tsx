@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { Button, Callout, Icon, TextField } from '@/components/ui'
+import { AlertBanner, Button, Callout, Icon, TextField } from '@/components/ui'
 import type { AuthFieldErrors, AuthFormValues } from '@/types/auth'
 
 /** Props accepted by {@link AuthForm}. */
@@ -51,8 +51,8 @@ export function AuthForm({
   const isRegister = mode === 'register'
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex h-12 items-center justify-center gap-2 rounded-md border-4 border-primary-container bg-primary-strong text-label-l text-content-on-primary">
-        <Icon name="badge" />
+      <div className="flex h-12 items-center justify-center gap-2 rounded-full border-4 border-primary-container-soft bg-primary-strong text-label-l text-content-on-primary">
+        <Icon name="presentation" />
         Docente
       </div>
       <div className="flex flex-col gap-1">
@@ -73,13 +73,12 @@ export function AuthForm({
         className="flex flex-col gap-4"
       >
         {error && !isDuplicateEmail && (
-          <Callout icon="error" tone="danger" onDismiss={isRegister ? undefined : onDismiss}>
-            <p className="text-label-l">{error}</p>
-            {!isRegister && <p className="mt-1 text-body-m">Revisa tus datos e inténtalo nuevamente.</p>}
-          </Callout>
+          <AlertBanner title={error} onDismiss={onDismiss}>
+            {!isRegister && 'Revisa tus datos e inténtalo nuevamente.'}
+          </AlertBanner>
         )}
         {isRegister && (
-          <TextField
+          <TextField compact
             label="Nombre completo"
             name="name"
             autoComplete="name"
@@ -94,7 +93,7 @@ export function AuthForm({
             showStatusIcon={false}
           />
         )}
-        <TextField
+        <TextField compact
           label="Correo institucional"
           labelHint="Dominio .edu"
           name="email"
@@ -118,7 +117,7 @@ export function AuthForm({
             )
           }
         />
-        <TextField
+        <TextField compact
           label="Contraseña"
           name="password"
           autoComplete={isRegister ? 'new-password' : 'current-password'}
@@ -151,7 +150,7 @@ export function AuthForm({
           size="lg"
           fullWidth
           disabled={isSubmitting}
-          className="shadow-raised"
+          className="rounded-md bg-primary-strong shadow-raised"
         />
         {isDuplicateEmail && <Button label="Usar otro correo" variant="ghost" size="sm" onClick={onUseAnotherEmail} />}
       </form>
@@ -162,7 +161,7 @@ export function AuthForm({
           size="sm"
           label={isRegister ? 'Iniciar sesión' : 'Regístrate'}
           onClick={onAlternate}
-          className="px-1"
+          className="border-0 bg-transparent px-1 text-primary shadow-none"
         />
       </div>
     </div>

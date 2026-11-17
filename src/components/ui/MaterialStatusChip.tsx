@@ -42,5 +42,5 @@ export interface MaterialStatusChipProps {
  * ```
  */
 export function MaterialStatusChip({ status, processingLabel, processingIcon = 'schedule' }: MaterialStatusChipProps) {
-  return <Chip {...STATUS_CHIP[status]} {...(status === 'processing' ? { label: processingLabel ?? STATUS_CHIP.processing.label, icon: processingIcon } : {})} />
+  return <Chip {...STATUS_CHIP[status]} className={status === 'ready' ? 'bg-secondary-container!' : undefined} {...(status === 'processing' ? { label: processingLabel ?? STATUS_CHIP.processing.label, icon: processingIcon } : {})} />
 }

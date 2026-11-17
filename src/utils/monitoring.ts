@@ -7,6 +7,7 @@
 
 import type { StudentProgress } from '@/types/studentMonitoring'
 import type { Subtopic } from '@/types/course'
+import { HIGH_MASTERY_THRESHOLD } from '@/utils/mastery'
 
 /**
  * Formats a calendar date for enrollment notices.
@@ -72,13 +73,16 @@ export function formatMastery(value: number | null): string {
  * ```
  */
 export function reinforcementNotice(progress: StudentProgress, subtopics: Subtopic[]): string | null {
-  const items = progress.reinforcementSubtopicIds.flatMap((id) => {
+  const suggestedIds = progress.reinforcementSubtopicIds.length ? progress.reinforcementSubtopicIds : [...progress.subtopics]
+    .filter((record) => record.mastery !== null && record.mastery <= HIGH_MASTERY_THRESHOLD)
+    .sort((a, b) => (a.mastery ?? 0) - (b.mastery ?? 0)).slice(0, 2).map((record) => record.subtopicId)
+  const items = suggestedIds.flatMap((id) => {
     const topic = subtopics.find((item) => item.id === id)
     const record = progress.subtopics.find((item) => item.subtopicId === id)
     return topic && record?.mastery !== null && record?.mastery !== undefined ? [`${topic.name} (${formatMastery(record.mastery)})`] : []
   })
   if (!items.length) return null
-  const recent = progress.recentResponses.filter((response) => response.subtopicId === progress.reinforcementSubtopicIds[0]).slice(0, 3)
+  const recent = progress.recentResponses.filter((response) => response.subtopicId === suggestedIds[0]).slice(0, 3)
   const evidence = items.length === 1 && recent.length === 3 && recent.every((response) => !response.isCorrect)
     ? ' Sus últimas 3 respuestas en este subtema fueron incorrectas.' : ''
   return `Refuerzo sugerido: ${items.join(' y ')}.${evidence}`

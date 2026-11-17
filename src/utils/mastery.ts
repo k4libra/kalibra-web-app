@@ -13,7 +13,7 @@ import type { Tone } from '@/types/ui'
 export const LOW_MASTERY_THRESHOLD = 40
 
 /**
- * Mastery from this percentage is shown as high (green).
+ * Mastery above this percentage is shown as high (green).
  */
 export const HIGH_MASTERY_THRESHOLD = 70
 
@@ -31,6 +31,6 @@ export const HIGH_MASTERY_THRESHOLD = 70
 export function masteryTone(mastery: number | null): Tone {
   if (mastery === null) return 'neutral'
   if (mastery < LOW_MASTERY_THRESHOLD) return 'danger'
-  if (mastery < HIGH_MASTERY_THRESHOLD) return 'warning'
+  if (mastery <= HIGH_MASTERY_THRESHOLD) return 'warning'
   return 'success'
 }

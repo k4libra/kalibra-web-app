@@ -111,6 +111,8 @@ export interface GapMapStats {
 
 /** Describes the aggregate gap map returned by the service. */
 export interface CourseGapMap {
+  /** Whether the server considers the matrix reliable for presentation. */
+  hasSufficientData?: boolean
   /** Course being measured. */
   courseId: string
   /** Timestamp used for the update label. */

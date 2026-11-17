@@ -40,8 +40,8 @@ export function SubtopicPriorityList({ subtopics, gaps, totalStudents, updatedAt
       <SectionHeader title="Prioridad de refuerzo por subtema" subtitle={`Cuántos de tus ${plural(totalStudents, 'estudiante', 'estudiantes')} están en cada nivel${updatedAt ? ` · actualizado ${formatMonitoringActivity(updatedAt, updatedAt).toLowerCase()}` : ''}`} />
       <Legend label="Niveles de dominio" items={[
         { label: `Bajo < ${LOW_MASTERY_THRESHOLD}%`, tone: 'danger' },
-        { label: `Medio ${LOW_MASTERY_THRESHOLD}–${HIGH_MASTERY_THRESHOLD - 1}%`, tone: 'warning' },
-        { label: `Alto ≥ ${HIGH_MASTERY_THRESHOLD}%`, tone: 'success' }, { label: 'Sin datos', tone: 'neutral' },
+        { label: `Medio ${LOW_MASTERY_THRESHOLD}–${HIGH_MASTERY_THRESHOLD}%`, tone: 'warning' },
+        { label: `Alto > ${HIGH_MASTERY_THRESHOLD}%`, tone: 'success' }, { label: 'Sin datos', tone: 'neutral' },
       ]} />
     </div>
     <div className="mt-4">

@@ -11,19 +11,19 @@ import { Icon } from './Icon'
 
 // Color classes of each variant, including hover and disabled states.
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
-  primary: 'bg-primary-strong text-content-on-primary hover:bg-primary',
-  tonal: 'bg-primary-container text-primary-strong hover:bg-primary-pale-soft',
-  neutral: 'bg-primary-container-soft text-content-primary hover:bg-primary-container',
-  danger: 'bg-danger text-content-on-primary hover:bg-danger-strong',
+  primary: 'bg-primary text-content-on-primary shadow-raised hover:bg-primary-strong',
+  tonal: 'bg-primary-container-soft text-primary-strong hover:bg-primary-pale-soft',
+  neutral: 'bg-primary-container-soft text-primary-strong hover:bg-primary-container',
+  danger: 'bg-danger-container text-danger hover:bg-danger-container/80',
   'danger-soft': 'bg-primary-subtle text-danger hover:bg-danger-container',
-  ghost: 'bg-transparent text-primary-strong hover:bg-primary-subtle',
+  ghost: 'border border-line-default bg-white text-content-primary hover:bg-primary-subtle',
 }
 
 // Height, padding and radius of each size.
 const SIZE_CLASS: Record<ButtonSize, string> = {
-  lg: 'h-13 gap-2 rounded-md px-5',
-  md: 'h-11 gap-2 rounded-md px-5',
-  sm: 'h-8 gap-1.5 rounded-sm px-3',
+  lg: 'h-13 gap-2 rounded-full px-6',
+  md: 'h-11 gap-2 rounded-full px-6',
+  sm: 'h-8 gap-1.5 rounded-full px-3',
 }
 
 /**
@@ -64,6 +64,8 @@ export interface ButtonProps {
    * @defaultValue `false`
    */
   disabled?: boolean
+  /** Native tooltip, including the reason an action is disabled. */
+  title?: string
   /** Pressed state when used as a toggle button; omitted for ordinary actions. */
   isPressed?: boolean
   /**
@@ -97,6 +99,7 @@ export function Button({
   iconPosition = 'start',
   fullWidth = false,
   disabled = false,
+  title,
   isPressed,
   type = 'button',
   onClick,
@@ -106,6 +109,7 @@ export function Button({
     <button
       type={type}
       disabled={disabled}
+      title={title}
       aria-pressed={isPressed}
       onClick={onClick}
       className={cn(

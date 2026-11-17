@@ -87,7 +87,7 @@ export function useShellNavigation() {
         ? [
             { to: courseRoutes.subtopics(activeCourse.id), label: 'Subtemas', icon: 'account_tree' },
             { to: courseRoutes.material(activeCourse.id), label: 'Material curricular', icon: 'description' },
-            { to: courseRoutes.gapMap(activeCourse.id), label: 'Mapa de brechas', icon: 'insights' },
+            { to: courseRoutes.gapMap(activeCourse.id), label: 'Mapa de brechas', icon: 'map' },
             { to: courseRoutes.indicators(activeCourse.id), label: 'Indicadores del curso', icon: 'query_stats' },
           ]
         : [],

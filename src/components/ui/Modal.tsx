@@ -15,7 +15,7 @@ import { useDismiss } from './useDismiss'
 /**
  * Maximum dialog widths: `sm` 420 px, `confirm` 460 px, `md` 480 px, `lg` 560 px and `xl` 640 px.
  */
-export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'confirm'
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'confirm' | 'invite'
 
 // Maximum width of each size; the dialog is full width below it.
 const SIZE_CLASS: Record<ModalSize, string> = {
@@ -24,7 +24,8 @@ const SIZE_CLASS: Record<ModalSize, string> = {
   sm: 'sm:max-w-[420px]',
   md: 'sm:max-w-[480px]',
   lg: 'sm:max-w-[560px]',
-  xl: 'sm:max-w-[640px]',
+  xl: 'sm:max-w-[600px]',
+  invite: 'sm:max-w-[540px]',
 }
 
 /**
@@ -141,7 +142,7 @@ export function Modal({
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         className={cn(
-          'relative flex max-h-full w-full flex-col gap-5 overflow-y-auto rounded-t-lg bg-surface-card p-6 shadow-floating sm:rounded-lg sm:p-7',
+          'relative flex max-h-full w-full flex-col gap-5 overflow-y-auto rounded-t-2xl bg-surface-card p-6 shadow-floating sm:rounded-2xl sm:p-7',
           SIZE_CLASS[size],
         )}
       >
@@ -157,7 +158,7 @@ export function Modal({
               </p>
             )}
           </div>
-          {showClose && <IconButton icon="close" label="Cerrar" onClick={onClose} className="-mt-2 -mr-2" />}
+          {showClose && <IconButton variant="plain" size="sm" icon="close" label="Cerrar" onClick={onClose} className="-mt-2 -mr-2" />}
         </div>
         {children}
         {actions && <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">{actions}</div>}

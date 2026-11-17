@@ -34,7 +34,7 @@ export interface TableCardProps {
  */
 export function TableCard({ children, label, className }: TableCardProps) {
   return (
-    <div role="table" aria-label={label} className={cn('overflow-hidden rounded-lg bg-surface-card shadow-card', className)}>
+    <div role="table" aria-label={label} className={cn('overflow-hidden rounded-xl bg-surface-card shadow-card', className)}>
       {children}
     </div>
   )
@@ -92,7 +92,7 @@ export interface TableRowProps {
  */
 export function TableRow({ children, className }: TableRowProps) {
   return (
-    <div role="row" className={cn('flex flex-col gap-3 border-t border-line-subtle px-4 py-4 first:border-t-0 md:grid md:items-center md:gap-4', className)}>
+    <div role="row" className={cn('flex flex-col gap-3 border-t border-line-subtle px-5 py-3.5 first:border-t-0 md:grid md:items-center md:gap-4', className)}>
       {children}
     </div>
   )

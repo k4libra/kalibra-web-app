@@ -11,11 +11,11 @@ import { Icon } from './Icon'
 
 // Background and text color of each tone.
 const TONE_CLASS: Record<Tone, string> = {
-  primary: 'bg-primary-container-soft text-primary-strong',
-  success: 'bg-secondary-container text-secondary-text',
-  warning: 'bg-tertiary-pale text-tertiary-strong',
+  primary: 'bg-primary-container-soft text-primary',
+  success: 'bg-secondary-pale text-secondary-strong',
+  warning: 'bg-tertiary-subtle text-tertiary-strong',
   danger: 'bg-danger-container text-danger-strong',
-  neutral: 'bg-primary-container text-content-secondary',
+  neutral: 'bg-primary-subtle text-content-primary',
 }
 
 /**
@@ -48,7 +48,7 @@ export function Chip({ label, tone = 'primary', icon, className }: ChipProps) {
   return (
     <span
       className={cn(
-        'inline-flex w-fit shrink-0 items-center gap-1 rounded-sm px-2.5 py-0.5 text-body-m-bold whitespace-nowrap',
+        'inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full pl-2.5 pr-3 py-1.25 text-body-m-bold whitespace-nowrap',
         TONE_CLASS[tone],
         className,
       )}

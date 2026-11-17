@@ -24,9 +24,9 @@ const APPEARANCE_CLASS: Record<NonNullable<TextFieldProps['appearance']>, string
 
 // Border and background of each status.
 const STATUS_CLASS: Record<FieldStatus, string> = {
-  default: 'border-line-default bg-surface-background',
-  error: 'border-danger bg-danger-container/35',
-  success: 'border-secondary-strong bg-surface-background',
+  default: 'border-line-default bg-white',
+  error: 'border-danger border-[1.5px] bg-danger-container',
+  success: 'border-secondary bg-white',
 }
 
 /**
@@ -35,6 +35,8 @@ const STATUS_CLASS: Record<FieldStatus, string> = {
 export interface TextFieldProps {
   /** Visible label; when `hideLabel` is set it is only announced. */
   label: string
+  /** Compact desktop form height, 44px instead of 52px. */
+  compact?: boolean
   /** Current value. */
   value: string
   /** Called with the new value on every keystroke. */
@@ -57,6 +59,8 @@ export interface TextFieldProps {
   type?: 'text' | 'email' | 'password'
   /** Native autocomplete hint. */
   autoComplete?: HTMLInputAutoCompleteAttribute
+  /** Maximum allowed input length. */
+  maxLength?: number
   /** Native name used by password managers. */
   name?: string
   /**
@@ -113,12 +117,14 @@ export function TextField({
   onSubmit,
   className,
   autoComplete,
+  maxLength,
   name,
   disabled = false,
   description,
   labelHint,
   appearance = 'default',
   showStatusIcon = true,
+  compact = false,
 }: TextFieldProps) {
   const inputId = useId()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
@@ -126,14 +132,15 @@ export function TextField({
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
       <div className="flex items-center justify-between gap-2">
-        <label htmlFor={inputId} className={cn('text-body-m-bold text-content-primary', hideLabel && 'sr-only')}>
+        <label htmlFor={inputId} className={cn(compact ? 'text-body-m-bold text-content-primary' : 'text-label-l text-content-primary', hideLabel && 'sr-only')}>
           {label}
         </label>
         {labelHint && <span className="text-label-s text-content-muted">{labelHint}</span>}
       </div>
       <div
         className={cn(
-          'flex h-11 items-center gap-2.5 rounded-md border px-3 focus-within:outline-2 focus-within:outline-primary',
+          'flex items-center gap-2.5 rounded-lg border px-4 focus-within:outline-2 focus-within:outline-primary',
+          compact ? 'h-11' : 'h-13',
           STATUS_CLASS[status],
           APPEARANCE_CLASS[appearance],
         )}
@@ -143,6 +150,7 @@ export function TextField({
           id={inputId}
           type={type === 'password' && isPasswordVisible ? 'text' : type}
           autoComplete={autoComplete}
+          maxLength={maxLength}
           name={name}
           disabled={disabled}
           aria-describedby={description ? descriptionId : undefined}
@@ -159,11 +167,11 @@ export function TextField({
           className="min-w-0 flex-1 bg-transparent text-body-l text-content-primary outline-none placeholder:text-content-muted"
         />
         {type === 'password' && (
-          <IconButton
+          <IconButton variant="plain"
             icon={isPasswordVisible ? 'visibility_off' : 'visibility'}
             label={isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             onClick={() => setIsPasswordVisible((visible) => !visible)}
-            className="-mr-3 text-primary"
+            className="-mr-2 bg-transparent shadow-none text-primary"
           />
         )}
         {showStatusIcon && type !== 'password' && status === 'error' && <Icon name="edit" className="text-danger" />}
