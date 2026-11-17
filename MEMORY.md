@@ -1,6 +1,11 @@
 # MEMORY.md - Kalibra Web App
 
-## Current status (2026-10-12)
+## Current status (2026-11-16)
+- Material upload availability implemented on `feature/ui-v2-refactor`: service + hook read on mount/window focus; unavailable disables page/empty-state/modal upload actions with the exact generic notice and titles. Matching upload 503 uses the same notice. Lint, 73 files / 360 tests and production build pass (bundle size warning); prior uncommitted work preserved.
+- UI v2 refactor uncommitted on `feature/ui-v2-refactor` (from develop): v2 tokens, Lucide icons, new SVG logo, BackgroundGlow, IconTile/StatStrip/CountBadge/AlertBanner/CodeBlock primitives and every teacher/admin screen restyled to the Figma frames. Lint, 68 files / 324 tests and build pass; live E2E on localhost:5173 against the real API matched the frames.
+- Shared contract implemented over UI v2: course term/faculty/semester and subtopic descriptions (280 characters), material size/pages and 20 MB uploads, structured exercise steps/key idea with plain-text fallback. Fetch-stub coverage: 71 files / 344 tests; lint and production build pass. Live localhost:8080 login/modal smoke passed; seed account has no courses.
+- Legend uses bar swatches (no dots); ProgressBar track is always lavender, high level fills `secondary-strong`; ready material chip uses `secondary-container`.
+- 2026-11-11 evidence correction: recaptured all 46 desktop cases with explicit font loading, single-glyph icon checks, completed requests/images and stable UI before every shot. Same names/Gherkin/style/count (284 web + 4 linked native screenshots); 69-case document bundle revalidated/rendered. No application source changes; QA services/configs removed.
 - `feature/course-subtopic-editing` adds draft editing and course/subtopic mutations over cookie-authenticated HTTP.
 - `feature/subtopic-actions-menu` adds one aligned, accessible ⋮ menu per active row and `/cursos/:courseId/subtemas/archivados` as the only restoration screen, with confirmation and inline storage-box SVGs.
 - Subtopic creation stacks full-width controls below `md`, returning to a shrinkable field and auto-width button at `md`; metadata stays single-column on mobile and rename already wraps. Responsive class regression added; lint, TypeScript and all 300 tests pass. Visual 375 px verification remains pending because Chrome launch failed in this environment.
@@ -13,15 +18,16 @@
 - Changes remain uncommitted by explicit task instruction; no push was attempted.
 
 ## Decisions
-- Course/subtopic mutations use PATCH/POST/DELETE and refetch the complete projection; draft creation remains one POST.
+- Course/subtopic mutations use PATCH/POST/DELETE and refetch the complete projection; creation sends one POST with `subtopics: [{name, description?}]`. Course metadata saves also refresh mounted course lists and shell metadata.
 - Server status/locked are authoritative. Archived subtopics are hidden by default and excluded from action selectors, gap maps and indicator rows; historical material/exercise names remain available.
 - Active curriculum has no archive toggle; the archive link appears only when archived rows exist. Locked rename/delete menu items remain discoverable with their disabled reason.
 - Only the archive projection requests `/courses/:id/indicators` for historical solved counts; missing entries remain unknown. Ordinary curriculum reads retain their previous endpoint dependencies.
 - Conflict ProblemDetail detail is shown in curriculum callouts; stale-course mutation results are ignored and concurrent writes are blocked.
 - Layers remain pages → hooks/useResource → contract-based services → one HTTP client.
+- Availability read failures restore upload to enabled so transient reads do not block teachers; the server guards submission. Reuse `useResource` cancellation/stale-response handling, and share one notice across controls and `MATERIAL_UPLOAD_UNAVAILABLE` recovery.
 - Tokens remain in `src/index.css`; new pages reuse existing UI primitives and mobile-first shells.
 - Counters derive from rosters, catalogs, invitation groups, complete paginated materials and mastery measurements.
-- Missing academic/file metadata and recommendations remain unavailable; no derived fake evidence.
+- Persist API academic metadata; derive `currentAcademicTerm()` only for null/absent term and omit null faculty/semester. Map nullable `sizeBytes`/`pageCount` independently; do not invent file metadata or recommendations. Description-only PATCH remains available for material-locked subtopics.
 - Progress links carry the enrollment course, avoiding ambiguous multi-course student identities.
 - Roster and individual progress preserve API `lastActivityAt`; null shows "Sin actividad". Roster dates require one cancellable progress GET per enrolled student.
 - Mis cursos counts unique roster student IDs across courses; each course retains its own enrollment count.
@@ -31,9 +37,9 @@
 - README files remain omitted from occupied layers by explicit user policy.
 
 ## Pitfalls and external dependencies
+- API CORS allows `http://localhost:5173` only; a dev server on `127.0.0.1` gets 403 "Invalid CORS request" (UI shows the student-account message). On the external volume Vite needs `CHOKIDAR_USEPOLLING=1` to pick up edits.
 - Local API implements v2 auth, names, institutional resources and binary multipart. Seed reads had no practice/material; real generation and ingestion remain unverified.
-- API and UI share a 10 MB upload limit; HTTP 413 maps to a Spanish limit error. Engine/storage may return 503 until configured.
+- Web upload limit is 20 MB (including HTTP 413 copy); API changes are parallel and older deployments may still reject large files. Nullable/absent explanation steps fall back to `explanation`; keep key idea independently visible. Engine/storage may return 503 until configured.
 - Cookie secure must be false for local HTTP; credentials are included on every request. No token is exposed to JavaScript or persisted.
 - Stale restoration and stale protected-request 401 responses must not replace a newer signed-in identity.
 - Testing Library cleanup is explicit; Vitest runs without globals. jsdom remains on 29.x.
-- Live E2E remains pending: the local API on port 8080 was unavailable. Visual QA remains pending: Playwright Chromium launch was denied by the macOS sandbox (MachPortRendezvous permission); alignment/375 px overflow were not verified in a browser.
