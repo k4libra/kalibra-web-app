@@ -7,6 +7,7 @@
 
 import { Button, Callout, Icon, Modal } from '@/components/ui'
 import type { CurricularMaterial } from '@/types/curricularMaterial'
+import { ingestionFailureMessage } from '@/utils/materialFile'
 import { formatMaterialDate } from '@/utils/materialFile'
 
 /**
@@ -38,7 +39,7 @@ export function MaterialErrorModal({ material, subtopicName, canReplace = true, 
       </>}>
       <div role="alert" className="flex flex-col gap-1 rounded-md bg-danger-container p-4">
         <h3 className="text-label-s text-danger-strong">MOTIVO</h3>
-        <p className="text-body-l text-content-primary">{material.errorMessage ?? 'No se pudo extraer el contenido del archivo.'}</p>
+        <p className="text-body-l text-content-primary">{ingestionFailureMessage(material.errorMessage)}</p>
       </div>
       {!canReplace && <Callout icon="info">Este subtema está archivado. Restáuralo para reemplazar su material.</Callout>}
       <div className="flex flex-col gap-4">

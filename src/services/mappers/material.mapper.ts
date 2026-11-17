@@ -12,5 +12,7 @@ export function mapMaterial(dto: MaterialDto): CurricularMaterial {
   return { id: dto.id, courseId: dto.courseId, subtopicId: dto.subtopicIds[0] ?? '', subtopicIds: dto.subtopicIds,
     fileName: dto.fileName, fileType: dto.format === 'JPEG' ? 'jpg' : dto.format === 'PDF' ? 'pdf' : 'png', uploadedAt: dto.uploadedAt,
     status: dto.status === 'READY' ? 'ready' : dto.status === 'INGESTION_ERROR' ? 'error' : 'processing',
+    ...(dto.sizeBytes != null ? { fileSize: dto.sizeBytes } : {}),
+    ...(dto.pageCount != null ? { pageCount: dto.pageCount } : {}),
     ...(dto.failureReason ? { errorMessage: dto.failureReason } : {}) }
 }

@@ -34,6 +34,12 @@ export function useCurricularMaterials(courseId: string) {
   const { refetch } = resource
   const current = resource.data?.course.id === courseId ? resource.data : null
   const materials = current?.materials ?? []
+  const hasPendingMaterials = materials.some((material) => material.status === 'processing')
+  useEffect(() => {
+    if (!hasPendingMaterials || resource.isLoading || resource.error) return
+    const timeout = setTimeout(refetch, 5000)
+    return () => clearTimeout(timeout)
+  }, [hasPendingMaterials, resource.isLoading, resource.error, refetch])
   const [mutation, setMutation] = useState<{ courseId: string; isUploading: boolean; error: string | null } | null>(null)
   const lifecycle = useRef<AbortController | null>(null)
   useEffect(() => {
@@ -73,7 +79,7 @@ export function useCurricularMaterials(courseId: string) {
       processing: materials.filter((item) => item.status === 'processing').length,
       error: materials.filter((item) => item.status === 'error').length,
     },
-    isLoading: resource.isLoading,
+    isLoading: resource.isLoading && !current,
     error: resource.error,
     isUploading: mutation?.courseId === courseId && mutation.isUploading,
     uploadError: mutation?.courseId === courseId ? mutation.error : null,

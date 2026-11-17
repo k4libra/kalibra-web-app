@@ -36,7 +36,7 @@ export function MaterialTable({ materials, subtopics, onViewError }: MaterialTab
           <IconBox icon={material.fileType === 'pdf' ? 'picture_as_pdf' : 'image'} size="sm" tone={material.status === 'error' ? 'danger' : 'primary'} isSubtle={material.status !== 'error'} />
           <div className="min-w-0">
             <p className="truncate text-label-l text-content-primary" title={material.fileName}>{material.fileName}</p>
-            <p className="text-body-m text-content-secondary">{material.fileSize === undefined ? material.fileType.toUpperCase() : materialFileDescription(material.fileName, material.fileSize, material.pageCount, material.isScan)}</p>
+            <p className="truncate text-body-m text-content-secondary">{materialFileDescription(material.fileName, material.fileSize, material.pageCount, material.isScan)}</p>
           </div>
         </div>
         <div role="cell" className="text-body-l text-content-primary lg:col-span-6">{(material.subtopicIds ?? [material.subtopicId]).map((id) => names.get(id)).filter(Boolean).join(', ')}</div>

@@ -41,7 +41,7 @@ export function materialFileType(name: string): MaterialFileType | null {
 export function validateMaterialFile(file: File): MaterialValidationError | null {
   if (!materialFileType(file.name)) return { code: 'UNSUPPORTED_FORMAT', message: 'Formato no soportado. Sube un PDF, PNG o JPG; el archivo no se registró.' }
   if (file.size === 0) return { code: 'EMPTY_FILE', message: 'El archivo está vacío. Selecciona un archivo con contenido; el archivo no se registró.' }
-  if (file.size > MATERIAL_UPLOAD_CONFIG.maxFileSizeBytes) return { code: 'FILE_TOO_LARGE', message: 'El archivo supera el límite de 10 MB; el archivo no se registró.' }
+  if (file.size > MATERIAL_UPLOAD_CONFIG.maxFileSizeBytes) return { code: 'FILE_TOO_LARGE', message: 'El archivo supera el límite de 20 MB; el archivo no se registró.' }
   return null
 }
 
@@ -75,9 +75,10 @@ export function formatFileSize(bytes: number): string {
  * materialFileDescription('notes.pdf', 1024); // 'PDF · 1 KB'
  * ```
  */
-export function materialFileDescription(name: string, bytes: number, pageCount?: number, isScan = false): string {
+export function materialFileDescription(name: string, bytes: number | undefined, pageCount?: number, isScan = false): string {
   const extension = name.split('.').pop()?.toUpperCase() ?? ''
-  const parts = [extension, formatFileSize(bytes)]
+  const parts = [extension]
+  if (bytes !== undefined) parts.push(formatFileSize(bytes))
   if (pageCount !== undefined) parts.push(plural(pageCount, 'página', 'páginas'))
   else if (isScan) parts.push('escaneo')
   return parts.join(' · ')
@@ -102,4 +103,11 @@ export function formatMaterialDate(value: string, now = new Date()): string {
     return `Hoy, ${date.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false })}`
   }
   return `${String(date.getDate()).padStart(2, '0')} ${MONTH_LABELS[date.getMonth()]} ${date.getFullYear()}`
+}
+
+/** Converts processor diagnostics to actionable copy without exposing internal service details. */
+export function ingestionFailureMessage(reason?: string): string {
+  if (reason && /resoluci|borros|legib/i.test(reason)) return 'La imagen tiene baja resolución y el texto no es legible, por lo que no se pudo extraer su contenido. Puedes reemplazarla e intentarlo más tarde.'
+  if (reason && /corrupt|dañado/i.test(reason)) return 'El archivo está dañado o no se puede leer. Puedes reemplazarlo e intentarlo más tarde.'
+  return 'No se pudo extraer el contenido de este archivo. Puedes reemplazarlo o intentarlo más tarde.'
 }
