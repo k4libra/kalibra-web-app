@@ -38,6 +38,16 @@ export interface VerificationCheck {
   detail: string
 }
 
+/** One ordered explanation block supplied by the server. */
+export interface ExplanationStep {
+  /** Short heading for the step. */
+  title: string
+  /** Text, code or mathematical notation. */
+  detail: string
+  /** Rendering treatment for the detail. */
+  kind: 'TEXT' | 'CODE' | 'FORMULA'
+}
+
 /**
  * Describes a generated exercise with its verification result.
  */
@@ -60,6 +70,10 @@ export interface GeneratedExercise {
   sourceMaterial: string
   /** Explanation supplied by the generation endpoint. */
   explanation?: string
+  /** Ordered explanation blocks, when supplied by the server. */
+  explanationSteps?: ExplanationStep[] | null
+  /** Main learning takeaway. */
+  keyIdea?: string | null
   /** Verification result. */
   status: VerificationStatus
   /** Answer options in display order. */

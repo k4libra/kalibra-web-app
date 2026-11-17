@@ -6,7 +6,7 @@
  */
 
 import { Fragment } from 'react'
-import { Button, Chip, Icon, SectionHeader, TableCard, TableHeader, TableRow } from '@/components/ui'
+import { Button, Chip, CourseGroup, Icon, IconBox, IconButton, TableCard, TableHeader, TableRow } from '@/components/ui'
 import type { CourseOverview } from '@/types/course'
 import type { CourseExerciseCatalog } from '@/types/exercise'
 import { cn } from '@/utils/cn'
@@ -15,7 +15,7 @@ import { VerificationChip } from './VerificationChip'
 
 // Grid of the table from `md`: exercise, generated at, verification and action.
 const GRID = 'md:grid-cols-12'
-const CELLS = ['md:col-span-6', 'md:col-span-2', 'md:col-span-2', 'md:col-span-2']
+const CELLS = ['md:col-span-7', 'md:col-span-2', 'md:col-span-2', 'md:col-span-1']
 
 /**
  * Props accepted by {@link CourseExercisesGroup}.
@@ -36,38 +36,27 @@ export interface CourseExercisesGroupProps {
  */
 export function CourseExercisesGroup({ course, catalog, onOpenExercise, onUploadMaterial }: CourseExercisesGroupProps) {
   return (
-    <section className="flex flex-col gap-3">
-      <SectionHeader
-        icon={course.icon}
-        title={course.name}
-        subtitle={`${course.code}${course.term ? ` · Ciclo ${course.term}` : ''}`}
-        trailing={<Chip label={plural(catalog.generatedCount, 'ejercicio', 'ejercicios')} tone="neutral" />}
-      />
-      {catalog.subtopics.length === 0 ? (
-        <div className="flex flex-col gap-3 rounded-lg bg-surface-card p-4 shadow-card sm:flex-row sm:items-center">
-          <Icon name="info" size="lg" className="text-content-secondary" />
-          <p className="flex-1 text-body-l text-content-secondary">Aún no hay ejercicios: carga el material de sus subtemas para poder generarlos.</p>
-          <Button label="Cargar material" icon="upload_file" variant="tonal" size="sm" onClick={() => onUploadMaterial(course.id)} />
-        </div>
-      ) : (
+    <CourseGroup course={course} countIcon="quiz" countLabel={plural(catalog.generatedCount, 'ejercicio', 'ejercicios')}
+      emptyMessage={!catalog.subtopics.length ? 'Aún no hay ejercicios: carga el material de sus subtemas para generarlos.' : undefined}
+      action={!catalog.subtopics.length ? <Button label="Cargar material" icon="upload_file" variant="tonal" size="sm" onClick={() => onUploadMaterial(course.id)} /> : undefined}>
+      {catalog.subtopics.length > 0 && (
         <TableCard label={`Ejercicios generados de ${course.name}`}>
           <TableHeader columns={['Ejercicio', 'Generado', 'Verificación', 'Acción']} cellClassNames={CELLS} className={GRID} />
           {catalog.subtopics.map((group) => (
             <Fragment key={group.subtopicId}>
-              <div role="row" className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-t border-line-subtle bg-surface-background px-4 py-2.5 first:border-t-0">
+              <div role="row" className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-t border-line-subtle bg-primary-subtle px-6 py-2 first:border-t-0">
                 <Icon name="account_tree" className="text-primary" />
-                <span role="cell" className="text-label-l text-content-primary">
+                <span role="cell" className="flex-1 text-label-l text-content-primary">
                   {group.subtopicName}
                 </span>
-                <span className="text-body-m text-content-secondary">
-                  {group.generatedCount} generados · {group.approvedCount} aprobados · {plural(group.discardedCount, 'descartado', 'descartados')}
-                </span>
+                <Chip label={`${group.generatedCount} generados`} tone="neutral" />
+                <Chip label={`${group.approvedCount} aprobados`} tone="success" icon="check_circle" />
+                <Chip label={plural(group.discardedCount, 'descartado', 'descartados')} tone="danger" icon="cancel" />
               </div>
               {group.exercises.map((exercise) => (
                 <TableRow key={exercise.id} className={GRID}>
-                  <span role="cell" className={cn('flex flex-col gap-0.5', CELLS[0])}>
-                    <span className="text-label-l text-content-primary">{exercise.statement}</span>
-                    <span className="text-body-m text-content-secondary">{exercise.summary}</span>
+                  <span role="cell" className={cn('flex items-center gap-3', CELLS[0])}>
+                    <IconBox icon="quiz" tone={exercise.status === 'approved' ? 'success' : 'danger'} size="sm" /><span className="min-w-0"><span className="block text-label-l text-content-primary line-clamp-2">{exercise.statement}</span><span className="block text-body-m text-content-secondary">{exercise.summary}</span></span>
                   </span>
                   <span role="cell" className={cn('text-body-m text-content-secondary', CELLS[1])}>
                     {exercise.generatedAt}
@@ -76,7 +65,7 @@ export function CourseExercisesGroup({ course, catalog, onOpenExercise, onUpload
                     <VerificationChip status={exercise.status} />
                   </span>
                   <span role="cell" className={CELLS[3]}>
-                    <Button label="Ver detalle" variant="tonal" size="sm" onClick={() => onOpenExercise(exercise.id)} />
+                    <IconButton variant="tinted" size="sm" icon="chevron_right" label={`Ver detalle: ${exercise.statement}`} className="size-8 bg-primary-subtle text-primary shadow-none" onClick={() => onOpenExercise(exercise.id)} />
                   </span>
                 </TableRow>
               ))}
@@ -84,6 +73,6 @@ export function CourseExercisesGroup({ course, catalog, onOpenExercise, onUpload
           ))}
         </TableCard>
       )}
-    </section>
+    </CourseGroup>
   )
 }

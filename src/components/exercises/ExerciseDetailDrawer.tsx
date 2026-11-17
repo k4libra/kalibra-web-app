@@ -5,8 +5,9 @@
  * @packageDocumentation
  */
 
-import { Button, Callout, Chip, Drawer, Icon } from '@/components/ui'
+import { Button, Callout, Chip, CodeBlock, FormulaBlock, Drawer, Icon } from '@/components/ui'
 import type { GeneratedExercise } from '@/types/exercise'
+import { splitExerciseContent } from '@/utils/exerciseContent'
 import { cn } from '@/utils/cn'
 import { VerificationChip } from './VerificationChip'
 
@@ -45,10 +46,11 @@ export function ExerciseDetailDrawer({ exercise, subtopicName, onClose }: Exerci
           </p>
           <div className="flex flex-col gap-2.5 rounded-md bg-primary-subtle p-4">
             <p className="text-label-s text-content-muted">ENUNCIADO</p>
-            <p className="text-title text-content-primary">{exercise.statement}</p>
-            {exercise.code && (
-              <pre className="overflow-x-auto rounded-sm bg-surface-code p-3 font-mono text-body-m text-content-on-primary">{exercise.code}</pre>
-            )}
+            {splitExerciseContent(exercise.statement).map((block, index) => block.kind === 'code'
+              ? <CodeBlock key={index} code={block.value} language={block.language} />
+              : block.kind === 'formula' ? <FormulaBlock key={index} formula={block.value} />
+              : <p key={index} className="text-title whitespace-pre-wrap text-content-primary">{block.value}</p>)}
+            {exercise.code && <CodeBlock code={exercise.code} />}
           </div>
           <ul className="flex flex-col gap-1.5" aria-label="Opciones">
             {exercise.options.map((option) => (
@@ -56,7 +58,7 @@ export function ExerciseDetailDrawer({ exercise, subtopicName, onClose }: Exerci
                 key={option.letter}
                 className={cn(
                   'flex items-center gap-2.5 rounded-md border px-3 py-2',
-                  option.isCorrect ? 'border-secondary-strong bg-secondary-container/30' : 'border-line-default bg-surface-card',
+                  option.isCorrect ? 'border-secondary-accent bg-secondary-pale' : 'border-line-default bg-surface-card',
                 )}
               >
                 <span
@@ -72,7 +74,17 @@ export function ExerciseDetailDrawer({ exercise, subtopicName, onClose }: Exerci
               </li>
             ))}
           </ul>
-          {exercise.explanation && <Callout icon="info">{exercise.explanation}</Callout>}
+          {exercise.explanationSteps?.length ? (
+            <ol aria-label="Explicación paso a paso" className="flex flex-col gap-4">
+              {exercise.explanationSteps.map((step, index) => <li key={index} className="flex flex-col gap-2">
+                <h3 className="text-title text-content-primary">{index + 1}. {step.title}</h3>
+                {step.kind === 'CODE' ? <CodeBlock code={step.detail} />
+                  : step.kind === 'FORMULA' ? <FormulaBlock formula={step.detail} />
+                  : <p className="whitespace-pre-wrap text-body-l text-content-secondary">{step.detail}</p>}
+              </li>)}
+            </ol>
+          ) : exercise.explanation && <Callout icon="info">{exercise.explanation}</Callout>}
+          {exercise.keyIdea && <Callout icon="lightbulb"><strong>Idea clave</strong><p>{exercise.keyIdea}</p></Callout>}
           <p className="text-label-s text-content-muted">RESULTADO DE LA VERIFICACIÓN</p>
           <ul className="flex flex-col gap-3">
             {exercise.checks.map((check) => (
@@ -90,9 +102,14 @@ export function ExerciseDetailDrawer({ exercise, subtopicName, onClose }: Exerci
               </li>
             ))}
           </ul>
+          <ul className="flex flex-col gap-3" aria-label="Criterios de verificación">
+            {['Corrección técnica', 'Nivel de dificultad', 'Anclaje curricular'].filter((label) => !exercise.checks.some((check) => check.label === label)).map((label) => <li key={label} className="flex items-start gap-2.5">
+              <Icon name="help" size="lg" className="text-content-muted" /><span><span className="block text-label-l">{label}</span><span className="block text-body-m text-content-secondary">El servicio no entrega un resultado individual para este criterio.</span></span>
+            </li>)}
+          </ul>
           {exercise.status === 'discarded' && (
             <Callout icon="block" tone="danger" size="sm">
-              Descartado automáticamente: no se mostró a ningún estudiante y se generó un reemplazo.
+              Descartado automáticamente: no se mostró a ningún estudiante.
             </Callout>
           )}
         </>

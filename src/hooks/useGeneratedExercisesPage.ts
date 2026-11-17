@@ -48,7 +48,7 @@ export function useGeneratedExercisesPage() {
       const result = await requestGeneration(courseId, subtopicId)
       if (!result) return
       setIsGenerateOpen(false)
-      showToast({
+      showToast({ placement: 'inline',
         title: 'Generación completada',
         message: `${plural(result.generatedCount, 'ejercicio', 'ejercicios')} de ${result.subtopicName}: ${plural(result.approvedCount, 'aprobado', 'aprobados')} y ${plural(result.discardedCount, 'descartado', 'descartados')}.`,
       })

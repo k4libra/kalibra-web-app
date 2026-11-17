@@ -21,8 +21,8 @@ export interface VerificationChipProps {
  */
 export function VerificationChip({ status }: VerificationChipProps) {
   return status === 'approved' ? (
-    <Chip label="Aprobado" tone="success" icon="verified" />
+    <Chip label="Aprobado" tone="success" icon="check_circle" />
   ) : (
-    <Chip label="Descartado" tone="danger" icon="block" />
+    <Chip label="Descartado" tone="danger" icon="cancel" />
   )
 }

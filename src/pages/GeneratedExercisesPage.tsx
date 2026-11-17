@@ -6,7 +6,9 @@
  */
 
 import { CourseExercisesGroup, ExerciseDetailDrawer, GenerateExercisesModal } from '@/components/exercises'
-import { Button, Callout, EmptyState, LoadingState, PageHeader, StatCard } from '@/components/ui'
+import { useState } from 'react'
+import { InlineToast } from '@/context/ToastContext'
+import { CourseFilter, StatStrip, StatItem, Button, Callout, EmptyState, LoadingState, PageHeader } from '@/components/ui'
 import { useGeneratedExercisesPage } from '@/hooks/useGeneratedExercisesPage'
 
 /**
@@ -14,17 +16,22 @@ import { useGeneratedExercisesPage } from '@/hooks/useGeneratedExercisesPage'
  */
 export function GeneratedExercisesPage() {
   const page = useGeneratedExercisesPage()
+  const [courseFilter, setCourseFilter] = useState('')
+  const visibleGroups = page.groups.filter((group) => !courseFilter || group.course.id === courseFilter)
   const hasCourses = page.groups.length > 0
 
   return (
-    <>
+    <div className="-mt-1 flex flex-col gap-4">
       <PageHeader
         eyebrow="PANEL DOCENTE"
         title="Ejercicios generados"
         description="Audita los ejercicios generados para tus cursos, agrupados por curso y subtema, con el resultado de su verificación."
+        helperIcon="shield"
+        helper="Los ejercicios descartados nunca se muestran a tus estudiantes; aquí puedes revisar su motivo de rechazo."
         actions={<Button label="Generar ejercicios" icon="auto_awesome" disabled={!hasCourses} onClick={page.openGenerate} />}
       />
 
+      <InlineToast />
       {page.error && (
         <Callout icon="error" tone="danger">
           {page.error}
@@ -35,12 +42,13 @@ export function GeneratedExercisesPage() {
         <LoadingState />
       ) : hasCourses ? (
         <>
-          <section aria-label="Resumen" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <StatCard icon="quiz" value={String(page.totals.generated)} label="Ejercicios generados" />
-            <StatCard icon="verified" tone="success" value={String(page.totals.approved)} label="Aprobados por verificación" />
-            <StatCard icon="block" tone="danger" value={String(page.totals.discarded)} label="Descartados" />
-          </section>
-          {page.groups.map((group) => (
+          <StatStrip>
+            <StatItem icon="quiz" value={String(page.totals.generated)} label="Ejercicios generados" />
+            <StatItem icon="verified" tone="success" value={String(page.totals.approved)} label="Aprobados por verificación" />
+            <StatItem icon="block" tone="danger" value={String(page.totals.discarded)} label="Descartados" />
+          </StatStrip>
+          <CourseFilter value={courseFilter} onChange={setCourseFilter} courses={page.groups.map((group) => ({ id: group.course.id, name: group.course.name, count: group.catalog.generatedCount }))} />
+          {visibleGroups.map((group) => (
             <CourseExercisesGroup
               key={group.course.id}
               course={group.course}
@@ -49,9 +57,7 @@ export function GeneratedExercisesPage() {
               onUploadMaterial={page.uploadMaterial}
             />
           ))}
-          <Callout icon="shield">
-            Los ejercicios descartados nunca se muestran a tus estudiantes. Aquí puedes revisar su motivo de rechazo.
-          </Callout>
+
         </>
       ) : (
         <EmptyState
@@ -73,6 +79,6 @@ export function GeneratedExercisesPage() {
           onUploadMaterial={page.uploadMaterial}
         />
       )}
-    </>
+    </div>
   )
 }
