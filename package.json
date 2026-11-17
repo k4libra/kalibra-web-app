@@ -12,6 +12,7 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "lucide-react": "^1.73.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router": "^8.4.0"
