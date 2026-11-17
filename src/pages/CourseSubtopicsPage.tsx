@@ -17,6 +17,7 @@ import type { Subtopic } from '@/types/course'
 export function CourseSubtopicsPage() {
   const { courseId = '' } = useParams()
   const navigate = useNavigate()
+  const [isCourseEditorOpen, setIsCourseEditorOpen] = useState(false)
   const page = useCourseSubtopics(courseId)
   const { course, subtopics, activeSubtopics, archivedSubtopics, isLoading, error, mutationError, isSubmitting } = page
   const [confirmation, setConfirmation] = useState<{ courseId: string; subtopic: Subtopic; action: 'delete' | 'status' } | null>(null)
@@ -42,21 +43,27 @@ export function CourseSubtopicsPage() {
       {mutationError && !pending && <Callout icon="error" tone="danger">{mutationError}</Callout>}
       {isLoading ? <LoadingState /> : course && (
         <>
-          <CourseDetailsForm key={`${course.id}:${course.name}:${course.code}`} course={course} isSubmitting={isSubmitting} onSave={page.updateCourse} onAdd={page.addSubtopic} />
           <section aria-label="Resumen" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <StatCard icon="account_tree" value={String(activeSubtopics.length)} label="Subtemas activos" />
+            <StatCard icon="account_tree" value={String(activeSubtopics.length)} label="Subtemas definidos" />
             <StatCard icon="task_alt" tone="success" value={String(readyCount)} label="Con material listo" />
             <StatCard icon="quiz" tone="warning" value={String(approvedCount)} label="Ejercicios aprobados" />
           </section>
-          {archivedSubtopics.length > 0 && <Link to={courseRoutes.archivedSubtopics(courseId)}
-            className="self-start rounded-sm text-label-l text-primary underline">Ver archivados ({archivedSubtopics.length})</Link>}
           {activeSubtopics.length ? <SubtopicsTable subtopics={activeSubtopics} total={subtopics.length} isSubmitting={isSubmitting}
             onUpdate={page.updateSubtopic} onStatus={(subtopic) => setConfirmation({ courseId, subtopic, action: 'status' })}
             onDelete={(subtopic) => setConfirmation({ courseId, subtopic, action: 'delete' })} />
             : <EmptyState icon="account_tree" title="No hay subtemas activos" description="Agrega un subtema para empezar." />}
+          <div className="flex items-center justify-between">
+          {archivedSubtopics.length > 0 && <Link to={courseRoutes.archivedSubtopics(courseId)}
+            className="self-start rounded-sm text-label-l text-primary underline">Ver archivados ({archivedSubtopics.length})</Link>}
+            <Button label="Editar curso" icon="edit" size="sm" variant="ghost" onClick={() => setIsCourseEditorOpen(true)} />
+          </div>
           <Callout icon="lightbulb">Solo los subtemas activos con material en estado Listo pueden generar ejercicios.</Callout>
         </>
       )}
+      {isCourseEditorOpen && course && <Modal isOpen title="Editar curso" icon="edit" onClose={() => setIsCourseEditorOpen(false)}>
+        <CourseDetailsForm key={`${course.id}:${course.name}:${course.code}:${course.term}:${course.faculty}:${course.semester}`} course={course} isSubmitting={isSubmitting} onSave={page.updateCourse} onAdd={page.addSubtopic} />
+        {mutationError && <Callout icon="error" tone="danger">{mutationError}</Callout>}
+      </Modal>}
       {pending && <Modal isOpen title={confirmationLabel} icon="account_tree" size="confirm" onClose={closeConfirmation}
         description={pending.action === 'delete' ? `Se eliminará «${pending.subtopic.name}».`
           : `«${pending.subtopic.name}» dejará de estar disponible para cargar material y practicar.`}

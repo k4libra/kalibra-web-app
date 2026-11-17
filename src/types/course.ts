@@ -20,9 +20,9 @@ export interface Course {
   /** Academic term, for example `2025-I`. */
   term: string
   /** Faculty that offers the course. */
-  faculty: string
+  faculty: string | null
   /** Semester label, for example `Semestre IV`. */
-  semester: string
+  semester: string | null
   /** Icon chosen to identify the course. */
   icon: IconName
 }
@@ -110,12 +110,22 @@ export interface CreateCourseInput {
   code: string
   /** Academic term. */
   term?: string
-  /** Names of the subtopics, in the order they were added; at least one. */
-  subtopics: string[]
+  /** Faculty that offers the course. */
+  faculty?: string | null
+  /** Optional semester label. */
+  semester?: string | null
+  /** Ordered subtopics; at least one. */
+  subtopics: { name: string; description?: string }[]
 }
 
 /** Course metadata accepted by partial updates. */
 export interface UpdateCourseInput {
+  /** Academic term, when changed. */
+  term?: string | null
+  /** Faculty; null clears a previous value. */
+  faculty?: string | null
+  /** Semester; null clears a previous value. */
+  semester?: string | null
   /** New display name, when changed. */
   name?: string
   /** New institutional code, when changed. */
@@ -124,6 +134,8 @@ export interface UpdateCourseInput {
 
 /** Independent subtopic changes accepted by the API. */
 export interface UpdateSubtopicInput {
+  /** Optional summary, up to 280 characters; an empty string clears it. */
+  description?: string
   /** New name, allowed only without material. */
   name?: string
   /** Target position among all subtopics, starting at one. */

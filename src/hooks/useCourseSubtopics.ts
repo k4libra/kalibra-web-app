@@ -9,6 +9,7 @@ import { coursesService } from '@/services/courses.service'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ApiError } from '@/types/apiError'
 import type { UpdateCourseInput, UpdateSubtopicInput } from '@/types/course'
+import { refreshCourses } from './useCourses'
 import { useResource } from './useResource'
 
 /**
@@ -60,8 +61,12 @@ export function useCourseSubtopics(courseId: string, includePractice = false) {
       }
     }
   }, [courseId, refetch])
-  const updateCourse = useCallback((input: UpdateCourseInput) => mutate(() => coursesService.updateCourse(courseId, input)), [courseId, mutate])
-  const addSubtopic = useCallback((name: string) => mutate(() => coursesService.addSubtopic(courseId, name)), [courseId, mutate])
+  const updateCourse = useCallback(async (input: UpdateCourseInput) => {
+    const succeeded = await mutate(() => coursesService.updateCourse(courseId, input))
+    if (succeeded) refreshCourses()
+    return succeeded
+  }, [courseId, mutate])
+  const addSubtopic = useCallback((name: string, description?: string) => mutate(() => coursesService.addSubtopic(courseId, name, description)), [courseId, mutate])
   const updateSubtopic = useCallback((subtopicId: string, input: UpdateSubtopicInput) => mutate(() => coursesService.updateSubtopic(courseId, subtopicId, input)), [courseId, mutate])
   const deleteSubtopic = useCallback((subtopicId: string) => mutate(() => coursesService.deleteSubtopic(courseId, subtopicId)), [courseId, mutate])
   const current = data?.[0].id === courseId ? data : null

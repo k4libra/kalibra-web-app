@@ -38,16 +38,18 @@ function Metric({ icon, value, label }: { icon: IconName; value: number; label: 
  * Shows the counters and group mastery of a course and emits when the teacher opens it.
  */
 export function CourseCard({ course, onManage }: CourseCardProps) {
-  const meta = [course.faculty, course.semester, `Código ${course.code}`].filter(Boolean).join(' · ')
+  const meta = [course.code, course.faculty, course.semester].filter(Boolean).join(' · ')
   return (
     <Card as="article" padding="lg" className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-4">
-        <IconBox icon={course.icon} size="lg" />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <h3 className="text-headline-m text-content-primary">{course.name}</h3>
-          <p className="text-body-m text-content-secondary">{meta}</p>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <IconBox icon={course.icon} size="lg" />
+          <Chip label={course.term ? `Ciclo ${course.term}` : 'Ciclo no disponible'} tone="neutral" className="bg-primary-container py-0.75 text-content-secondary" />
         </div>
-        {course.term && <Chip label={`Ciclo ${course.term}`} tone="neutral" />}
+        <div className="flex min-w-0 flex-col gap-1">
+          <h3 className="text-headline-m text-content-primary">{course.name}</h3>
+          <p className="truncate text-body-m text-content-secondary" title={meta}>{meta}</p>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Metric icon="account_tree" value={course.subtopicCount} label="Subtemas" />

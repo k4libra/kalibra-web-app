@@ -34,7 +34,7 @@ export interface CoursesContract {
   /**
    * Updates course metadata.
    * @param courseId - Owned course to change.
-   * @param input - Name or institutional code to replace.
+   * @param input - Course identity and optional academic metadata to replace.
    * @returns The stored course metadata and curriculum count.
    * @throws ApiError when ownership or validation fails.
    */
@@ -43,10 +43,11 @@ export interface CoursesContract {
    * Appends a new active, unlocked subtopic.
    * @param courseId - Owned course receiving the subtopic.
    * @param name - Validated display name of the new subtopic.
+   * @param description - Optional summary, up to 280 characters.
    * @returns The stored course with the appended subtopic count.
    * @throws ApiError when ownership or validation fails.
    */
-  addSubtopic: (courseId: string, name: string) => Promise<CourseOverview>
+  addSubtopic: (courseId: string, name: string, description?: string) => Promise<CourseOverview>
   /**
    * Renames, reorders or changes the availability of a subtopic.
    * @param courseId - Owned course containing the subtopic.

@@ -29,10 +29,11 @@ export interface SubtopicsTableProps {
 export function SubtopicsTable({ subtopics, total, isSubmitting, onUpdate, onStatus, onDelete }: SubtopicsTableProps) {
   return (
     <TableCard label="Subtemas del curso">
-      <TableHeader columns={['#', 'Subtema', 'Material y progreso', 'Acciones']}
+      <TableHeader columns={['#', 'Subtema', 'Material curricular', 'Ejercicios aprobados', 'Dominio promedio', 'Acciones']}
         className="md:curriculum-grid" />
       {subtopics.map((subtopic) => (
         <SubtopicEditorRow key={subtopic.id} subtopic={subtopic} total={total} isSubmitting={isSubmitting}
+          onDescription={(description) => onUpdate(subtopic.id, { description })}
           onRename={(name) => onUpdate(subtopic.id, { name })}
           onMove={(displayOrder) => { void onUpdate(subtopic.id, { displayOrder }) }}
           onStatus={() => onStatus(subtopic)} onDelete={() => onDelete(subtopic)} />

@@ -37,7 +37,7 @@ export const coursesService: CoursesContract = {
     return mapSubtopics(course, materials, catalogs.find((item) => item.courseId === courseId), gap, report)
   },
   async createCourse(input) {
-    const dto = await apiClient.post<CourseDto>('/courses', { name: input.name, code: input.code, subtopicNames: input.subtopics })
+    const dto = await apiClient.post<CourseDto>('/courses', input)
     return mapCourse(dto, [])
   },
   async getCurrentTeacher(signal) {
@@ -49,8 +49,8 @@ export const coursesService: CoursesContract = {
     return mapCourse(await apiClient.patch<CourseDto>(`/courses/${courseId}`, input), [])
   },
   /** {@inheritDoc CoursesContract.addSubtopic} */
-  async addSubtopic(courseId, name) {
-    return mapCourse(await apiClient.post<CourseDto>(`/courses/${courseId}/subtopics`, { name }), [])
+  async addSubtopic(courseId, name, description) {
+    return mapCourse(await apiClient.post<CourseDto>(`/courses/${courseId}/subtopics`, { name, description }), [])
   },
   /** {@inheritDoc CoursesContract.updateSubtopic} */
   async updateSubtopic(courseId, subtopicId, input) {

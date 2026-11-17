@@ -52,7 +52,7 @@ export function CoursesPage() {
             />
           </section>
           <section className="flex flex-col gap-4">
-            <SectionHeader title="Cursos que administras" trailing={<Chip label={plural(page.courses.length, 'curso', 'cursos')} tone="neutral" />} />
+            <SectionHeader title="Cursos que administras" trailing={<Chip label={plural(page.courses.length, 'curso', 'cursos')} tone="neutral" className="py-0.75" />} />
             <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
               {page.courses.map((course) => (
                 <CourseCard key={course.id} course={course} onManage={page.manageCourse} />

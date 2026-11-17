@@ -7,9 +7,11 @@
 
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { Button, Callout, EmptyState, IconButton, LoadingState, MaterialStatusChip, Modal, PageHeader, TableCard, TableHeader, TableRow, UnarchiveIcon } from '@/components/ui'
+import { Button, Callout, EmptyState, IconButton, LoadingState, MaterialStatusChip, Modal, PageHeader, ProgressBar, TableCard, TableHeader, TableRow, UnarchiveIcon } from '@/components/ui'
 import { useCourseSubtopics } from '@/hooks/useCourseSubtopics'
 import { courseRoutes } from '@/navigation/routes'
+import { masteryTone } from '@/utils/mastery'
+import { formatMastery } from '@/utils/monitoring'
 import type { Subtopic } from '@/types/course'
 
 /** Shows archived curriculum rows and confirmation using {@link useCourseSubtopics} for restoration. */
@@ -25,22 +27,20 @@ export function ArchivedSubtopicsPage() {
     if (await page.updateSubtopic(pending.id, { status: 'ACTIVE' })) setConfirmation(null)
   }
   return <>
-    <nav aria-label="Ruta de navegación" className="flex flex-wrap items-center gap-2 text-body-m text-content-secondary">
-      <Link to={courseRoutes.subtopics(courseId)} className="rounded-sm text-primary underline">Subtemas</Link>
-      <span aria-hidden="true">›</span><span aria-current="page">Archivados</span>
-    </nav>
-    <PageHeader eyebrow={course?.name ?? ''} title="Subtemas archivados"
+    <PageHeader eyebrow={<><Link to={courseRoutes.subtopics(courseId)} className="text-primary">Subtemas</Link> › Archivados</>} title="Subtemas archivados"
       description="Desarchiva un subtema para volver a cargar material y practicar. Su historial se conserva." />
     {error && <Callout icon="error" tone="danger">{error}</Callout>}
     {mutationError && !pending && <Callout icon="error" tone="danger">{mutationError}</Callout>}
     {isLoading ? <LoadingState /> : course && (archivedSubtopics.length ?
       <TableCard label="Subtemas archivados">
-        <TableHeader columns={['Subtema', 'Material', 'Ejercicios resueltos', 'Acción']} className="md:archived-curriculum-grid" />
-        {archivedSubtopics.map((subtopic) => <TableRow key={subtopic.id} className="grid curriculum-mobile-grid md:archived-curriculum-grid">
-          <span role="cell" className="min-w-0 break-words text-title col-start-1 row-start-1">{subtopic.name}</span>
-          <div role="cell" className="min-w-0 col-start-1 row-start-2 md:col-start-2 md:row-start-1"><MaterialStatusChip status={subtopic.materialStatus} /></div>
-          <span role="cell" className="text-body-m text-content-secondary col-start-1 row-start-3 md:col-start-3 md:row-start-1">{subtopic.solvedExerciseCount == null ? 'Sin datos de ejercicios resueltos' : `${subtopic.solvedExerciseCount} ejercicios resueltos`}</span>
-          <div role="cell" className="w-actions col-start-2 row-start-1 row-span-3 justify-self-end md:col-start-4 md:row-span-1">
+        <TableHeader columns={['#', 'Subtema', 'Material curricular', 'Ejercicios aprobados', 'Dominio promedio', 'Acciones']} className="md:curriculum-grid" />
+        {archivedSubtopics.map((subtopic) => <TableRow key={subtopic.id} className="grid curriculum-mobile-grid md:curriculum-grid">
+          <span role="cell" className="text-label-l text-primary">{String(subtopic.order).padStart(2, '0')}</span>
+          <div role="cell" className="min-w-0"><p className="break-words text-title">{subtopic.name}</p><p className="text-body-m text-content-secondary">{subtopic.solvedExerciseCount === null ? subtopic.description || 'Sin ejercicios resueltos registrados' : `${subtopic.solvedExerciseCount} ejercicios resueltos`}</p></div>
+          <div role="cell"><MaterialStatusChip status={subtopic.materialStatus} /></div>
+          <span role="cell" className="text-body-l">{subtopic.approvedExerciseCount}</span>
+          <div role="cell" className="flex min-w-0 items-center gap-2.5"><ProgressBar value={subtopic.averageMastery} tone={masteryTone(subtopic.averageMastery)} label={`Dominio promedio en ${subtopic.name}`} /><span className="shrink-0 text-body-m-bold">{subtopic.averageMastery === null ? 'Sin datos' : formatMastery(subtopic.averageMastery)}</span></div>
+          <div role="cell" className="w-actions justify-self-end">
             <IconButton icon={UnarchiveIcon} label={`Desarchivar ${subtopic.name}`} disabled={isSubmitting || isLoading}
               onClick={() => setConfirmation({ courseId, subtopic })} />
           </div>
