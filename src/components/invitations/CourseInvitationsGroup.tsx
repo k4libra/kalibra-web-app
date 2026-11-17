@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { Button, Chip, Icon, IconBox, SectionHeader, TableCard, TableHeader, TableRow } from '@/components/ui'
+import { Button, CourseGroup, IconBox, TableCard, TableHeader, TableRow } from '@/components/ui'
 import type { CourseOverview } from '@/types/course'
 import type { Invitation } from '@/types/invitation'
 import { cn } from '@/utils/cn'
@@ -28,34 +28,27 @@ export interface CourseInvitationsGroupProps {
   onCancel: (invitation: Invitation) => void
   /** Called with the invitation the teacher wants to send again. */
   onResend: (invitation: Invitation) => void
+  /** Opens invitation with this course preselected. */
+  onInvite?: (courseId: string) => void
+  /** Blocks repeated mutations until completion. */
+  isSubmitting?: boolean
 }
 
 /**
  * Lists the invitations of a course with their state and emits cancel and resend actions.
  */
-export function CourseInvitationsGroup({ course, invitations, onCancel, onResend }: CourseInvitationsGroupProps) {
+export function CourseInvitationsGroup({ course, invitations, onCancel, onResend, onInvite, isSubmitting = false }: CourseInvitationsGroupProps) {
   return (
-    <section className="flex flex-col gap-3">
-      <SectionHeader
-        icon={course.icon}
-        title={course.name}
-        subtitle={`${course.code}${course.term ? ` · Ciclo ${course.term}` : ''}`}
-        trailing={<Chip label={plural(invitations.length, 'invitación', 'invitaciones')} tone="neutral" />}
-      />
-      {invitations.length === 0 ? (
-        <div className="flex items-start gap-3 rounded-lg bg-surface-card p-4 shadow-card sm:items-center">
-          <Icon name="info" size="lg" className="text-content-secondary" />
-          <p className="text-body-l text-content-secondary">
-            Aún no has invitado estudiantes a este curso. Usa Invitar estudiante y elige {course.name}.
-          </p>
-        </div>
-      ) : (
+    <CourseGroup course={course} countIcon="send" countLabel={plural(invitations.length, 'invitación', 'invitaciones')}
+      emptyMessage={!invitations.length ? 'Aún no has invitado estudiantes a este curso.' : undefined}
+      action={!invitations.length && onInvite ? <Button label={`Invitar a ${course.name}`} icon="person_add" variant="tonal" size="sm" onClick={() => onInvite(course.id)} /> : undefined}>
+      {invitations.length > 0 && (
         <TableCard label={`Invitaciones de ${course.name}`}>
           <TableHeader columns={['Estudiante invitado', 'Estado', 'Vigencia', 'Acción']} cellClassNames={CELLS} className={GRID} />
           {invitations.map((invitation) => (
             <TableRow key={invitation.id} className={GRID}>
               <span role="cell" className={cn('flex items-center gap-2.5', CELLS[0])}>
-                <IconBox icon="mail" tone="neutral" size="sm" />
+                <IconBox icon="mail" tone={invitation.status === 'expired' || invitation.status === 'cancelled' ? 'neutral' : 'primary'} size="sm" />
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate text-label-l text-content-primary">{invitation.email}</span>
                   <span className="text-body-m text-content-secondary">Enviada el {invitation.sentAt}</span>
@@ -69,10 +62,10 @@ export function CourseInvitationsGroup({ course, invitations, onCancel, onResend
               </span>
               <span role="cell" className={CELLS[3]}>
                 {invitation.status === 'pending' && (
-                  <Button label="Cancelar" variant="danger-soft" size="sm" onClick={() => onCancel(invitation)} />
+                  <Button label="Cancelar" icon="close" disabled={isSubmitting} variant="danger" size="sm" onClick={() => onCancel(invitation)} />
                 )}
                 {(invitation.status === 'expired' || invitation.status === 'cancelled') && (
-                  <Button label="Reenviar" variant="tonal" size="sm" onClick={() => onResend(invitation)} />
+                  <Button label="Reenviar" icon="send" disabled={isSubmitting} variant="tonal" size="sm" onClick={() => onResend(invitation)} />
                 )}
                 {invitation.status === 'accepted' && <span className="text-label-l text-content-muted">—</span>}
               </span>
@@ -80,6 +73,6 @@ export function CourseInvitationsGroup({ course, invitations, onCancel, onResend
           ))}
         </TableCard>
       )}
-    </section>
+    </CourseGroup>
   )
 }

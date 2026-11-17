@@ -6,7 +6,9 @@
  */
 
 import { CancelInvitationDialog, CourseInvitationsGroup, InviteStudentModal } from '@/components/invitations'
-import { Button, Callout, EmptyState, LoadingState, PageHeader, StatCard } from '@/components/ui'
+import { useState } from 'react'
+import { InlineToast } from '@/context/ToastContext'
+import { CourseFilter, StatStrip, StatItem, Button, Callout, EmptyState, LoadingState, PageHeader } from '@/components/ui'
 import { useInvitationsPage } from '@/hooks/useInvitationsPage'
 
 /**
@@ -14,18 +16,23 @@ import { useInvitationsPage } from '@/hooks/useInvitationsPage'
  */
 export function InvitationsPage() {
   const page = useInvitationsPage()
+  const [courseFilter, setCourseFilter] = useState('')
+  const visibleGroups = page.groups.filter((group) => !courseFilter || group.course.id === courseFilter)
   const hasCourses = page.groups.length > 0
   const cancelCourse = page.groups.find((group) => group.course.id === page.toCancel?.courseId)?.course
 
   return (
-    <>
+    <div className="-mt-1 flex flex-col gap-4">
       <PageHeader
         eyebrow="PANEL DOCENTE"
         title="Invitaciones"
         description="Invitaciones enviadas a tus estudiantes, agrupadas por curso. Solo llegan a correos con cuenta registrada en Kalibra."
+        helperIcon="clock"
+        helper="Las invitaciones sin respuesta vencen a los 3 días; puedes reenviarlas con una nueva vigencia."
         actions={hasCourses && <Button label="Invitar estudiante" icon="person_add" onClick={page.openInvite} />}
       />
 
+      <InlineToast />
       {page.error && (
         <Callout icon="error" tone="danger">
           {page.error}
@@ -36,23 +43,24 @@ export function InvitationsPage() {
         <LoadingState />
       ) : hasCourses ? (
         <>
-          <section aria-label="Resumen" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <StatCard icon="schedule" tone="warning" value={String(page.pendingCount)} label={page.pendingCount === 1 ? 'Pendiente' : 'Pendientes'} />
-            <StatCard icon="how_to_reg" tone="success" value={String(page.acceptedCount)} label={page.acceptedCount === 1 ? 'Aceptada' : 'Aceptadas'} />
-            <StatCard icon="event_busy" tone="danger" value={String(page.closedCount)} label="Vencidas o canceladas" />
-          </section>
-          {page.groups.map((group) => (
+          <StatStrip>
+            <StatItem icon="schedule" tone="warning" value={String(page.pendingCount)} label={page.pendingCount === 1 ? 'Pendiente' : 'Pendientes'} />
+            <StatItem icon="how_to_reg" tone="success" value={String(page.acceptedCount)} label={page.acceptedCount === 1 ? 'Aceptada' : 'Aceptadas'} />
+            <StatItem icon="event_busy" tone="danger" value={String(page.closedCount)} label="Vencidas o canceladas" />
+          </StatStrip>
+          <CourseFilter value={courseFilter} onChange={setCourseFilter} courses={page.groups.map((group) => ({ id: group.course.id, name: group.course.name, count: group.invitations.length }))} />
+          {visibleGroups.map((group) => (
             <CourseInvitationsGroup
               key={group.course.id}
               course={group.course}
               invitations={group.invitations}
               onCancel={page.askCancel}
               onResend={page.resend}
+              onInvite={page.openInvite}
+              isSubmitting={page.isSubmitting}
             />
           ))}
-          <Callout icon="timer">
-            Las invitaciones sin respuesta vencen automáticamente a los 3 días. Puedes reenviarlas con una nueva vigencia.
-          </Callout>
+
         </>
       ) : (
         <EmptyState
@@ -65,6 +73,7 @@ export function InvitationsPage() {
 
       {page.isInviteOpen && (
         <InviteStudentModal
+          initialCourseId={page.initialCourseId}
           error={page.error}
           courses={page.groups.map((group) => group.course)}
           rejectedEmail={page.rejectedEmail}
@@ -80,6 +89,6 @@ export function InvitationsPage() {
         onClose={page.closeCancel}
         onConfirm={page.confirmCancel}
       />
-    </>
+    </div>
   )
 }

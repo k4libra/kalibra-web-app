@@ -21,6 +21,8 @@ export interface InviteStudentModalProps {
   error?: string | null
   /** Courses the teacher can invite to. */
   courses: CourseOverview[]
+  /** Course selected from a group entry point. */
+  initialCourseId?: string
   /** Email rejected by the last attempt because it has no account; `null` when there was no rejection. */
   rejectedEmail: string | null
   /** Whether a request is in flight. */
@@ -38,18 +40,19 @@ export interface InviteStudentModalProps {
  * When `rejectedEmail` matches the typed email the field turns red and explains that nothing was sent;
  * editing the email clears the error. Mount it only while open so each opening starts empty.
  */
-export function InviteStudentModal({ error, courses, rejectedEmail, isSubmitting, onClose, onSend }: InviteStudentModalProps) {
-  const [courseId, setCourseId] = useState(courses[0]?.id ?? '')
+export function InviteStudentModal({ error, courses, initialCourseId, rejectedEmail, isSubmitting, onClose, onSend }: InviteStudentModalProps) {
+  const [courseId, setCourseId] = useState(courses.find((course) => course.id === initialCourseId)?.id ?? courses[0]?.id ?? '')
   const [email, setEmail] = useState('')
   const isRejected = rejectedEmail !== null && rejectedEmail === email.trim()
   const isCorrected = rejectedEmail !== null && !isRejected && EMAIL_PATTERN.test(email.trim())
   const status: FieldStatus = isRejected ? 'error' : isCorrected ? 'success' : 'default'
-  const canSend = courseId && email.trim() && !isRejected && !isSubmitting
+  const canSend = courseId && EMAIL_PATTERN.test(email.trim()) && !isRejected && !isSubmitting
 
   return (
     <Modal
       isOpen
       onClose={onClose}
+      size="invite"
       icon="person_add"
       title="Invitar estudiante"
       description="El estudiante recibirá la invitación y quedará matriculado cuando la acepte."
@@ -76,7 +79,7 @@ export function InviteStudentModal({ error, courses, rejectedEmail, isSubmitting
                 : `${course.code} · sin estudiantes aún`,
           }))}
         />
-        <TextField
+        <TextField compact
           label="Correo institucional del estudiante"
           type="email"
           icon="mail"
