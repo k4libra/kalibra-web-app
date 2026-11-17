@@ -11,6 +11,9 @@
 
 import type { MaterialStatus, Subtopic } from '@/types/course'
 
+/** Generic notice shared by upload controls and HTTP error recovery. */
+export const MATERIAL_UPLOAD_UNAVAILABLE_MESSAGE = 'La carga de materiales no está disponible por el momento. Vuelve a intentarlo más tarde.'
+
 /**
  * File formats accepted by the curricular material uploader.
  */
@@ -141,5 +144,5 @@ export interface MaterialValidationError {
  */
 export const MATERIAL_UPLOAD_CONFIG = {
     acceptedExtensions: ['pdf', 'png', 'jpg'] as const,
-    maxFileSizeBytes: 10 * 1024 * 1024,
+    maxFileSizeBytes: 20 * 1024 * 1024,
 } as const

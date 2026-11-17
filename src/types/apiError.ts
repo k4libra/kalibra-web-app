@@ -9,6 +9,8 @@
 export type ApiErrorCode = 'invalid-input' | 'unauthorized' | 'forbidden' | 'not-found' | 'conflict' | 'unprocessable' | 'unavailable' | 'network' | 'unexpected'
 /** Describes an RFC 7807 response, retained for diagnostics without exposing it as UI copy. */
 export interface ProblemDetail {
+  /** Stable server error identifier used for specific recovery messages. */
+  code?: string
   /** HTTP status from the server. */
   status?: number
   /** Short server explanation. */

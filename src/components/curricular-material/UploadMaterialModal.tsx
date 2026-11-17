@@ -8,6 +8,7 @@
 import { Button, Callout, FileDropzone, MaterialStatusChip, Modal, Select } from '@/components/ui'
 import type { Subtopic } from '@/types/course'
 import type { CurricularMaterial, MaterialValidationError } from '@/types/curricularMaterial'
+import { MATERIAL_UPLOAD_UNAVAILABLE_MESSAGE } from '@/types/curricularMaterial'
 import { materialFileDescription, materialFileType } from '@/utils/materialFile'
 
 /**
@@ -30,6 +31,8 @@ export interface UploadMaterialModalProps {
   isUploading: boolean
   /** Whether all upload constraints have been met. */
   canSubmit: boolean
+  /** Whether the service currently accepts material uploads. Defaults to true. */
+  isUploadAvailable?: boolean
   /** Changes the controlled subtopic selection. */
   onSubtopicChange: (subtopicId: string) => void
   /** Reports a native file selection. */
@@ -47,7 +50,7 @@ export interface UploadMaterialModalProps {
  */
 export function UploadMaterialModal({
   subtopics, materials, subtopicId, file, validationError, uploadError, isUploading,
-  canSubmit, onSubtopicChange, onFileSelect, onFileRemove, onClose, onSubmit,
+  canSubmit, isUploadAvailable = true, onSubtopicChange, onFileSelect, onFileRemove, onClose, onSubmit,
 }: UploadMaterialModalProps) {
   const activeSubtopics = subtopics.filter((subtopic) => subtopic.status === 'ACTIVE')
   const selectedSubtopic = activeSubtopics.find((subtopic) => subtopic.id === subtopicId)
@@ -67,16 +70,18 @@ export function UploadMaterialModal({
       description="El material se asocia a un subtema y Kalibra lo procesa automáticamente."
       actions={<>
         <Button label="Cancelar" variant="neutral" disabled={isUploading} onClick={onClose} />
-        <Button label={isUploading ? 'Subiendo material...' : 'Subir material'} icon="upload" disabled={!canSubmit || !selectedSubtopic} onClick={onSubmit} />
+        <Button label={isUploading ? 'Subiendo material...' : 'Subir material'} icon="upload" disabled={!isUploadAvailable || !canSubmit || !selectedSubtopic}
+          title={isUploadAvailable ? undefined : MATERIAL_UPLOAD_UNAVAILABLE_MESSAGE} onClick={onSubmit} />
       </>}>
       <div className="flex flex-col gap-4" aria-busy={isUploading}>
+        {!isUploadAvailable && <Callout icon="info" tone="info" size="sm">{MATERIAL_UPLOAD_UNAVAILABLE_MESSAGE}</Callout>}
         <Select label="Subtema" icon="account_tree" options={options} value={subtopicId} onChange={onSubtopicChange} />
         {selectedSubtopic && !selectedSubtopic.locked && <Callout icon="info" size="sm">
           Al cargar material, el nombre de este subtema quedará fijo para no afectar los ejercicios ni el progreso de tus estudiantes.
         </Callout>}
         <FileDropzone label="Archivo de material" accept=".pdf,.png,.jpg" disabled={isUploading}
           title={isValid && !hasMaterials ? 'Archivo listo para subir' : 'Arrastra tu archivo aquí'}
-          description="PDF, PNG o JPG · máximo 10 MB"
+          description="PDF, PNG o JPG · máximo 20 MB"
           selectLabel={validationError ? 'Seleccionar otro archivo' : 'Seleccionar archivo'}
           state={file ? (validationError ? 'invalid' : 'valid') : 'empty'}
           selectionLayout={hasMaterials ? 'picker' : 'compact'}

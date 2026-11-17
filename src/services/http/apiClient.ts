@@ -7,6 +7,7 @@
 
 import { ApiError, type ApiErrorCode, type ProblemDetail } from '@/types/apiError'
 import { sessionStore } from '@/services/http/sessionStore'
+import { MATERIAL_UPLOAD_UNAVAILABLE_MESSAGE } from '@/types/curricularMaterial'
 
 /** Options shared by JSON, multipart and file requests. */
 export interface ApiRequestOptions extends Omit<RequestInit, 'body' | 'credentials'> {
@@ -21,9 +22,9 @@ const failures: Record<number, [ApiErrorCode, string]> = {
   403: ['forbidden', 'No tienes permiso para realizar esta acción.'],
   404: ['not-found', 'No se encontró el recurso solicitado.'],
   409: ['conflict', 'La operación entra en conflicto con los datos existentes.'],
-  413: ['invalid-input', 'El archivo supera el límite de 10 MB; el archivo no se registró.'],
+  413: ['invalid-input', 'El archivo supera el límite de 20 MB; el archivo no se registró.'],
   422: ['unprocessable', 'No se pudo procesar la solicitud.'],
-  503: ['unavailable', 'Servicio no disponible por el momento'],
+  503: ['unavailable', 'Servicio no disponible por el momento. Puedes intentarlo más tarde.'],
 }
 /** Makes a cookie-authenticated request and maps server failures into Spanish errors. */
 async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
@@ -40,14 +41,16 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
     })
   } catch (reason) {
     if (init.signal?.aborted || (reason instanceof Error && reason.name === 'AbortError')) throw reason
-    throw new ApiError('network', 'No se pudo conectar con el servidor. Intenta nuevamente.', 0)
+    throw new ApiError('network', 'No se pudo conectar con el servidor. Puedes intentarlo más tarde.', 0)
   }
   if (!response.ok) {
     if (response.status === 401 && !path.startsWith('/authentication/') && sessionStore.getRevision() === sessionRevision) sessionStore.setSession(null)
     let problem: ProblemDetail | undefined
     try { problem = await response.json() as ProblemDetail } catch { /* Non-JSON failures keep the status-based message. */ }
-    const [code, message] = failures[response.status] ?? ['unexpected', 'No se pudo completar la operación. Intenta nuevamente.']
-    throw new ApiError(code, message, response.status, problem)
+    const [code, message] = failures[response.status] ?? ['unexpected', 'No se pudo completar la operación. Puedes intentarlo más tarde.']
+    const recoveryMessage = response.status === 503 && problem?.code === 'MATERIAL_UPLOAD_UNAVAILABLE'
+      ? MATERIAL_UPLOAD_UNAVAILABLE_MESSAGE : message
+    throw new ApiError(code, recoveryMessage, response.status, problem)
   }
   if (response.status === 204) return undefined as T
   if (responseType === 'blob') return await response.blob() as T
@@ -55,7 +58,7 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
   try { return await response.json() as T }
   catch (reason) {
     if (init.signal?.aborted) throw reason
-    throw new ApiError('unexpected', 'El servidor devolvió una respuesta no válida.', response.status)
+    throw new ApiError('unexpected', 'No se pudo completar la operación. Puedes intentarlo más tarde.', response.status)
   }
 }
 /** Supplies the single HTTP entry point for all feature services. */
