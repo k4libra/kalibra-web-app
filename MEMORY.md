@@ -1,6 +1,7 @@
 # MEMORY.md - Kalibra Web App
 
-## Current status (2026-11-16)
+## Current status (2026-11-21)
+- `release/v1.0.0` (2026-11-21): Vercel deploy prep. `vercel.json` proxies `/api/*` to `https://kalibra-api-production.up.railway.app` (SameSite=Lax cookie needs same-site calls; 120 s proxy limit) and falls back to `index.html`. README fixes stale Redis/10 MB notes. Lint, tsc, 360 tests and build pass.
 - Material upload availability implemented on `feature/ui-v2-refactor`: service + hook read on mount/window focus; unavailable disables page/empty-state/modal upload actions with the exact generic notice and titles. Matching upload 503 uses the same notice. Lint, 73 files / 360 tests and production build pass (bundle size warning); prior uncommitted work preserved.
 - UI v2 refactor uncommitted on `feature/ui-v2-refactor` (from develop): v2 tokens, Lucide icons, new SVG logo, BackgroundGlow, IconTile/StatStrip/CountBadge/AlertBanner/CodeBlock primitives and every teacher/admin screen restyled to the Figma frames. Lint, 68 files / 324 tests and build pass; live E2E on localhost:5173 against the real API matched the frames.
 - Shared contract implemented over UI v2: course term/faculty/semester and subtopic descriptions (280 characters), material size/pages and 20 MB uploads, structured exercise steps/key idea with plain-text fallback. Fetch-stub coverage: 71 files / 344 tests; lint and production build pass. Live localhost:8080 login/modal smoke passed; seed account has no courses.

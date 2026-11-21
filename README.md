@@ -15,12 +15,11 @@ En `kalibra-api`, prepara su archivo `.env` a partir de `.env.example` y complet
 ```dotenv
 KALIBRA_SEED_GENERIC_USERS=true
 JWT_COOKIE_SECURE=false
-MATERIALS_MAX_FILE_SIZE=10MB
 ```
 
-El formulario y la API admiten archivos de hasta 10 MB; ese es también el límite predeterminado de la API.
+El formulario y la API admiten archivos de hasta 20 MB; ese es también el límite predeterminado de la API.
 
-Desde el directorio de la API, inicia PostgreSQL, Redis, el motor adaptativo y la API:
+Desde el directorio de la API, inicia PostgreSQL, el motor adaptativo y la API:
 
 ```bash
 docker compose up --build
@@ -52,6 +51,16 @@ La variable `KALIBRA_SEED_GENERIC_USERS=true` habilita estas cuentas genéricas:
 Los estudiantes acceden mediante la aplicación móvil. El docente entra a `/cursos`; el administrador, a `/admin/panel`, con acceso exclusivo a indicadores institucionales y al ranking `/admin/subtemas-criticos`.
 
 La sesión se restaura con `GET /users/me`; la aplicación muestra un estado de carga hasta resolverla. El registro crea la cuenta y luego inicia sesión para obtener la cookie. Cerrar sesión requiere confirmación y ejecuta `POST /authentication/sign-out`. Una respuesta 401 de una solicitud protegida elimina la identidad local y vuelve a inicio de sesión.
+
+## Despliegue (Vercel)
+
+Producción se publica en Vercel desde `main` con `vercel.json` (preset Vite, salida `dist`). Configura `VITE_API_BASE_URL=/api/v1`: la cookie de sesión es `SameSite=Lax`, así que el navegador debe llamar a la API desde el mismo sitio.
+
+- `/api/:path*` se reenvía a la API en Railway (`https://kalibra-api-production.up.railway.app`). Si el dominio público de la API cambia, actualiza ese destino en `vercel.json`.
+- Toda otra ruta responde `index.html`, para que las rutas del panel funcionen al recargar.
+- Vercel corta las solicitudes reenviadas a los 120 segundos. Si la generación de ejercicios supera ese tiempo, publica la web y la API como subdominios de un mismo dominio propio y usa `VITE_API_BASE_URL=https://<api>/api/v1`.
+
+En la API, `CORS_ALLOWED_ORIGIN` debe incluir el dominio de Vercel.
 
 ## Validación
 
