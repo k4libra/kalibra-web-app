@@ -1,0 +1,63 @@
+/**
+ * Implements course management and teacher workspace using the HTTP API.
+ *
+ * @author G0nz4loQu3dena
+ * @packageDocumentation
+ */
+
+import type { CoursesContract } from '@/services/courses.contract'
+import { apiClient } from '@/services/http/apiClient'
+import { readAllPages } from '@/services/http/pagination'
+import { authService } from '@/services/auth.service'
+import { mapTeacher } from '@/services/mappers/auth.mapper'
+import { mapCourse, mapSubtopics } from '@/services/mappers/courses.mapper'
+import type { CatalogDto, CourseDto, GapMapDto, IndicatorsDto, InvitationGroupDto, MaterialDto, RosterDto, UserDto } from '@/types/api'
+
+async function project(courses: CourseDto[], signal?: AbortSignal) {
+  if (!courses.length) return []
+  const [rosters, catalogs, invitations] = await Promise.all([
+    apiClient.get<RosterDto[]>('/course-rosters', { signal }), apiClient.get<CatalogDto[]>('/course-exercise-catalogs', { signal }), apiClient.get<InvitationGroupDto[]>('/course-invitation-groups', { signal }),
+  ])
+  return Promise.all(courses.map(async (course) => {
+    const [materials, gap] = await Promise.all([readAllPages<MaterialDto>(`/courses/${course.id}/curricular-materials`, signal), apiClient.get<GapMapDto>(`/courses/${course.id}/mastery-gap-map`, { signal })])
+    return mapCourse(course, materials, rosters.find((item) => item.courseId === course.id), catalogs.find((item) => item.courseId === course.id), invitations.find((item) => item.courseId === course.id), gap)
+  }))
+}
+/** Implements course reads and writes, deriving every counter from the API. */
+export const coursesService: CoursesContract = {
+  async listCourses(signal) { return project(await apiClient.get<CourseDto[]>('/courses', { signal }), signal) },
+  async getCourse(courseId, signal) { return (await project([await apiClient.get<CourseDto>(`/courses/${courseId}`, { signal })], signal))[0] },
+  /** {@inheritDoc CoursesContract.listSubtopics} */
+  async listSubtopics(courseId, signal, includePractice = false) {
+    const [course, materials, catalogs, gap, report] = await Promise.all([
+      apiClient.get<CourseDto>(`/courses/${courseId}`, { signal }), readAllPages<MaterialDto>(`/courses/${courseId}/curricular-materials`, signal),
+      apiClient.get<CatalogDto[]>('/course-exercise-catalogs', { signal }), apiClient.get<GapMapDto>(`/courses/${courseId}/mastery-gap-map`, { signal }),
+      includePractice ? apiClient.get<IndicatorsDto>(`/courses/${courseId}/indicators`, { signal }) : undefined,
+    ])
+    return mapSubtopics(course, materials, catalogs.find((item) => item.courseId === courseId), gap, report)
+  },
+  async createCourse(input) {
+    const dto = await apiClient.post<CourseDto>('/courses', input)
+    return mapCourse(dto, [])
+  },
+  async getCurrentTeacher(signal) {
+    const user = authService.getSession()?.user
+    return mapTeacher(user ? { ...user, roles: [user.role] } : await apiClient.get<UserDto>('/users/me', { signal }))
+  },
+  /** {@inheritDoc CoursesContract.updateCourse} */
+  async updateCourse(courseId, input) {
+    return mapCourse(await apiClient.patch<CourseDto>(`/courses/${courseId}`, input), [])
+  },
+  /** {@inheritDoc CoursesContract.addSubtopic} */
+  async addSubtopic(courseId, name, description) {
+    return mapCourse(await apiClient.post<CourseDto>(`/courses/${courseId}/subtopics`, { name, description }), [])
+  },
+  /** {@inheritDoc CoursesContract.updateSubtopic} */
+  async updateSubtopic(courseId, subtopicId, input) {
+    return mapCourse(await apiClient.patch<CourseDto>(`/courses/${courseId}/subtopics/${subtopicId}`, input), [])
+  },
+  /** {@inheritDoc CoursesContract.deleteSubtopic} */
+  deleteSubtopic: (courseId, subtopicId) => apiClient.delete(`/courses/${courseId}/subtopics/${subtopicId}`),
+  async getWorkspace(signal) { return apiClient.get<{ activeCourseId: string | null }>('/teachers/me/workspace', { signal }) },
+  async selectActiveCourse(courseId) { return apiClient.put<{ activeCourseId: string | null }>('/teachers/me/workspace/active-course', { courseId }) },
+}

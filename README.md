@@ -1,73 +1,93 @@
-# React + TypeScript + Vite
+# Kalibra Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Panel web de Kalibra para docentes y administradores, integrado con `kalibra-api` mediante HTTP y sesión por cookie `httpOnly`.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+React 19, Vite 7, TypeScript 5.9, Tailwind CSS 4, React Router 8 y Vitest 5 con Testing Library.
 
-## React Compiler
+## Ejecución con la API
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Se requiere una API que implemente el contrato v2 de integración. Los adaptadores se comprobaron contra la API local; consulta los [endpoints por pantalla y el alcance de validación](docs/api-integration.md).
 
-## Expanding the ESLint configuration
+En `kalibra-api`, prepara su archivo `.env` a partir de `.env.example` y completa `DB_PASSWORD` y `JWT_SECRET` según su README. Para desarrollo local por HTTP, configura también:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```dotenv
+KALIBRA_SEED_GENERIC_USERS=true
+JWT_COOKIE_SECURE=false
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+El formulario y la API admiten archivos de hasta 20 MB; ese es también el límite predeterminado de la API.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Desde el directorio de la API, inicia PostgreSQL, el motor adaptativo y la API:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+docker compose up --build
 ```
+
+El compose construye el motor desde el repositorio hermano `kalibra-adaptive-engine`. Las claves de proveedores y las credenciales R2 se configuran en el backend; sin ellas, las funciones dependientes pueden responder 503. La interfaz muestra «Servicio no disponible por el momento» y permite conservar la selección para reintentar.
+
+En este repositorio:
+
+```bash
+npm ci
+cp .env.example .env
+npm run dev
+```
+
+Vite redirige `/api` a `http://localhost:8080`; `VITE_API_BASE_URL` usa `/api/v1` por defecto. Si apuntas directamente a otro origen, configura en la API el origen permitido y CORS con credenciales. El frontend envía `credentials: 'include'` en cada solicitud y nunca almacena tokens ni contraseñas.
+
+La variable `KALIBRA_SEED_GENERIC_USERS=true` habilita estas cuentas genéricas:
+
+| Rol | Correo | Contraseña |
+| --- | --- | --- |
+| Docente | `profesor.test1@upc.edu.pe` | `@profesortest1` |
+| Docente | `profesor.test2@upc.edu.pe` | `@profesortest2` |
+| Estudiante | `estudiante.test1@upc.edu.pe` | `@estudiantetest1` |
+| Estudiante | `estudiante.test2@upc.edu.pe` | `@estudiantetest2` |
+| Estudiante | `estudiante.test3@upc.edu.pe` | `@estudiantetest3` |
+| Administrador | `admin.test1@upc.edu.pe` | `@admintest1` |
+
+Los estudiantes acceden mediante la aplicación móvil. El docente entra a `/cursos`; el administrador, a `/admin/panel`, con acceso exclusivo a indicadores institucionales y al ranking `/admin/subtemas-criticos`.
+
+La sesión se restaura con `GET /users/me`; la aplicación muestra un estado de carga hasta resolverla. El registro crea la cuenta y luego inicia sesión para obtener la cookie. Cerrar sesión requiere confirmación y ejecuta `POST /authentication/sign-out`. Una respuesta 401 de una solicitud protegida elimina la identidad local y vuelve a inicio de sesión.
+
+## Despliegue (Vercel)
+
+Producción se publica en Vercel desde `main` con `vercel.json` (preset Vite, salida `dist`). Configura `VITE_API_BASE_URL=/api/v1`: la cookie de sesión es `SameSite=Lax`, así que el navegador debe llamar a la API desde el mismo sitio.
+
+- `/api/:path*` se reenvía a la API en Railway (`https://kalibra-api-production.up.railway.app`). Si el dominio público de la API cambia, actualiza ese destino en `vercel.json`.
+- Toda otra ruta responde `index.html`, para que las rutas del panel funcionen al recargar.
+- Vercel corta las solicitudes reenviadas a los 120 segundos. Si la generación de ejercicios supera ese tiempo, publica la web y la API como subdominios de un mismo dominio propio y usa `VITE_API_BASE_URL=https://<api>/api/v1`.
+
+En la API, `CORS_ALLOWED_ORIGIN` debe incluir el dominio de Vercel.
+
+## Validación
+
+```bash
+npm run lint
+npx tsc -b
+npx vitest run
+npm run build
+```
+
+Los tests usan un stub de `fetch` exclusivo de `src/test/`, con fixtures tipadas y usuarios genéricos. La aplicación no incluye servicios simulados ni escenarios vacíos por URL: los estados vacíos provienen de las respuestas de la API.
+
+## Arquitectura por capas
+
+```text
+src/
+├── components/ui        primitivos reutilizables
+├── components/layout    shells, sidebar y selector de curso
+├── components/<feature> presentación de cada funcionalidad
+├── pages                composición de pantallas
+├── hooks                carga, estado y acciones mediante useResource
+├── services             contratos, adaptadores HTTP y mappers puros
+├── context              curso activo y notificaciones
+├── navigation           rutas y guards por rol
+├── types                modelos de UI, DTO y errores
+├── utils                validación y formateo
+└── test                 fixtures y stub HTTP, solo para pruebas
+```
+
+Los tokens de diseño viven en `src/index.css`. Las pantallas son mobile-first. Los campos que la API no entrega se ocultan o muestran sin datos; el frontend no inventa ciclo, facultad, tamaño de archivo, páginas, fechas de actividad ni recomendaciones.

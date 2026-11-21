@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Brand/Logo mark" clip-path="url(#clip0_0_746)">
+<path id="Vector" d="M85 0H35C15.67 0 0 15.67 0 35V85C0 104.33 15.67 120 35 120H85C104.33 120 120 104.33 120 85V35C120 15.67 104.33 0 85 0Z" fill="url(#paint0_linear_0_746)"/>
+<path id="Vector_2" d="M93.25 47C96.6897 59.7964 94.9092 73.4349 88.2997 84.9195C81.6903 96.404 70.7924 104.795 58 108.25" stroke-width="6.25" stroke-linecap="round" stroke="white" stroke-opacity="0.32"/>
+<path id="Vector_3" d="M88.25 85C83.8686 92.5756 77.5756 98.8686 70 103.25" stroke-width="7.5" stroke-linecap="round" stroke="#4EDEA3"/>
+<path id="Vector_4" d="M43.75 31.875C43.75 28.078 40.672 25 36.875 25C33.078 25 30 28.078 30 31.875V88.125C30 91.922 33.078 95 36.875 95C40.672 95 43.75 91.922 43.75 88.125V31.875Z" fill="white"/>
+<path id="Vector_5" d="M45 58.75L77.5 26.25" stroke-width="13.75" stroke-linecap="round" stroke="white"/>
+<path id="Vector_6" d="M46.25 61.25L70.75 85.75" stroke-width="12.5" stroke-linecap="round" stroke="#4EDEA3"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_746" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+<stop stop-color="#6366F1"/>
+<stop offset="1" stop-color="#3525CD"/>
+</linearGradient>
+<clipPath id="clip0_0_746">
+<rect width="120" height="120" fill="white"/>
+</clipPath>
+</defs>
+</svg>
